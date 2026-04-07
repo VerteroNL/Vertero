@@ -1,0 +1,224 @@
+'use client'
+
+import { useState, useEffect, use } from 'react'
+
+interface Question {
+  id: string
+  question: string
+  type: 'multiple' | 'text'
+  options: string[]
+}
+
+interface Quiz {
+  id: string
+  name: string
+  slug: string
+  config: { questions: Question[] }
+}
+
+export default function PublicQuizPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params)
+  const [quiz, setQuiz] = useState<Quiz | null>(null)
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [current, setCurrent] = useState(0)
+  const [stage, setStage] = useState<'quiz' | 'contact' | 'done'>('quiz')
+  const [notFound, setNotFound] = useState(false)
+  const [contact, setContact] = useState({ name: '', email: '', phone: '' })
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/quiz-public/${slug}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) setNotFound(true)
+        else setQuiz(data)
+      })
+  }, [slug])
+
+  async function submit() {
+    setSubmitting(true)
+    await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slug,
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone,
+        answers
+      })
+    })
+    setSubmitting(false)
+    setStage('done')
+  }
+
+  if (notFound) return (
+    <div className="min-h-screen bg-[#07070f] flex items-center justify-center text-white/40">
+      Quiz niet gevonden.
+    </div>
+  )
+
+  if (!quiz) return (
+    <div className="min-h-screen bg-[#07070f] flex items-center justify-center text-white/40">
+      Laden...
+    </div>
+  )
+
+  const questions = quiz.config?.questions || []
+  const q = questions[current]
+
+  if (stage === 'done') return (
+    <div className="min-h-screen bg-[#07070f] flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-4xl mb-4">✓</div>
+        <h2 className="font-serif text-2xl italic text-white mb-2">Bedankt!</h2>
+        <p className="text-white/40 text-sm">Je antwoorden zijn ontvangen.</p>
+      </div>
+    </div>
+  )
+
+  if (questions.length === 0) return (
+    <div className="min-h-screen bg-[#07070f] flex items-center justify-center text-white/40">
+      Deze quiz heeft nog geen vragen.
+    </div>
+  )
+
+  if (stage === 'contact') return (
+    <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-6">
+      <div className="w-full max-w-lg">
+        <div className="mb-8 text-center">
+          <h1 className="font-serif text-3xl italic text-white mb-2">Bijna klaar!</h1>
+          <p className="text-white/40 text-sm">Laat je gegevens achter zodat we contact kunnen opnemen.</p>
+        </div>
+
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-8 mb-6 flex flex-col gap-4">
+          <div>
+            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Naam</label>
+            <input
+              type="text"
+              value={contact.name}
+              onChange={e => setContact(p => ({ ...p, name: e.target.value }))}
+              placeholder="Jan Jansen"
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+            />
+          </div>
+          <div>
+            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">E-mail</label>
+            <input
+              type="email"
+              value={contact.email}
+              onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
+              placeholder="jan@bedrijf.nl"
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+            />
+          </div>
+          <div>
+            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Telefoon <span className="text-white/20 normal-case font-normal">(optioneel)</span></label>
+            <input
+              type="tel"
+              value={contact.phone}
+              onChange={e => setContact(p => ({ ...p, phone: e.target.value }))}
+              placeholder="+31 6 12345678"
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-between">
+          <button
+            onClick={() => setStage('quiz')}
+            className="text-white/40 hover:text-white text-sm transition"
+          >
+            ← Terug
+          </button>
+          <button
+            onClick={submit}
+            disabled={!contact.name || !contact.email || submitting}
+            className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+          >
+            {submitting ? 'Versturen...' : 'Versturen →'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-6">
+      <div className="w-full max-w-lg">
+        <div className="mb-8 text-center">
+          <h1 className="font-serif text-3xl italic text-white mb-1">{quiz.name}</h1>
+          <p className="text-white/30 text-sm">{current + 1} / {questions.length}</p>
+        </div>
+
+        <div className="w-full bg-white/5 rounded-full h-1 mb-8">
+          <div
+            className="bg-[#6c5ce7] h-1 rounded-full transition-all"
+            style={{ width: `${((current + 1) / questions.length) * 100}%` }}
+          />
+        </div>
+
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-8 mb-6">
+          <h2 className="text-white text-xl font-semibold mb-6">{q.question}</h2>
+
+          {q.type === 'multiple' && (
+            <div className="flex flex-col gap-3">
+              {q.options.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}
+                  className={`text-left px-4 py-3 rounded-xl border transition text-sm font-medium ${
+                    answers[q.id] === opt
+                      ? 'border-[#6c5ce7] bg-[#6c5ce7]/10 text-white'
+                      : 'border-white/10 text-white/60 hover:border-white/20 hover:text-white'
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {q.type === 'text' && (
+            <textarea
+              value={answers[q.id] || ''}
+              onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+              placeholder="Typ je antwoord..."
+              rows={4}
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition resize-none"
+            />
+          )}
+        </div>
+
+        <div className="flex justify-between">
+          {current > 0 ? (
+            <button
+              onClick={() => setCurrent(c => c - 1)}
+              className="text-white/40 hover:text-white text-sm transition"
+            >
+              ← Vorige
+            </button>
+          ) : <div />}
+
+          {current < questions.length - 1 ? (
+            <button
+              onClick={() => setCurrent(c => c + 1)}
+              disabled={!answers[q.id]}
+              className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+            >
+              Volgende →
+            </button>
+          ) : (
+            <button
+              onClick={() => setStage('contact')}
+              disabled={!answers[q.id]}
+              className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+            >
+              Volgende →
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
