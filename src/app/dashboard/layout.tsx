@@ -35,13 +35,6 @@ export default async function DashboardLayout({
           <Link href="/dashboard/quiz/new" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
             + Nieuwe quiz
           </Link>
-          <div className="text-white/30 text-xs font-bold uppercase tracking-widest px-2 mb-2 mt-4">Account</div>
-          <Link href="/dashboard/billing" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
-            ◇ Abonnement
-          </Link>
-          <Link href="/dashboard/settings" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
-            ⊙ Instellingen
-          </Link>
         </nav>
         <div className="p-3 border-t border-white/7">
           <div className="flex items-center gap-3 px-3 py-2">
