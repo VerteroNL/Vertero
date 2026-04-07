@@ -50,9 +50,10 @@ export default function HomePage() {
       {/* NAV */}
       <nav className="sticky top-0 z-50 bg-[#07070f]/90 backdrop-blur-md border-b border-white/7">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-5 md:px-10 py-4">
-          <Link href="/" className="text-xl font-extrabold hover:opacity-80 transition">
-            verte<span className="text-[#f97316]">ro</span>
+          <Link href="/" className="hover:opacity-80 transition">
+            <img src="/logo.png" alt="Vertero" className="h-8" />
           </Link>
+
           <div className="flex items-center gap-4 md:gap-8">
             {/* <a href="#prijzen" className="hidden md:block text-white/60 text-sm hover:text-[#f97316] transition">Prijzen</a> */}
             <Link href="/faq" className="hidden md:block text-white/60 text-sm hover:text-[#f97316] transition">FAQ</Link>
@@ -242,8 +243,8 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer className="border-t border-white/7 py-10">
         <div className="max-w-7xl mx-auto px-5 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <Link href="/" className="text-xl font-extrabold hover:opacity-80 transition">
-            verte<span className="text-[#f97316]">ro</span>
+          <Link href="/" className="hover:opacity-80 transition">
+             <img src="/logo.png" alt="Vertero" className="h-7" />
           </Link>
           <div className="flex gap-6 md:gap-8 flex-wrap justify-center">
             <Link href="/faq" className="text-white/40 text-sm hover:text-white transition">FAQ</Link>

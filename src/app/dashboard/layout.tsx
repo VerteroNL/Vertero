@@ -18,7 +18,7 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen bg-[#07070f] text-white">
       <aside className="w-56 flex-shrink-0 bg-[#0d0d1c] border-r border-white/7 flex flex-col sticky top-0 h-screen">
         <div className="px-5 py-6 border-b border-white/7">
-          <div className="font-serif text-xl">Verto</div>
+          <img src="/logo.png" alt="Vertero" className="h-7" />
         </div>
         <nav className="flex-1 p-3">
           <div className="text-white/30 text-xs font-bold uppercase tracking-widest px-2 mb-2 mt-3">Overzicht</div>
