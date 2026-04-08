@@ -28,9 +28,6 @@ export default async function DashboardLayout({
           <Link href="/dashboard/leads" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
             ◉ Leads
           </Link>
-          <Link href="/dashboard/feedback" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
-            ◎ Feedback
-          </Link>
           <div className="text-white/30 text-xs font-bold uppercase tracking-widest px-2 mb-2 mt-4">Quiz</div>
           <Link href="/dashboard/quiz" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
             ⊞ Mijn quizzes
@@ -39,6 +36,14 @@ export default async function DashboardLayout({
             + Nieuwe quiz
           </Link>
         </nav>
+
+        {/* Feedback sectie onderaan */}
+        <div className="p-3 border-t border-white/7">
+          <Link href="/dashboard/feedback" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
+            ◎ Feedback
+          </Link>
+        </div>
+
         <div className="p-3 border-t border-white/7">
           <div className="flex items-center gap-3 px-3 py-2">
             <UserButton />
