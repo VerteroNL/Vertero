@@ -80,9 +80,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   }
 
   function copyEmbed() {
-    navigator.clipboard.writeText(
-      `<script src="https://vertero.nl/widget.js" data-id="${quiz?.slug}"></script>`
-    )
+    const tag = '<script src="https://vertero.nl/widget.js" data-id="' + quiz?.slug + '"></scr' + 'ipt>'
+    navigator.clipboard.writeText(tag)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
