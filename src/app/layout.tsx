@@ -3,7 +3,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'vertero',
+  title: 'Vertero',
   description: 'Plug & play offerte quizzes',
 }
 
