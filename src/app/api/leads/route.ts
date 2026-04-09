@@ -11,7 +11,7 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { slug, name, email, phone, answers } = await req.json()
+    const { slug, name, email, phone, street, postcode, city, answers } = await req.json()
 
     // Zoek de quiz op basis van slug
     const { data: quiz, error: quizError } = await supabase
@@ -24,6 +24,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Quiz niet gevonden' }, { status: 404 })
     }
 
+    const address = [street, postcode, city].filter(Boolean).join(', ')
+
     // Sla de lead op
     const { data: lead, error: leadError } = await supabase
       .from('leads')
@@ -33,7 +35,7 @@ export async function POST(req: Request) {
         name,
         email,
         phone,
-        answers,
+        answers: { ...answers, ...(address ? { adres: address } : {}) },
         status: 'new'
       })
       .select()
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
       from: 'onboarding@resend.dev',
       to: 'website@vertero.nl',
       subject: 'Nieuwe lead via Vertero',
-      html: `<p>Nieuwe lead van <strong>${name}</strong> (${email}${phone ? `, ${phone}` : ''}) via quiz <strong>${quiz.title ?? slug}</strong>.</p>`
+      html: `<p>Nieuwe lead van <strong>${name}</strong> (${email}${phone ? `, ${phone}` : ''}) via quiz <strong>${quiz.title ?? slug}</strong>.</p>${address ? `<p><strong>Adres:</strong> ${address}</p>` : ''}`
     })
 
     return NextResponse.json({ success: true, lead })
