@@ -245,11 +245,11 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
           )}
         </div>
 
-        <div className="flex justify-between items-center">
+        <div className="grid grid-cols-3 items-center">
           {current > 0 ? (
             <button
               onClick={() => setCurrent(c => c - 1)}
-              className="text-white/40 hover:text-white text-sm transition"
+              className="text-white/40 hover:text-white text-sm transition justify-self-start"
             >
               ← Vorige
             </button>
@@ -261,7 +261,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
             <button
               onClick={() => setCurrent(c => c + 1)}
               disabled={!answers[q.id]}
-              className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+              className="justify-self-end bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
             >
               Volgende →
             </button>
@@ -269,7 +269,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
             <button
               onClick={() => setStage('contact')}
               disabled={!answers[q.id]}
-              className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+              className="justify-self-end bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
             >
               Volgende →
             </button>
