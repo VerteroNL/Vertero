@@ -18,6 +18,17 @@ export async function GET(
     .eq('slug', slug)
     .maybeSingle()
 
-  if (error || !data) return NextResponse.json({ error: 'Niet gevonden' }, { status: 404 })
-  return NextResponse.json(data)
+  const headers = { 'Access-Control-Allow-Origin': '*' }
+  if (error || !data) return NextResponse.json({ error: 'Niet gevonden' }, { status: 404, headers })
+  return NextResponse.json(data, { headers })
+}
+
+export async function OPTIONS() {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    }
+  })
 }

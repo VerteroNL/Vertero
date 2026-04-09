@@ -167,20 +167,20 @@ export default function EmbedQuizPage({ params }: { params: Promise<{ slug: stri
           {contactError && (
             <p className="text-red-400 text-xs mb-4">{contactError}</p>
           )}
-          <div className="flex justify-between">
-            <button onClick={() => setStage('quiz')} className="text-white/40 hover:text-white text-sm transition">
+          <div className="grid grid-cols-3 items-center">
+            <button onClick={() => setStage('quiz')} className="text-white/40 hover:text-white text-sm transition justify-self-start">
               ← Terug
             </button>
+            <PoweredBy />
             <button
               onClick={submit}
               disabled={submitting}
-              className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+              className="justify-self-end bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
             >
               {submitting ? 'Versturen...' : 'Versturen →'}
             </button>
           </div>
         </div>
-        <PoweredBy />
       </div>
     </div>
   )
@@ -225,18 +225,20 @@ export default function EmbedQuizPage({ params }: { params: Promise<{ slug: stri
             )}
           </div>
 
-          <div className="flex justify-between">
+          <div className="grid grid-cols-3 items-center">
             {current > 0 ? (
-              <button onClick={() => setCurrent(c => c - 1)} className="text-white/40 hover:text-white text-sm transition">
+              <button onClick={() => setCurrent(c => c - 1)} className="text-white/40 hover:text-white text-sm transition justify-self-start">
                 ← Vorige
               </button>
             ) : <div />}
+
+            <PoweredBy />
 
             {current < questions.length - 1 ? (
               <button
                 onClick={() => setCurrent(c => c + 1)}
                 disabled={!answers[q.id]}
-                className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+                className="justify-self-end bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
               >
                 Volgende →
               </button>
@@ -244,14 +246,13 @@ export default function EmbedQuizPage({ params }: { params: Promise<{ slug: stri
               <button
                 onClick={() => setStage('contact')}
                 disabled={!answers[q.id]}
-                className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+                className="justify-self-end bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
               >
                 Volgende →
               </button>
             )}
           </div>
         </div>
-        <PoweredBy />
       </div>
     </div>
   )
@@ -259,7 +260,7 @@ export default function EmbedQuizPage({ params }: { params: Promise<{ slug: stri
 
 function PoweredBy() {
   return (
-    <div className="border-t border-white/[0.07] py-3 flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-2">
       <span className="text-white/25 text-[11px] font-medium tracking-wide">Powered by</span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo.png" alt="Vertero" className="h-[11px] opacity-40" />

@@ -51,8 +51,18 @@ export async function POST(req: Request) {
       html: `<p>Nieuwe lead van <strong>${name}</strong> (${email}${phone ? `, ${phone}` : ''}) via quiz <strong>${quiz.title ?? slug}</strong>.</p>${address ? `<p><strong>Adres:</strong> ${address}</p>` : ''}`
     })
 
-    return NextResponse.json({ success: true, lead })
+    return NextResponse.json({ success: true, lead }, { headers: { 'Access-Control-Allow-Origin': '*' } })
   } catch (err) {
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
+    return NextResponse.json({ error: 'Something went wrong' }, { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } })
   }
+}
+
+export async function OPTIONS() {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    }
+  })
 }

@@ -1,9 +1,9 @@
 (function () {
   const script = document.currentScript;
   const quizId = script.getAttribute('data-id');
-  const apiBase = script.src.replace('/widget.js', '');
+  const apiBase = new URL(script.src).origin;
 
-  if (!quizId) return console.error('Vertero: geen data-id gevonden');
+  if (!quizId) return console.error('vertero: geen data-id gevonden');
 
   const style = document.createElement('style');
   style.textContent = `
@@ -84,7 +84,7 @@
       <div id="vertero-modal">
         <button id="vertero-close">✕</button>
         <div id="vertero-content"></div>
-        <div class="vertero-powered">Aangedreven door <a href="https://vertero.app" target="_blank">Vertero</a></div>
+        <div class="vertero-powered">Aangedreven door <a href="https://vertero.app" target="_blank">vertero</a></div>
       </div>
     </div>
   `);
@@ -112,17 +112,21 @@
     if (currentStep > 0) { currentStep--; renderStep(); }
   };
   window.verteroSubmit = async () => {
-    console.log('Submitting answers:', answers);
+    const name = document.getElementById('vertero-name')?.value || '';
+    const email = document.getElementById('vertero-email')?.value || '';
+    const phone = document.getElementById('vertero-phone')?.value || '';
+    const street = document.getElementById('vertero-street')?.value || '';
+    const postcode = document.getElementById('vertero-postcode')?.value || '';
+    const city = document.getElementById('vertero-city')?.value || '';
 
-    const name = document.getElementById('vertero-name')?.value || answers.name || '';
-    const email = document.getElementById('vertero-email')?.value || answers.email || '';
-    const phone = document.getElementById('vertero-phone')?.value || answers.phone || '';
+    if (!name || !email || !street || !postcode || !city) {
+      alert('Vul alsjeblieft alle verplichte velden in.');
+      return;
+    }
 
     const questions = quiz.config?.questions || [];
     const formattedAnswers = {};
     questions.forEach((q, i) => { formattedAnswers[q.question] = answers[i] || ''; });
-
-    console.log('Sending:', { name, email, phone });
 
     await fetch(`${apiBase}/api/leads`, {
       method: 'POST',
@@ -132,6 +136,9 @@
         name,
         email,
         phone,
+        street,
+        postcode,
+        city,
         answers: formattedAnswers
       })
     });
@@ -148,7 +155,7 @@
   fetch(`${apiBase}/api/quiz-public/${quizId}`)
     .then(r => r.json())
     .then(data => { quiz = data; })
-    .catch(() => console.error('Vertero: quiz kon niet worden geladen'));
+    .catch(() => console.error('vertero: quiz kon niet worden geladen'));
 
   document.getElementById('vertero-btn').onclick = () => {
     document.getElementById('vertero-overlay').classList.add('open');
@@ -206,9 +213,14 @@
         ${progressHTML}
         <div class="vertero-title">Jouw gegevens</div>
         <div class="vertero-sub">We sturen je binnen 24 uur een offerte op maat.</div>
-        <input class="vertero-input" type="text" id="vertero-name" placeholder="Naam" oninput="verteroSetContact('name', this.value)" />
-        <input class="vertero-input" type="email" id="vertero-email" placeholder="E-mailadres" oninput="verteroSetContact('email', this.value)" />
-        <input class="vertero-input" type="tel" id="vertero-phone" placeholder="Telefoonnummer (optioneel)" oninput="verteroSetContact('phone', this.value)" />
+        <input class="vertero-input" type="text" id="vertero-name" placeholder="Naam" />
+        <input class="vertero-input" type="text" id="vertero-street" placeholder="Straat en huisnummer" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <input class="vertero-input" type="text" id="vertero-postcode" placeholder="Postcode" style="margin-bottom:0" />
+          <input class="vertero-input" type="text" id="vertero-city" placeholder="Woonplaats" style="margin-bottom:0" />
+        </div>
+        <input class="vertero-input" type="email" id="vertero-email" placeholder="E-mailadres" style="margin-top:8px" />
+        <input class="vertero-input" type="tel" id="vertero-phone" placeholder="Telefoonnummer (optioneel)" />
         <div class="vertero-nav">
           <button class="vertero-back" onclick="verteroBack()">← Terug</button>
           <button class="vertero-next" onclick="verteroSubmit()" style="background: linear-gradient(135deg, #6c5ce7, #00cba9)">Versturen 🚀</button>
