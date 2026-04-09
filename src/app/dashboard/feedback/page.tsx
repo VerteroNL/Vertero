@@ -41,13 +41,13 @@ export default function FeedbackPage() {
   if (done) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[60vh]">
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-10 max-w-md w-full text-center">
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-12 max-w-md w-full text-center">
           <div className="text-4xl mb-4">🙌</div>
-          <h2 className="text-xl font-bold mb-2">Bedankt voor je feedback!</h2>
+          <h2 className="text-xl font-extrabold mb-2">Bedankt voor je feedback!</h2>
           <p className="text-white/40 text-sm">We lezen alles en gebruiken het om Vertero beter te maken.</p>
           <button
             onClick={() => { setDone(false); setSelected(null); setMessage('') }}
-            className="mt-6 text-xs text-[#6c5ce7] hover:text-[#7d6ef5] font-semibold transition"
+            className="mt-6 text-xs text-[#f97316] hover:text-[#ea6c0a] font-semibold transition"
           >
             Nog iets insturen →
           </button>
@@ -58,20 +58,20 @@ export default function FeedbackPage() {
 
   return (
     <div className="p-8 max-w-2xl">
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl italic">Feedback</h1>
+      <div className="mb-10">
+        <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Support</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Feedback</h1>
         <p className="text-white/40 text-sm mt-1">Help ons Vertero beter te maken</p>
       </div>
 
-      {/* Type selectie */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-6">
         {types.map((type) => (
           <button
             key={type.value}
             onClick={() => setSelected(type.value)}
             className={`text-left p-4 rounded-2xl border transition ${
               selected === type.value
-                ? 'border-[#6c5ce7] bg-[#6c5ce7]/10'
+                ? 'border-[#f97316] bg-[#f97316]/5'
                 : 'border-white/10 bg-[#0d0d1c] hover:border-white/20'
             }`}
           >
@@ -82,9 +82,8 @@ export default function FeedbackPage() {
         ))}
       </div>
 
-      {/* Tekstveld */}
       <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 mb-4">
-        <label className="text-xs font-bold uppercase tracking-widest text-white/30 mb-3 block">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-3 block">
           Jouw bericht
         </label>
         <textarea
@@ -109,7 +108,7 @@ export default function FeedbackPage() {
       <button
         onClick={handleSubmit}
         disabled={!selected || !message.trim() || loading}
-        className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 disabled:cursor-not-allowed px-6 py-3 rounded-xl font-semibold text-sm transition"
+        className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-30 disabled:cursor-not-allowed px-6 py-3 rounded-xl font-semibold text-sm transition"
       >
         {loading ? 'Versturen...' : 'Feedback versturen →'}
       </button>

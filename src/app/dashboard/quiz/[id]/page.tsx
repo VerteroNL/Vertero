@@ -22,6 +22,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   const [quiz, setQuiz] = useState<Quiz | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
 
@@ -77,6 +78,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
       body: JSON.stringify({ config: { questions } })
     })
     setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
   }
 
   function copyEmbed() {
@@ -93,48 +96,49 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   }
 
   if (!quiz) return (
-    <div className="p-8 text-white/40">Laden...</div>
+    <div className="p-8 text-white/40 text-sm">Laden...</div>
   )
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-8 max-w-3xl">
+      <div className="flex justify-between items-start mb-10">
         <div>
-          <h1 className="font-serif text-3xl italic">{quiz.name}</h1>
-          <p className="text-white/40 text-sm mt-1 font-mono">{quiz.slug}</p>
+          <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Quiz bewerken</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">{quiz.name}</h1>
+          <p className="text-white/30 text-xs mt-1 font-mono">{quiz.slug}</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <button
             onClick={copyLink}
-            className="border border-white/10 hover:border-white/20 text-white/60 hover:text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
+            className="border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition"
           >
-            {copiedLink ? '✓ Gekopieerd!' : '🔗 Deel link'}
+            {copiedLink ? '✓ Gekopieerd' : '🔗 Deel link'}
           </button>
           <button
             onClick={copyEmbed}
-            className="border border-white/10 hover:border-white/20 text-white/60 hover:text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
+            className="border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition"
           >
-            {copied ? '✓ Gekopieerd!' : '⌘ Embed code'}
+            {copied ? '✓ Gekopieerd' : '⌘ Embed code'}
           </button>
           <button
             onClick={saveQuiz}
             disabled={saving}
-            className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-40 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
+            className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
           >
-            {saving ? 'Opslaan...' : 'Opslaan →'}
+            {saved ? '✓ Opgeslagen' : saving ? 'Opslaan...' : 'Opslaan →'}
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 mb-6">
+      <div className="flex flex-col gap-4 mb-4">
         {questions.map((q, qi) => (
           <div key={q.id} className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6">
             <div className="flex justify-between items-center mb-4">
-              <div className="text-xs font-bold uppercase tracking-widest text-white/30 font-mono">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-white/25">
                 Vraag {qi + 1}
               </div>
-              <button onClick={() => removeQuestion(q.id)} className="text-white/20 hover:text-red-400 text-sm transition">
-                ✕ Verwijderen
+              <button onClick={() => removeQuestion(q.id)} className="text-white/20 hover:text-red-400 text-xs font-semibold transition">
+                Verwijderen
               </button>
             </div>
 
@@ -143,19 +147,19 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
               value={q.question}
               onChange={e => updateQuestion(q.id, 'question', e.target.value)}
               placeholder="Typ je vraag hier..."
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition mb-4"
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#f97316]/40 transition mb-4 text-sm"
             />
 
             <div className="flex gap-2 mb-4">
               <button
                 onClick={() => updateQuestion(q.id, 'type', 'multiple')}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition ${q.type === 'multiple' ? 'bg-[#6c5ce7] text-white' : 'border border-white/10 text-white/40 hover:text-white'}`}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition ${q.type === 'multiple' ? 'bg-[#f97316] text-white' : 'border border-white/10 text-white/40 hover:text-white'}`}
               >
                 Meerkeuze
               </button>
               <button
                 onClick={() => updateQuestion(q.id, 'type', 'text')}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition ${q.type === 'text' ? 'bg-[#6c5ce7] text-white' : 'border border-white/10 text-white/40 hover:text-white'}`}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition ${q.type === 'text' ? 'bg-[#f97316] text-white' : 'border border-white/10 text-white/40 hover:text-white'}`}
               >
                 Open tekst
               </button>
@@ -165,20 +169,20 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
               <div className="flex flex-col gap-2">
                 {q.options.map((opt, oi) => (
                   <div key={oi} className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-md border border-white/10 flex-shrink-0"></div>
+                    <div className="w-4 h-4 rounded border border-white/10 flex-shrink-0"></div>
                     <input
                       type="text"
                       value={opt}
                       onChange={e => updateOption(q.id, oi, e.target.value)}
                       placeholder={`Optie ${oi + 1}`}
-                      className="flex-1 bg-[#07070f] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+                      className="flex-1 bg-[#07070f] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 outline-none focus:border-[#f97316]/40 transition"
                     />
                     {q.options.length > 2 && (
-                      <button onClick={() => removeOption(q.id, oi)} className="text-white/20 hover:text-red-400 transition">✕</button>
+                      <button onClick={() => removeOption(q.id, oi)} className="text-white/20 hover:text-red-400 transition text-sm">✕</button>
                     )}
                   </div>
                 ))}
-                <button onClick={() => addOption(q.id)} className="text-left text-sm text-white/30 hover:text-white/60 transition mt-1 pl-7">
+                <button onClick={() => addOption(q.id)} className="text-left text-xs text-white/30 hover:text-white/60 transition mt-1 pl-6 font-semibold">
                   + Optie toevoegen
                 </button>
               </div>
@@ -195,7 +199,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
       <button
         onClick={addQuestion}
-        className="w-full border border-dashed border-white/10 hover:border-[#6c5ce7]/40 rounded-2xl py-5 text-white/30 hover:text-white/60 text-sm font-semibold transition"
+        className="w-full border border-dashed border-white/10 hover:border-[#f97316]/30 rounded-2xl py-5 text-white/30 hover:text-white/60 text-sm font-semibold transition"
       >
         + Vraag toevoegen
       </button>

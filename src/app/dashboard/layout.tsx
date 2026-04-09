@@ -16,38 +16,41 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-[#07070f] text-white">
-      <aside className="w-56 flex-shrink-0 bg-[#0d0d1c] border-r border-white/7 flex flex-col sticky top-0 h-screen">
-        <div className="px-5 py-6 border-b border-white/7">
-          <img src="/logo.png" alt="Vertero" className="h-7" />
+      <aside className="w-60 flex-shrink-0 border-r border-white/7 flex flex-col sticky top-0 h-screen">
+        <div className="px-6 py-5 border-b border-white/7">
+          <Link href="/" className="hover:opacity-80 transition inline-block">
+            <img src="/logo.png" alt="Vertero" className="h-7" />
+          </Link>
         </div>
-        <nav className="flex-1 p-3">
-          <div className="text-white/30 text-xs font-bold uppercase tracking-widest px-2 mb-2 mt-3">Overzicht</div>
-          <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
-            ◈ Dashboard
+
+        <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
+          <p className="text-white/25 text-[10px] font-bold uppercase tracking-widest px-3 mb-1.5 mt-2">Overzicht</p>
+          <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
+            <span className="text-base leading-none">▦</span> Dashboard
           </Link>
-          <Link href="/dashboard/leads" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
-            ◉ Leads
+          <Link href="/dashboard/leads" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
+            <span className="text-base leading-none">◎</span> Leads
           </Link>
-          <div className="text-white/30 text-xs font-bold uppercase tracking-widest px-2 mb-2 mt-4">Quiz</div>
-          <Link href="/dashboard/quiz" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
-            ⊞ Mijn quizzes
+
+          <p className="text-white/25 text-[10px] font-bold uppercase tracking-widest px-3 mb-1.5 mt-4">Quiz</p>
+          <Link href="/dashboard/quiz" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
+            <span className="text-base leading-none">⊞</span> Mijn quizzes
           </Link>
-          <Link href="/dashboard/quiz/new" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
-            + Nieuwe quiz
+          <Link href="/dashboard/quiz/new" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
+            <span className="text-base leading-none">+</span> Nieuwe quiz
           </Link>
         </nav>
 
-        {/* Feedback sectie onderaan */}
-        <div className="p-3 border-t border-white/7">
-          <Link href="/dashboard/feedback" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">
-            ◎ Feedback
+        <div className="px-3 pb-2 border-t border-white/7 pt-3">
+          <Link href="/dashboard/feedback" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
+            <span className="text-base leading-none">◈</span> Feedback
           </Link>
         </div>
 
-        <div className="p-3 border-t border-white/7">
-          <div className="flex items-center gap-3 px-3 py-2">
+        <div className="px-6 py-4 border-t border-white/7">
+          <div className="flex items-center gap-3">
             <UserButton />
-            <div className="text-sm font-medium">Account</div>
+            <span className="text-sm font-medium text-white/50">Account</span>
           </div>
         </div>
       </aside>
