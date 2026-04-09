@@ -73,8 +73,9 @@
     .vertero-success-icon { font-size: 48px; margin-bottom: 16px; }
     .vertero-success-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
     .vertero-success-text { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.6; }
-    .vertero-powered { text-align: center; margin-top: 20px; font-size: 11px; color: rgba(255,255,255,0.2); }
-    .vertero-powered a { color: #6c5ce7; text-decoration: none; }
+    .vertero-powered { text-align: center; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .vertero-powered span { font-size: 11px; font-weight: 500; letter-spacing: 0.03em; color: rgba(255,255,255,0.25); }
+    .vertero-powered img { height: 11px; opacity: 0.4; }
   `;
   document.head.appendChild(style);
 
@@ -84,7 +85,7 @@
       <div id="vertero-modal">
         <button id="vertero-close">✕</button>
         <div id="vertero-content"></div>
-        <div class="vertero-powered">Aangedreven door <a href="https://vertero.app" target="_blank">vertero</a></div>
+        <div class="vertero-powered"><span>Powered by</span><img src="${apiBase}/logo.png" alt="Vertero" /></div>
       </div>
     </div>
   `);
