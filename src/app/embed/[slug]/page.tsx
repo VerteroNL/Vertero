@@ -262,8 +262,10 @@ function PoweredBy() {
   return (
     <div className="flex items-center justify-center gap-2">
       <span className="text-white/25 text-[11px] font-medium tracking-wide">Powered by</span>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.png" alt="Vertero" className="h-[11px] opacity-40" />
+      <a href="https://vertero.app" target="_blank" rel="noopener noreferrer">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="Vertero" className="h-[11px] opacity-40" />
+      </a>
     </div>
   )
 }
