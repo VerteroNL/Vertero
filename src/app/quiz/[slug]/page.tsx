@@ -281,10 +281,10 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
 
 function PoweredBy() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 py-3 flex items-center justify-center gap-2">
+    <div className="mt-6 flex items-center justify-center gap-2">
       <span className="text-white/25 text-[11px] font-medium tracking-wide">Powered by</span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.png" alt="Vertero" className="h-4 opacity-40" />
+      <img src="/logo.png" alt="Vertero" className="h-[11px] opacity-40" />
     </div>
   )
 }
