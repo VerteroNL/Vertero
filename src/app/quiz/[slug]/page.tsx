@@ -245,7 +245,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
           )}
         </div>
 
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           {current > 0 ? (
             <button
               onClick={() => setCurrent(c => c - 1)}
@@ -254,6 +254,8 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
               ← Vorige
             </button>
           ) : <div />}
+
+          <PoweredBy />
 
           {current < questions.length - 1 ? (
             <button
@@ -274,14 +276,13 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
           )}
         </div>
       </div>
-      <PoweredBy />
     </div>
   )
 }
 
 function PoweredBy() {
   return (
-    <div className="mt-6 flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-2">
       <span className="text-white/25 text-[11px] font-medium tracking-wide">Powered by</span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo.png" alt="Vertero" className="h-[11px] opacity-40" />
