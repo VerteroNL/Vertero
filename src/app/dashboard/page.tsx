@@ -21,102 +21,120 @@ export default async function DashboardPage() {
     .eq('user_id', userId!)
     .order('created_at', { ascending: false })
 
-  const totalQuizzes = quizzes?.length || 0
+  const now = new Date()
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
+  const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()).toISOString()
+
+  const newLeads = leads?.filter(l => l.status === 'new') || []
+  const leadsToday = leads?.filter(l => l.created_at >= startOfToday) || []
+  const leadsThisWeek = leads?.filter(l => l.created_at >= startOfWeek) || []
   const totalLeads = leads?.length || 0
-  const newLeads = leads?.filter(l => l.status === 'new').length || 0
+
+  const leadsPerQuiz = quizzes?.map(quiz => ({
+    ...quiz,
+    leadCount: leads?.filter(l => l.quiz_id === quiz.id).length || 0,
+  })).sort((a, b) => b.leadCount - a.leadCount) || []
 
   return (
-    <div className="p-8 max-w-5xl">
-      <div className="mb-10">
-        <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Dashboard</p>
-        <h1 className="text-3xl font-extrabold tracking-tight">Goedemorgen.</h1>
-        <p className="text-white/40 text-sm mt-1">Hier is een overzicht van je account.</p>
-      </div>
+    <div className="p-8 max-w-3xl">
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-10">
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-3">Quizzes</div>
-          <div className="text-4xl font-extrabold mb-1">{totalQuizzes}</div>
-          <div className="text-white/30 text-xs">Actieve widgets</div>
-        </div>
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-3">Leads totaal</div>
-          <div className="text-4xl font-extrabold mb-1">{totalLeads}</div>
-          <div className="text-white/30 text-xs">Alle inzendingen</div>
-        </div>
-        <div className="bg-[#0d0d1c] border border-[#f97316]/20 rounded-2xl p-6 hover:border-[#f97316]/40 transition">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[#f97316]/60 mb-3">Nieuwe leads</div>
-          <div className="text-4xl font-extrabold mb-1 text-[#f97316]">{newLeads}</div>
-          <div className="text-white/30 text-xs">Nog niet bekeken</div>
+      {/* Hero: nieuwe leads */}
+      <div className="mb-8">
+        <div className="text-[11px] font-bold uppercase tracking-widest text-white/25 mb-2">Nieuwe leads</div>
+        <div className="flex items-end gap-4">
+          <div className="text-7xl font-extrabold leading-none text-[#f97316]">{newLeads.length}</div>
+          <div className="mb-2 flex gap-4 text-sm text-white/30">
+            <span><span className="text-white/60 font-semibold">{leadsToday.length}</span> vandaag</span>
+            <span><span className="text-white/60 font-semibold">{leadsThisWeek.length}</span> deze week</span>
+            <span><span className="text-white/60 font-semibold">{totalLeads}</span> totaal</span>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        {/* Quizzes */}
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden">
-          <div className="flex justify-between items-center px-6 py-4 border-b border-white/7">
-            <div className="text-sm font-semibold">Mijn quizzes</div>
-            <Link href="/dashboard/quiz/new" className="text-xs font-semibold text-[#f97316] hover:text-[#ea6c0a] transition">
-              + Nieuwe quiz
-            </Link>
-          </div>
-          {totalQuizzes === 0 ? (
-            <div className="px-6 py-10 text-center text-white/30 text-sm">
-              Nog geen quizzes —{' '}
-              <Link href="/dashboard/quiz/new" className="text-[#f97316] hover:text-[#ea6c0a] transition">
-                maak je eerste aan
-              </Link>
-            </div>
-          ) : (
-            <div className="divide-y divide-white/5">
-              {quizzes?.map(quiz => (
-                <Link
-                  key={quiz.id}
-                  href={`/dashboard/quiz/${quiz.id}`}
-                  className="flex items-center justify-between px-6 py-3.5 hover:bg-white/[0.03] transition"
-                >
-                  <div className="font-medium text-sm">{quiz.name}</div>
-                  <div className="text-white/30 text-xs font-mono">{quiz.config?.questions?.length || 0} vragen →</div>
-                </Link>
-              ))}
-            </div>
-          )}
+      {/* Leads lijst */}
+      <div className="bg-[#0d0d1c] border border-white/10 rounded-xl overflow-hidden mb-4">
+        <div className="flex justify-between items-center px-5 py-3.5 border-b border-white/7">
+          <div className="text-xs font-bold uppercase tracking-widest text-white/40">Recente leads</div>
+          <Link href="/dashboard/leads" className="text-xs font-semibold text-[#f97316] hover:text-[#ea6c0a] transition">
+            Alle leads →
+          </Link>
         </div>
-
-        {/* Recente leads */}
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden">
-          <div className="flex justify-between items-center px-6 py-4 border-b border-white/7">
-            <div className="text-sm font-semibold">Recente leads</div>
-            <Link href="/dashboard/leads" className="text-xs font-semibold text-[#f97316] hover:text-[#ea6c0a] transition">
-              Alle leads →
-            </Link>
+        {totalLeads === 0 ? (
+          <div className="px-5 py-10 text-center text-white/25 text-sm">
+            Nog geen leads
           </div>
-          {totalLeads === 0 ? (
-            <div className="px-6 py-10 text-center text-white/30 text-sm">
-              Nog geen leads — embed een quiz op een website om te beginnen
-            </div>
-          ) : (
-            <div className="divide-y divide-white/5">
-              {leads?.slice(0, 5).map(lead => (
+        ) : (
+          <div className="divide-y divide-white/5">
+            {leads?.slice(0, 8).map(lead => {
+              const date = new Date(lead.created_at)
+              const isToday = lead.created_at >= startOfToday
+              const timeLabel = isToday
+                ? date.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
+                : date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+
+              return (
                 <Link
                   key={lead.id}
                   href={`/dashboard/leads/${lead.id}`}
-                  className="flex items-center justify-between px-6 py-3.5 hover:bg-white/[0.03] transition"
+                  className="flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.03] transition group"
                 >
-                  <div>
-                    <div className="font-medium text-sm">{lead.name || 'Anoniem'}</div>
-                    <div className="text-white/30 text-xs mt-0.5">{lead.email}</div>
+                  <div className="flex items-center gap-3 min-w-0">
+                    {lead.status === 'new' && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#f97316] flex-shrink-0" />
+                    )}
+                    {lead.status !== 'new' && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-transparent flex-shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm truncate">{lead.name || 'Anoniem'}</div>
+                      <div className="text-white/30 text-xs font-mono truncate">{lead.email}</div>
+                    </div>
                   </div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#f97316]/10 text-[#f97316]">
-                    Nieuw
-                  </span>
+                  <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+                    <span className="text-white/25 text-xs tabular-nums">{timeLabel}</span>
+                    <span className="text-white/15 group-hover:text-white/40 transition text-xs">→</span>
+                  </div>
                 </Link>
-              ))}
-            </div>
-          )}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </div>
+
+      {/* Quizzes — compact, leads per quiz */}
+      <div className="bg-[#0d0d1c] border border-white/10 rounded-xl overflow-hidden">
+        <div className="flex justify-between items-center px-5 py-3.5 border-b border-white/7">
+          <div className="text-xs font-bold uppercase tracking-widest text-white/40">Quizzes</div>
+          <Link href="/dashboard/quiz/new" className="text-xs font-semibold text-[#f97316] hover:text-[#ea6c0a] transition">
+            + Nieuw
+          </Link>
+        </div>
+        {leadsPerQuiz.length === 0 ? (
+          <div className="px-5 py-6 text-center text-white/25 text-sm">
+            <Link href="/dashboard/quiz/new" className="text-[#f97316] hover:text-[#ea6c0a] transition">
+              Maak je eerste quiz aan →
+            </Link>
+          </div>
+        ) : (
+          <div className="divide-y divide-white/5">
+            {leadsPerQuiz.map(quiz => (
+              <Link
+                key={quiz.id}
+                href={`/dashboard/quiz/${quiz.id}`}
+                className="flex items-center justify-between px-5 py-3 hover:bg-white/[0.03] transition group"
+              >
+                <div className="font-medium text-sm truncate text-white/70">{quiz.name}</div>
+                <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                  <span className="text-white/50 text-xs tabular-nums font-semibold">{quiz.leadCount}</span>
+                  <span className="text-white/20 text-xs">leads</span>
+                  <span className="text-white/15 group-hover:text-white/40 transition text-xs">→</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
     </div>
   )
 }
