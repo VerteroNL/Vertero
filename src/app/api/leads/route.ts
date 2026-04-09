@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (leadError) {
-      return NextResponse.json({ error: leadError.message }, { status: 500 })
+      return NextResponse.json({ error: leadError.message }, { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } })
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY)
