@@ -12,12 +12,12 @@ export default async function LeadsPage() {
 
   const { data: leads } = await supabase
     .from('leads')
-    .select('*, quizzes(name)')
+    .select('*, quizzes(name, config)')
     .eq('user_id', userId!)
     .order('created_at', { ascending: false })
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="p-8 max-w-4xl">
       <div className="mb-10">
         <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Overzicht</p>
         <h1 className="text-3xl font-extrabold tracking-tight">Leads</h1>
@@ -31,44 +31,59 @@ export default async function LeadsPage() {
           <div className="text-white/40 text-sm">Embed een quiz op een website om leads te ontvangen</div>
         </div>
       ) : (
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/7">
-                <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/25">Naam</th>
-                <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/25">E-mail</th>
-                <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/25">Quiz</th>
-                <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/25">Status</th>
-                <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/25">Datum</th>
-                <th className="px-6 py-4"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {leads?.map(lead => (
-                <tr key={lead.id} className="hover:bg-white/[0.03] transition">
-                  <td className="px-6 py-4 font-medium text-sm">{lead.name || '—'}</td>
-                  <td className="px-6 py-4 text-white/40 font-mono text-xs">{lead.email || '—'}</td>
-                  <td className="px-6 py-4 text-white/40 text-sm">{lead.quizzes?.name || '—'}</td>
-                  <td className="px-6 py-4">
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#f97316]/10 text-[#f97316]">
-                      {lead.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-white/30 text-xs font-mono">
-                    {new Date(lead.created_at).toLocaleDateString('nl-NL')}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <Link
-                      href={`/dashboard/leads/${lead.id}`}
-                      className="text-white/25 hover:text-white text-sm transition font-medium"
-                    >
-                      Bekijk →
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex flex-col gap-4">
+          {leads.map(lead => {
+            const questions: { id: string; question: string }[] = lead.quizzes?.config?.questions || []
+            return (
+              <div key={lead.id} className="bg-[#0d0d1c] border border-white/10 hover:border-white/20 rounded-2xl p-6 transition">
+                {/* Header */}
+                <div className="flex items-start justify-between gap-4 mb-5">
+                  <div>
+                    <div className="font-bold text-base">{lead.name || 'Onbekend'}</div>
+                    <div className="text-white/40 text-xs mt-0.5">{lead.quizzes?.name || '—'} · {new Date(lead.created_at).toLocaleDateString('nl-NL')}</div>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#f97316]/10 text-[#f97316] flex-shrink-0">
+                    {lead.status}
+                  </span>
+                </div>
+
+                {/* Contactgegevens */}
+                <div className="grid grid-cols-3 gap-3 mb-5">
+                  <div className="bg-[#07070f] rounded-xl px-4 py-3 border border-white/5">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1">E-mail</div>
+                    <div className="text-sm text-white/80 font-mono truncate">{lead.email || '—'}</div>
+                  </div>
+                  <div className="bg-[#07070f] rounded-xl px-4 py-3 border border-white/5">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1">Telefoon</div>
+                    <div className="text-sm text-white/80 font-mono">{lead.phone || '—'}</div>
+                  </div>
+                  <div className="bg-[#07070f] rounded-xl px-4 py-3 border border-white/5">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1">Adres</div>
+                    <div className="text-sm text-white/80 truncate">
+                      {lead.answers?.adres || '—'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Antwoorden */}
+                {questions.length > 0 && (
+                  <div className="border-t border-white/5 pt-4">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-3">Antwoorden</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {questions.map(q => (
+                        <div key={q.id} className="bg-[#07070f] rounded-xl px-4 py-3 border border-white/5">
+                          <div className="text-[10px] font-bold text-white/25 mb-1 truncate">{q.question}</div>
+                          <div className="text-sm text-white/80">
+                            {lead.answers?.[q.id] || <span className="text-white/20 italic">Geen antwoord</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
