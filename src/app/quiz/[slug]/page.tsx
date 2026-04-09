@@ -178,23 +178,23 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
           <p className="text-red-400 text-sm mb-4">{contactError}</p>
         )}
 
-        <div className="flex justify-between">
+        <div className="grid grid-cols-3 items-center">
           <button
             onClick={() => setStage('quiz')}
-            className="text-white/40 hover:text-white text-sm transition"
+            className="text-white/40 hover:text-white text-sm transition justify-self-start"
           >
             ← Terug
           </button>
+          <PoweredBy />
           <button
             onClick={submit}
             disabled={submitting}
-            className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+            className="justify-self-end bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
           >
             {submitting ? 'Versturen...' : 'Versturen →'}
           </button>
         </div>
       </div>
-      <PoweredBy />
     </div>
   )
 
