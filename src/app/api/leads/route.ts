@@ -2,8 +2,6 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SECRET_KEY!
@@ -45,6 +43,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: leadError.message }, { status: 500 })
     }
 
+    const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: 'website@vertero.nl',
