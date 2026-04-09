@@ -5,7 +5,7 @@ import { useState } from 'react'
 export default function QuizCopyButtons({ quizSlug }: { quizSlug: string }) {
   const [copied, setCopied] = useState<string | null>(null)
 
-  const embedCode = `<iframe src="${window.location.origin}/quiz/${quizSlug}" width="100%" height="600" frameborder="0"></iframe>`
+  const embedCode = `<script src="${window.location.origin}/widget.js" data-id="${quizSlug}"></script>`
   const directLink = `${window.location.origin}/quiz/${quizSlug}`
 
   function copyText(text: string, label: string) {
