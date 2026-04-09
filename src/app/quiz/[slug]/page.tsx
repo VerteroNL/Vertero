@@ -85,12 +85,13 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
   const q = questions[current]
 
   if (stage === 'done') return (
-    <div className="min-h-screen bg-[#07070f] flex items-center justify-center">
+    <div className="min-h-screen bg-[#07070f] flex flex-col items-center justify-center">
       <div className="text-center">
         <div className="text-4xl mb-4">✓</div>
         <h2 className="font-serif text-2xl italic text-white mb-2">Bedankt!</h2>
         <p className="text-white/40 text-sm">Je antwoorden zijn ontvangen.</p>
       </div>
+      <PoweredBy />
     </div>
   )
 
@@ -193,6 +194,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
           </button>
         </div>
       </div>
+      <PoweredBy />
     </div>
   )
 
@@ -272,6 +274,17 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
           )}
         </div>
       </div>
+      <PoweredBy />
+    </div>
+  )
+}
+
+function PoweredBy() {
+  return (
+    <div className="fixed bottom-0 left-0 right-0 py-3 flex items-center justify-center gap-2">
+      <span className="text-white/25 text-[11px] font-medium tracking-wide">Powered by</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo.png" alt="Vertero" className="h-4 opacity-40" />
     </div>
   )
 }

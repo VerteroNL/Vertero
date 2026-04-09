@@ -149,7 +149,7 @@ export default function EmbedQuizPage({ params }: { params: Promise<{ slug: stri
                 type="email"
                 value={contact.email}
                 onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
-                placeholder="jan@bedrijf.nl"
+                placeholder="naam@voorbeeld.com"
                 className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition text-sm"
               />
             </div>
@@ -260,13 +260,9 @@ export default function EmbedQuizPage({ params }: { params: Promise<{ slug: stri
 function PoweredBy() {
   return (
     <div className="border-t border-white/[0.07] py-3 flex items-center justify-center gap-2">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="8" height="8" rx="2" fill="#6c5ce7"/>
-        <rect x="13" y="3" width="8" height="8" rx="2" fill="#6c5ce7" opacity="0.5"/>
-        <rect x="3" y="13" width="8" height="8" rx="2" fill="#6c5ce7" opacity="0.5"/>
-        <rect x="13" y="13" width="8" height="8" rx="2" fill="#6c5ce7" opacity="0.3"/>
-      </svg>
-      <span className="text-white/25 text-[11px] font-medium tracking-wide">Powered by Vertero</span>
+      <span className="text-white/25 text-[11px] font-medium tracking-wide">Powered by</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo.png" alt="Vertero" className="h-4 opacity-40" />
     </div>
   )
 }
