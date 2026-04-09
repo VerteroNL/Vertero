@@ -120,26 +120,6 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
             />
           </div>
           <div>
-            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">E-mail</label>
-            <input
-              type="email"
-              value={contact.email}
-              onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
-              placeholder="jan@bedrijf.nl"
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
-            />
-          </div>
-          <div>
-            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Telefoon <span className="text-white/20 normal-case font-normal">(optioneel)</span></label>
-            <input
-              type="tel"
-              value={contact.phone}
-              onChange={e => setContact(p => ({ ...p, phone: e.target.value }))}
-              placeholder="+31 6 12345678"
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
-            />
-          </div>
-          <div>
             <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Straat en huisnummer</label>
             <input
               type="text"
@@ -170,6 +150,26 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
                 className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
               />
             </div>
+          </div>
+          <div>
+            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">E-mail</label>
+            <input
+              type="email"
+              value={contact.email}
+              onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
+              placeholder="jan@bedrijf.nl"
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+            />
+          </div>
+          <div>
+            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Telefoon <span className="text-white/20 normal-case font-normal">(optioneel)</span></label>
+            <input
+              type="tel"
+              value={contact.phone}
+              onChange={e => setContact(p => ({ ...p, phone: e.target.value }))}
+              placeholder="+31 6 12345678"
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+            />
           </div>
         </div>
 
