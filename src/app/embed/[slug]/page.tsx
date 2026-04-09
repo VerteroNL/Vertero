@@ -23,7 +23,8 @@ export default function EmbedQuizPage({ params }: { params: Promise<{ slug: stri
   const [current, setCurrent] = useState(0)
   const [stage, setStage] = useState<'quiz' | 'contact' | 'done'>('quiz')
   const [notFound, setNotFound] = useState(false)
-  const [contact, setContact] = useState({ name: '', email: '', phone: '' })
+  const [contact, setContact] = useState({ name: '', email: '', phone: '', street: '', postcode: '', city: '' })
+  const [contactError, setContactError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -36,11 +37,24 @@ export default function EmbedQuizPage({ params }: { params: Promise<{ slug: stri
   }, [slug])
 
   async function submit() {
+    const missing: string[] = []
+    if (!contact.name.trim()) missing.push('naam')
+    if (!contact.email.trim()) missing.push('e-mailadres')
+    if (!contact.street.trim()) missing.push('straat en huisnummer')
+    if (!contact.postcode.trim()) missing.push('postcode')
+    if (!contact.city.trim()) missing.push('woonplaats')
+
+    if (missing.length > 0) {
+      setContactError(`Vul alsjeblieft de volgende verplichte velden in: ${missing.join(', ')}.`)
+      return
+    }
+
+    setContactError(null)
     setSubmitting(true)
     await fetch('/api/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug, name: contact.name, email: contact.email, phone: contact.phone, answers })
+      body: JSON.stringify({ slug, name: contact.name, email: contact.email, phone: contact.phone, street: contact.street, postcode: contact.postcode, city: contact.city, answers })
     })
     setSubmitting(false)
     setStage('done')
@@ -117,14 +131,49 @@ export default function EmbedQuizPage({ params }: { params: Promise<{ slug: stri
                 className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition text-sm"
               />
             </div>
+            <div>
+              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Straat en huisnummer</label>
+              <input
+                type="text"
+                value={contact.street}
+                onChange={e => setContact(p => ({ ...p, street: e.target.value }))}
+                placeholder="Voorbeeldstraat 12"
+                className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition text-sm"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Postcode</label>
+                <input
+                  type="text"
+                  value={contact.postcode}
+                  onChange={e => setContact(p => ({ ...p, postcode: e.target.value }))}
+                  placeholder="1234 AB"
+                  className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Woonplaats</label>
+                <input
+                  type="text"
+                  value={contact.city}
+                  onChange={e => setContact(p => ({ ...p, city: e.target.value }))}
+                  placeholder="Amsterdam"
+                  className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition text-sm"
+                />
+              </div>
+            </div>
           </div>
+          {contactError && (
+            <p className="text-red-400 text-xs mb-4">{contactError}</p>
+          )}
           <div className="flex justify-between">
             <button onClick={() => setStage('quiz')} className="text-white/40 hover:text-white text-sm transition">
               ← Terug
             </button>
             <button
               onClick={submit}
-              disabled={!contact.name || !contact.email || submitting}
+              disabled={submitting}
               className="bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
             >
               {submitting ? 'Versturen...' : 'Versturen →'}
