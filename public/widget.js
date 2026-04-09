@@ -75,7 +75,7 @@
     .vertero-success-text { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.6; }
     .vertero-powered { text-align: center; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .vertero-powered span { font-size: 11px; font-weight: 500; letter-spacing: 0.03em; color: rgba(255,255,255,0.25); }
-    .vertero-powered img { height: 1em; opacity: 0.4; }
+    .vertero-powered img { height: 11px; opacity: 0.4; }
   `;
   document.head.appendChild(style);
 
