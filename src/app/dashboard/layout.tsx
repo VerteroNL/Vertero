@@ -45,6 +45,9 @@ export default async function DashboardLayout({
           <Link href="/dashboard/feedback" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
             <span className="text-base leading-none">◈</span> Feedback
           </Link>
+          <Link href="/dashboard/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
+            <span className="text-base leading-none">⚙</span> Instellingen
+          </Link>
         </div>
 
         <div className="px-6 py-4 border-t border-white/7">
