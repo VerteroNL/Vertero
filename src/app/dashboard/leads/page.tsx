@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
-import LeadRowActions from './LeadRowActions'
+import LeadsTable from './LeadsTable'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,37 +38,7 @@ export default async function LeadsPage() {
           Geen actieve leads — embed een quiz op je website om te beginnen
         </div>
       ) : (
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-xl overflow-hidden">
-          {leads.map((lead, i) => {
-            const isLast = i === leads.length - 1
-            return (
-              <div key={lead.id} className={`flex items-center gap-2 ${!isLast ? 'border-b border-white/5' : ''} hover:bg-white/[0.02] transition`}>
-                <Link href={`/dashboard/leads/${lead.id}`} className="flex-1 grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-4 items-center px-5 py-3.5 min-w-0">
-                  <div>
-                    <div className="font-semibold text-sm flex items-center gap-2">
-                      {lead.name || '—'}
-                      {lead.status === 'new' && (
-                        <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#f97316]/10 text-[#f97316] flex-shrink-0">
-                          Nieuw
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-white/30 text-xs mt-0.5 font-mono truncate">{lead.email || '—'}</div>
-                  </div>
-                  <div className="text-white/40 text-xs">{lead.phone || <span className="text-white/20">—</span>}</div>
-                  <div className="text-white/40 text-xs">{lead.answers?.adres?.split(',').slice(-1)[0]?.trim() || <span className="text-white/20">—</span>}</div>
-                  <div className="text-white/30 text-xs">
-                    <div>{lead.quizzes?.name || '—'}</div>
-                    <div className="mt-0.5">{new Date(lead.created_at).toLocaleDateString('nl-NL')}</div>
-                  </div>
-                </Link>
-                <div className="pr-4">
-                  <LeadRowActions leadId={lead.id} />
-                </div>
-              </div>
-            )
-          })}
-        </div>
+        <LeadsTable leads={leads} />
       )}
     </div>
   )

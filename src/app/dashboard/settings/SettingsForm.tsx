@@ -5,10 +5,9 @@ import { useRouter } from 'next/navigation'
 
 interface Props {
   initialEmailOnNewLead: boolean
-  leads: { name: string; email: string; phone: string | null; answers: Record<string, string>; created_at: string }[]
 }
 
-export default function SettingsForm({ initialEmailOnNewLead, leads }: Props) {
+export default function SettingsForm({ initialEmailOnNewLead }: Props) {
   const router = useRouter()
   const [emailOnNewLead, setEmailOnNewLead] = useState(initialEmailOnNewLead)
   const [savingNotif, setSavingNotif] = useState(false)
@@ -27,34 +26,6 @@ export default function SettingsForm({ initialEmailOnNewLead, leads }: Props) {
       body: JSON.stringify({ email_on_new_lead: next }),
     })
     setSavingNotif(false)
-  }
-
-  function exportLeads() {
-    if (leads.length === 0) return
-
-    const answerKeys = Array.from(
-      new Set(leads.flatMap((l) => Object.keys(l.answers)))
-    )
-    const headers = ['Naam', 'E-mail', 'Telefoon', 'Datum', ...answerKeys]
-    const rows = leads.map((l) => [
-      l.name,
-      l.email,
-      l.phone ?? '',
-      new Date(l.created_at).toLocaleDateString('nl-NL'),
-      ...answerKeys.map((k) => l.answers[k] ?? ''),
-    ])
-
-    const csv = [headers, ...rows]
-      .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
-      .join('\n')
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'leads.csv'
-    a.click()
-    URL.revokeObjectURL(url)
   }
 
   async function deleteAccount() {
@@ -91,19 +62,6 @@ export default function SettingsForm({ initialEmailOnNewLead, leads }: Props) {
             />
           </button>
         </div>
-      </div>
-
-      {/* Data export */}
-      <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6">
-        <h2 className="text-sm font-bold mb-1">Data exporteren</h2>
-        <p className="text-white/40 text-xs mb-4">Download al je leads als CSV-bestand</p>
-        <button
-          onClick={exportLeads}
-          disabled={leads.length === 0}
-          className="bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed border border-white/10 px-4 py-2 rounded-xl text-sm font-semibold transition"
-        >
-          {leads.length === 0 ? 'Geen leads om te exporteren' : `${leads.length} leads exporteren →`}
-        </button>
       </div>
 
       {/* Gevaarzone */}

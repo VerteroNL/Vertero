@@ -12,14 +12,12 @@ export default async function SettingsPage() {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
-  const [user, settingsResult, leadsResult] = await Promise.all([
+  const [user, settingsResult] = await Promise.all([
     currentUser(),
     supabase.from('user_settings').select('*').eq('user_id', userId).maybeSingle(),
-    supabase.from('leads').select('name, email, phone, answers, created_at').eq('user_id', userId),
   ])
 
   const settings = settingsResult.data
-  const leads = leadsResult.data ?? []
 
   const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Onbekend'
   const email = user?.emailAddresses?.[0]?.emailAddress ?? '—'
@@ -48,10 +46,7 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      <SettingsForm
-        initialEmailOnNewLead={settings?.email_on_new_lead ?? true}
-        leads={leads}
-      />
+      <SettingsForm initialEmailOnNewLead={settings?.email_on_new_lead ?? true} />
     </div>
   )
 }
