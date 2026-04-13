@@ -40,7 +40,7 @@ export default function FeedbackPage() {
 
   if (done) {
     return (
-      <div className="p-8 flex items-center justify-center min-h-[60vh]">
+      <div className="p-4 sm:p-8 flex items-center justify-center min-h-[60vh]">
         <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-12 max-w-md w-full text-center">
           <div className="text-4xl mb-4">🙌</div>
           <h2 className="text-xl font-extrabold mb-2">Bedankt voor je feedback!</h2>
@@ -57,14 +57,14 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 sm:p-8 max-w-2xl">
       <div className="mb-10">
         <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Support</p>
         <h1 className="text-3xl font-extrabold tracking-tight">Feedback</h1>
         <p className="text-white/40 text-sm mt-1">Help ons Vertero beter te maken</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         {types.map((type) => (
           <button
             key={type.value}

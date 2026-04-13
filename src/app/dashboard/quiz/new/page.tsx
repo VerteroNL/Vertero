@@ -80,7 +80,7 @@ export default function NewQuizPage() {
   }
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 sm:p-8 max-w-2xl">
       <h1 className="font-serif text-3xl italic mb-2">Nieuwe quiz</h1>
       <p className="text-white/40 text-sm mb-8">Geef je quiz een naam en kies een template</p>
 
@@ -101,7 +101,7 @@ export default function NewQuizPage() {
         <label className="block text-xs font-bold uppercase tracking-widest text-white/40 mb-3">
           Template kiezen
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {TEMPLATES.map(t => (
             <div
               key={t.id}

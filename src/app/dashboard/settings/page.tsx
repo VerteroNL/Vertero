@@ -23,7 +23,7 @@ export default async function SettingsPage() {
   const email = user?.emailAddresses?.[0]?.emailAddress ?? '—'
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 sm:p-8 max-w-2xl">
       <div className="mb-10">
         <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Account</p>
         <h1 className="text-3xl font-extrabold tracking-tight">Instellingen</h1>

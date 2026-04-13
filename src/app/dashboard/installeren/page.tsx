@@ -178,7 +178,7 @@ export default function InstallerenPage() {
   const [active, setActive] = useState('wordpress')
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-4 sm:p-8 max-w-3xl">
       <div className="mb-10">
         <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Aan de slag</p>
         <h1 className="text-3xl font-extrabold tracking-tight">Quiz installeren</h1>

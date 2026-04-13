@@ -3,7 +3,35 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { calculateScore, scoreColor } from '@/lib/scoring'
+import { calculateScore } from '@/lib/scoring'
+
+function ScoreRing({ score }: { score: number }) {
+  const r = 36
+  const stroke = 8
+  const circumference = 2 * Math.PI * r
+  const filled = (score / 100) * circumference
+  const color = score >= 70 ? '#22c55e' : score >= 40 ? '#f97316' : '#ef4444'
+
+  return (
+    <div className="flex-shrink-0 relative w-24 h-24">
+      <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
+        <circle cx="48" cy="48" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+        <circle
+          cx="48" cy="48" r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeDasharray={`${filled} ${circumference}`}
+          strokeLinecap="round"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-xl font-extrabold leading-none" style={{ color }}>{score}%</span>
+        <span className="text-[9px] font-bold uppercase tracking-widest text-white/30 mt-0.5">Score</span>
+      </div>
+    </div>
+  )
+}
 
 type Question = { id: string; question: string; type: 'multiple' | 'text'; options: string[] }
 
@@ -62,6 +90,7 @@ export default function LeadDetailPage() {
   }
 
   if (loading) return <div className="p-8 text-white/40 text-sm">Laden…</div>
+
   if (notFound || !lead) return <div className="p-8 text-white/40">Lead niet gevonden.</div>
 
   const questions: Question[] = lead.quizzes?.config?.questions || []
@@ -80,10 +109,7 @@ export default function LeadDetailPage() {
           <p className="text-white/40 text-sm mt-1">{lead.email}{lead.phone ? ` · ${lead.phone}` : ''}</p>
         </div>
         {score !== null && (
-          <div className={`flex flex-col items-center px-5 py-3 rounded-2xl border ${scoreColor(score)}`}>
-            <span className="text-2xl font-extrabold">{score}%</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 mt-0.5">Score</span>
-          </div>
+          <ScoreRing score={score} />
         )}
       </div>
 

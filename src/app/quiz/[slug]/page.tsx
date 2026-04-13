@@ -7,6 +7,7 @@ interface Question {
   question: string
   type: 'multiple' | 'text'
   options: string[]
+  allowCustom?: boolean
 }
 
 interface Quiz {
@@ -267,6 +268,32 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
                   {opt}
                 </button>
               ))}
+              {q.allowCustom && (
+                <div
+                  className={`rounded-xl border transition ${
+                    answers[q.id] !== undefined && !q.options.includes(answers[q.id])
+                      ? 'border-[#f97316] bg-[#f97316]/10'
+                      : 'border-white/10'
+                  }`}
+                >
+                  <button
+                    onClick={() => setAnswers(prev => ({ ...prev, [q.id]: prev[q.id] !== undefined && !q.options.includes(prev[q.id]) ? prev[q.id] : '' }))}
+                    className="w-full text-left px-4 py-3 text-sm font-medium text-white/60 hover:text-white transition"
+                  >
+                    Anders, namelijk...
+                  </button>
+                  {answers[q.id] !== undefined && !q.options.includes(answers[q.id]) && (
+                    <input
+                      type="text"
+                      autoFocus
+                      value={answers[q.id]}
+                      onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                      placeholder="Typ je antwoord..."
+                      className="w-full bg-transparent border-t border-[#f97316]/20 px-4 py-3 text-sm text-white placeholder-white/30 outline-none"
+                    />
+                  )}
+                </div>
+              )}
             </div>
           )}
 

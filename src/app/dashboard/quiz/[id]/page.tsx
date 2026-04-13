@@ -7,6 +7,7 @@ interface Question {
   question: string
   type: 'multiple' | 'text'
   options: string[]
+  allowCustom?: boolean
 }
 
 interface Quiz {
@@ -83,6 +84,10 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     setQuestions(prev => prev.filter(q => q.id !== qId))
   }
 
+  function toggleAllowCustom(qId: string) {
+    setQuestions(prev => prev.map(q => q.id === qId ? { ...q, allowCustom: !q.allowCustom } : q))
+  }
+
   async function saveQuiz() {
     setSaving(true)
     await fetch(`/api/quiz/${id}`, {
@@ -123,6 +128,14 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
           {savedAt && (
             <span className="text-white/30 text-xs self-center">✓ Opgeslagen om {savedAt}</span>
           )}
+          <a
+            href={`/quiz/${quiz.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition"
+          >
+            👁 Preview
+          </a>
           <button
             onClick={copyLink}
             className="border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition"
@@ -183,7 +196,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
               className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#f97316]/40 transition mb-4 text-sm"
             />
 
-            <div className="flex gap-2 mb-4">
+            <div className="flex flex-wrap items-center gap-2 mb-4">
               <button
                 onClick={() => updateQuestion(q.id, 'type', 'multiple')}
                 className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition ${q.type === 'multiple' ? 'bg-[#f97316] text-white' : 'border border-white/10 text-white/40 hover:text-white'}`}
@@ -196,6 +209,21 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
               >
                 Open tekst
               </button>
+              {q.type === 'multiple' && (
+                <button
+                  onClick={() => setQuestions(prev => prev.map(x => x.id === q.id ? { ...x, allowCustom: !x.allowCustom } : x))}
+                  className={`ml-auto flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border transition ${q.allowCustom ? 'border-[#f97316]/40 bg-[#f97316]/10 text-[#f97316]' : 'border-white/10 text-white/30 hover:text-white'}`}
+                >
+                  <span className={`w-3 h-3 rounded-sm border flex items-center justify-center flex-shrink-0 ${q.allowCustom ? 'bg-[#f97316] border-[#f97316]' : 'border-white/30'}`}>
+                    {q.allowCustom && (
+                      <svg className="w-2 h-2 text-white" viewBox="0 0 8 8" fill="none">
+                        <path d="M1 4l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </span>
+                  &quot;Anders, namelijk...&quot;
+                </button>
+              )}
             </div>
 
             {q.type === 'multiple' && (
@@ -239,6 +267,20 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                 <button onClick={() => addOption(q.id)} className="text-left text-xs text-white/30 hover:text-white/60 transition mt-1 pl-6 font-semibold">
                   + Optie toevoegen
                 </button>
+
+                {/* Allow custom answer toggle */}
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+                  <div>
+                    <span className="text-xs font-semibold text-white/40">Eigen antwoord toestaan</span>
+                    <p className="text-[11px] text-white/20 mt-0.5">Voegt een &quot;Anders, namelijk...&quot; optie toe</p>
+                  </div>
+                  <button
+                    onClick={() => toggleAllowCustom(q.id)}
+                    className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${q.allowCustom ? 'bg-[#f97316]' : 'bg-white/10'}`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${q.allowCustom ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </button>
+                </div>
               </div>
             )}
 
