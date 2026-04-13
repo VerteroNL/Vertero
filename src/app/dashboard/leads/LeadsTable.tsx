@@ -38,8 +38,7 @@ export default function LeadsTable({ leads }: { leads: Lead[] }) {
     })
   }
 
-  function exportSelected() {
-    const toExport = leads.filter((l) => selected.has(l.id))
+  function buildCsv(toExport: Lead[]) {
     const answerKeys = Array.from(new Set(toExport.flatMap((l) => Object.keys(l.answers))))
     const headers = ['Naam', 'E-mail', 'Telefoon', 'Datum', ...answerKeys]
     const rows = toExport.map((l) => [
@@ -49,37 +48,55 @@ export default function LeadsTable({ leads }: { leads: Lead[] }) {
       new Date(l.created_at).toLocaleDateString('nl-NL'),
       ...answerKeys.map((k) => l.answers[k] ?? ''),
     ])
-
-    const csv = [headers, ...rows]
+    return [headers, ...rows]
       .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
       .join('\n')
+  }
 
+  function downloadCsv(csv: string, filename: string) {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'leads.csv'
+    a.download = filename
     a.click()
     URL.revokeObjectURL(url)
   }
 
+  function exportSelected() {
+    downloadCsv(buildCsv(leads.filter((l) => selected.has(l.id))), 'leads-selectie.csv')
+  }
+
+  function exportAll() {
+    downloadCsv(buildCsv(leads), 'leads-alles.csv')
+  }
+
   return (
     <>
-      {someSelected && (
-        <div className="mb-4 flex items-center gap-3">
-          <span className="text-white/40 text-sm">{selected.size} geselecteerd</span>
-          <button
-            onClick={exportSelected}
-            className="text-[#f97316] hover:text-[#ea6c0a] text-sm font-semibold transition"
-          >
-            Exporteren →
-          </button>
-        </div>
-      )}
+      {/* Toolbar */}
+      <div className="mb-4 flex items-center gap-3 flex-wrap">
+        <button
+          onClick={exportAll}
+          className="text-white/40 hover:text-white border border-white/10 hover:border-white/20 text-sm font-semibold px-4 py-2 rounded-lg transition"
+        >
+          Exporteer alles
+        </button>
+        {someSelected && (
+          <>
+            <span className="text-white/30 text-sm">{selected.size} geselecteerd</span>
+            <button
+              onClick={exportSelected}
+              className="text-[#f97316] hover:text-[#ea6c0a] text-sm font-semibold transition"
+            >
+              Exporteer selectie →
+            </button>
+          </>
+        )}
+      </div>
 
       <div className="bg-[#0d0d1c] border border-white/10 rounded-xl overflow-hidden">
-        {/* Header row with select-all */}
-        <div className="flex items-center gap-2 border-b border-white/10 px-5 py-2.5">
+        {/* Header row with select-all — desktop only */}
+        <div className="hidden md:flex items-center gap-2 border-b border-white/10 px-5 py-2.5">
           <button
             onClick={toggleAll}
             className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition ${
@@ -111,15 +128,66 @@ export default function LeadsTable({ leads }: { leads: Lead[] }) {
           const score = lead.quizzes?.config
             ? calculateScore(lead.quizzes.config as Parameters<typeof calculateScore>[0], lead.answers)
             : null
+
           return (
             <div
               key={lead.id}
-              className={`flex items-center gap-2 ${!isLast ? 'border-b border-white/5' : ''} ${isSelected ? 'bg-[#f97316]/5' : 'hover:bg-white/[0.02]'} transition`}
+              className={`${!isLast ? 'border-b border-white/5' : ''} ${isSelected ? 'bg-[#f97316]/5' : 'hover:bg-white/[0.02]'} transition`}
             >
-              <div className="pl-5 flex-shrink-0">
+              {/* Desktop row */}
+              <div className="hidden md:flex items-center gap-2">
+                <div className="pl-5 flex-shrink-0">
+                  <button
+                    onClick={() => toggleOne(lead.id)}
+                    className={`w-4 h-4 rounded border flex items-center justify-center transition ${
+                      isSelected ? 'bg-[#f97316] border-[#f97316]' : 'border-white/20 hover:border-white/40'
+                    }`}
+                  >
+                    {isSelected && (
+                      <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 10" fill="none">
+                        <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                <Link href={`/dashboard/leads/${lead.id}`} className="flex-1 grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-3 py-3.5 min-w-0">
+                  <div>
+                    <div className="font-semibold text-sm flex items-center gap-2">
+                      {lead.name || '—'}
+                      {lead.status === 'new' && (
+                        <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#f97316]/10 text-[#f97316] flex-shrink-0">
+                          Nieuw
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-white/30 text-xs mt-0.5 font-mono truncate">{lead.email || '—'}</div>
+                  </div>
+                  <div className="text-white/40 text-xs">{lead.phone || <span className="text-white/20">—</span>}</div>
+                  <div className="text-white/40 text-xs">{lead.answers?.adres?.split(',').slice(-1)[0]?.trim() || <span className="text-white/20">—</span>}</div>
+                  <div className="text-white/30 text-xs">
+                    <div>{lead.quizzes?.name || '—'}</div>
+                    <div className="mt-0.5">{new Date(lead.created_at).toLocaleDateString('nl-NL')}</div>
+                  </div>
+                  <div>
+                    {score !== null ? (
+                      <span className={`text-xs font-bold px-2 py-1 rounded-lg border ${scoreColor(score)}`}>
+                        {score}%
+                      </span>
+                    ) : (
+                      <span className="text-white/20 text-xs">—</span>
+                    )}
+                  </div>
+                </Link>
+                <div className="pr-4">
+                  <LeadRowActions leadId={lead.id} />
+                </div>
+              </div>
+
+              {/* Mobile card */}
+              <div className="flex md:hidden items-start gap-3 px-4 py-4">
                 <button
                   onClick={() => toggleOne(lead.id)}
-                  className={`w-4 h-4 rounded border flex items-center justify-center transition ${
+                  className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 mt-0.5 transition ${
                     isSelected ? 'bg-[#f97316] border-[#f97316]' : 'border-white/20 hover:border-white/40'
                   }`}
                 >
@@ -129,37 +197,32 @@ export default function LeadsTable({ leads }: { leads: Lead[] }) {
                     </svg>
                   )}
                 </button>
-              </div>
-              <Link href={`/dashboard/leads/${lead.id}`} className="flex-1 grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-3 py-3.5 min-w-0">
-                <div>
-                  <div className="font-semibold text-sm flex items-center gap-2">
-                    {lead.name || '—'}
-                    {lead.status === 'new' && (
-                      <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#f97316]/10 text-[#f97316] flex-shrink-0">
-                        Nieuw
+                <Link href={`/dashboard/leads/${lead.id}`} className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <div className="font-semibold text-sm flex items-center gap-2 min-w-0">
+                      <span className="truncate">{lead.name || '—'}</span>
+                      {lead.status === 'new' && (
+                        <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#f97316]/10 text-[#f97316] flex-shrink-0">
+                          Nieuw
+                        </span>
+                      )}
+                    </div>
+                    {score !== null && (
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-lg border flex-shrink-0 ${scoreColor(score)}`}>
+                        {score}%
                       </span>
                     )}
                   </div>
-                  <div className="text-white/30 text-xs mt-0.5 font-mono truncate">{lead.email || '—'}</div>
+                  <div className="text-white/40 text-xs font-mono truncate mb-1">{lead.email || '—'}</div>
+                  <div className="flex items-center gap-2 text-white/25 text-xs">
+                    <span>{lead.quizzes?.name || '—'}</span>
+                    <span>·</span>
+                    <span>{new Date(lead.created_at).toLocaleDateString('nl-NL')}</span>
+                  </div>
+                </Link>
+                <div className="flex-shrink-0">
+                  <LeadRowActions leadId={lead.id} />
                 </div>
-                <div className="text-white/40 text-xs">{lead.phone || <span className="text-white/20">—</span>}</div>
-                <div className="text-white/40 text-xs">{lead.answers?.adres?.split(',').slice(-1)[0]?.trim() || <span className="text-white/20">—</span>}</div>
-                <div className="text-white/30 text-xs">
-                  <div>{lead.quizzes?.name || '—'}</div>
-                  <div className="mt-0.5">{new Date(lead.created_at).toLocaleDateString('nl-NL')}</div>
-                </div>
-                <div>
-                  {score !== null ? (
-                    <span className={`text-xs font-bold px-2 py-1 rounded-lg border ${scoreColor(score)}`}>
-                      {score}%
-                    </span>
-                  ) : (
-                    <span className="text-white/20 text-xs">—</span>
-                  )}
-                </div>
-              </Link>
-              <div className="pr-4">
-                <LeadRowActions leadId={lead.id} />
               </div>
             </div>
           )

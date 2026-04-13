@@ -23,7 +23,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   const [questions, setQuestions] = useState<Question[]>([])
   const [scoring, setScoring] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const [savedAt, setSavedAt] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
 
@@ -91,8 +91,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
       body: JSON.stringify({ config: { questions, scoring } })
     })
     setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    setSavedAt(new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))
   }
 
   function copyEmbed() {
@@ -113,14 +112,17 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   )
 
   return (
-    <div className="p-8 max-w-3xl">
-      <div className="flex justify-between items-start mb-10">
+    <div className="p-4 sm:p-8 max-w-3xl">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-10">
         <div>
           <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Quiz bewerken</p>
           <h1 className="text-3xl font-extrabold tracking-tight">{quiz.name}</h1>
           <p className="text-white/30 text-xs mt-1 font-mono">{quiz.slug}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          {savedAt && (
+            <span className="text-white/30 text-xs self-center">✓ Opgeslagen om {savedAt}</span>
+          )}
           <button
             onClick={copyLink}
             className="border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition"
@@ -138,7 +140,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
             disabled={saving}
             className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
           >
-            {saved ? '✓ Opgeslagen' : saving ? 'Opslaan...' : 'Opslaan →'}
+            {saving ? 'Opslaan...' : 'Opslaan →'}
           </button>
         </div>
       </div>

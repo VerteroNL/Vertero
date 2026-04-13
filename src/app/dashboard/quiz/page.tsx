@@ -21,7 +21,7 @@ export default async function QuizPage() {
   quizzes?.sort((a, b) => (b.leads?.[0]?.count || 0) - (a.leads?.[0]?.count || 0))
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Mijn quizzes</h1>
@@ -47,7 +47,7 @@ export default async function QuizPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {quizzes?.map(quiz => {
             const leadCount = quiz.leads?.[0]?.count || 0
             const questionCount = quiz.config?.questions?.length || 0
@@ -60,7 +60,12 @@ export default async function QuizPage() {
                   <div className="flex items-start justify-between gap-3 mb-5">
                     <div className="min-w-0">
                       <div className="font-bold text-[15px] leading-snug truncate">{quiz.name}</div>
-                      <div className="font-mono text-xs text-white/20 truncate mt-1">{quiz.slug}</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="font-mono text-xs text-white/20 truncate">{quiz.slug}</div>
+                        <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex-shrink-0 ${quiz.active ? 'bg-green-500/10 text-green-400' : 'bg-white/5 text-white/30'}`}>
+                          {quiz.active ? 'Live' : 'Inactief'}
+                        </span>
+                      </div>
                     </div>
                     <QuizActions quizId={quiz.id} quizName={quiz.name} quizSlug={quiz.slug} active={quiz.active} />
                   </div>

@@ -36,16 +36,22 @@ export default async function DashboardPage() {
   })).sort((a, b) => b.leadCount - a.leadCount) || []
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-4 sm:p-8 max-w-3xl">
 
       {/* Hero: nieuwe leads */}
       <div className="mb-8">
         <div className="text-[11px] font-bold uppercase tracking-widest text-white/25 mb-2">Nieuwe leads</div>
-        <div className="flex items-end gap-4">
-          <div className="text-7xl font-extrabold leading-none text-[#f97316]">{newLeads.length}</div>
-          <div className="mb-2 flex gap-4 text-sm text-white/30">
-            <span><span className="text-white/60 font-semibold">{leadsToday.length}</span> vandaag</span>
-            <span><span className="text-white/60 font-semibold">{leadsThisWeek.length}</span> deze week</span>
+        <div className="flex flex-wrap items-end gap-4">
+          <Link href="/dashboard/leads" className="text-7xl font-extrabold leading-none text-[#f97316] hover:text-[#ea6c0a] transition">
+            {newLeads.length}
+          </Link>
+          <div className="mb-2 flex flex-wrap gap-3 sm:gap-4 text-sm text-white/30">
+            <Link href="/dashboard/leads" className="hover:text-white/60 transition">
+              <span className="text-white/60 font-semibold">{leadsToday.length}</span> vandaag
+            </Link>
+            <Link href="/dashboard/leads" className="hover:text-white/60 transition">
+              <span className="text-white/60 font-semibold">{leadsThisWeek.length}</span> deze week
+            </Link>
             <span><span className="text-white/60 font-semibold">{totalLeads}</span> totaal</span>
           </div>
         </div>

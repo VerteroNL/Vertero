@@ -25,6 +25,8 @@ export default function LeadDetailPage() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [loadingDone, setLoadingDone] = useState(false)
+  const [loadingDelete, setLoadingDelete] = useState(false)
 
   useEffect(() => {
     fetch(`/api/leads/${id}/detail`)
@@ -44,6 +46,7 @@ export default function LeadDetailPage() {
   }, [id])
 
   async function handleDone() {
+    setLoadingDone(true)
     await fetch(`/api/leads/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -53,6 +56,7 @@ export default function LeadDetailPage() {
   }
 
   async function handleDelete() {
+    setLoadingDelete(true)
     await fetch(`/api/leads/${id}`, { method: 'DELETE' })
     router.push('/dashboard/leads')
   }
@@ -64,7 +68,7 @@ export default function LeadDetailPage() {
   const score = lead.quizzes?.config ? calculateScore(lead.quizzes.config, lead.answers) : null
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 sm:p-8 max-w-2xl">
       <Link href="/dashboard/leads" className="text-white/30 hover:text-white text-sm transition mb-8 inline-flex items-center gap-1.5">
         ← Terug naar leads
       </Link>
@@ -139,14 +143,16 @@ export default function LeadDetailPage() {
         {lead.status !== 'done' && (
           <button
             onClick={handleDone}
-            className="px-5 py-2.5 rounded-xl bg-green-500/10 hover:bg-green-500/20 text-green-400 text-sm font-semibold transition"
+            disabled={loadingDone}
+            className="px-5 py-2.5 rounded-xl bg-green-500/10 hover:bg-green-500/20 disabled:opacity-50 text-green-400 text-sm font-semibold transition"
           >
-            ✓ Afvinken
+            {loadingDone ? 'Bezig...' : '✓ Afvinken'}
           </button>
         )}
         <button
           onClick={() => setConfirmDelete(true)}
-          className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 text-sm font-semibold transition"
+          disabled={loadingDelete}
+          className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-red-500/20 disabled:opacity-50 text-white/40 hover:text-red-400 text-sm font-semibold transition"
         >
           Verwijderen
         </button>
@@ -178,9 +184,10 @@ export default function LeadDetailPage() {
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition"
+                  disabled={loadingDelete}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-semibold transition"
                 >
-                  Verwijderen
+                  {loadingDelete ? 'Bezig...' : 'Verwijderen'}
                 </button>
               </div>
             </div>

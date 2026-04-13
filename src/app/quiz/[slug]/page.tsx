@@ -16,6 +16,9 @@ interface Quiz {
   config: { questions: Question[] }
 }
 
+const REQUIRED_FIELDS = ['name', 'email', 'street', 'postcode', 'city'] as const
+type ContactField = typeof REQUIRED_FIELDS[number] | 'phone'
+
 export default function PublicQuizPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
   const [quiz, setQuiz] = useState<Quiz | null>(null)
@@ -24,6 +27,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
   const [stage, setStage] = useState<'quiz' | 'contact' | 'done'>('quiz')
   const [notFound, setNotFound] = useState(false)
   const [contact, setContact] = useState({ name: '', email: '', phone: '', street: '', postcode: '', city: '' })
+  const [touched, setTouched] = useState<Partial<Record<ContactField, boolean>>>({})
   const [contactError, setContactError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -36,7 +40,19 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
       })
   }, [slug])
 
+  function touchField(field: ContactField) {
+    setTouched(p => ({ ...p, [field]: true }))
+  }
+
+  function fieldError(field: typeof REQUIRED_FIELDS[number]) {
+    return touched[field] && !contact[field].trim()
+  }
+
   async function submit() {
+    // Touch all required fields to show errors
+    const allTouched = Object.fromEntries(REQUIRED_FIELDS.map(f => [f, true]))
+    setTouched(p => ({ ...p, ...allTouched }))
+
     const missing: string[] = []
     if (!contact.name.trim()) missing.push('naam')
     if (!contact.email.trim()) missing.push('e-mailadres')
@@ -45,7 +61,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
     if (!contact.city.trim()) missing.push('woonplaats')
 
     if (missing.length > 0) {
-      setContactError(`Vul alsjeblieft de volgende verplichte velden in: ${missing.join(', ')}.`)
+      setContactError(`Vul alsjeblieft in: ${missing.join(', ')}.`)
       return
     }
 
@@ -102,65 +118,85 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
   )
 
   if (stage === 'contact') return (
-    <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
           <h1 className="font-serif text-3xl italic text-white mb-2">Bijna klaar!</h1>
           <p className="text-white/40 text-sm">Laat je gegevens achter zodat we contact kunnen opnemen.</p>
         </div>
 
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-8 mb-6 flex flex-col gap-4">
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 sm:p-8 mb-6 flex flex-col gap-4">
           <div>
-            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Naam</label>
+            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
+              Naam <span className="text-[#f97316]">*</span>
+            </label>
             <input
               type="text"
               value={contact.name}
               onChange={e => setContact(p => ({ ...p, name: e.target.value }))}
+              onBlur={() => touchField('name')}
               placeholder="Jan Jansen"
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+              className={`w-full bg-[#07070f] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition ${fieldError('name') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
             />
+            {fieldError('name') && <p className="text-red-400 text-xs mt-1.5">Vul je naam in</p>}
           </div>
           <div>
-            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Straat en huisnummer</label>
+            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
+              Straat en huisnummer <span className="text-[#f97316]">*</span>
+            </label>
             <input
               type="text"
               value={contact.street}
               onChange={e => setContact(p => ({ ...p, street: e.target.value }))}
+              onBlur={() => touchField('street')}
               placeholder="Voorbeeldstraat 12"
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+              className={`w-full bg-[#07070f] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition ${fieldError('street') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
             />
+            {fieldError('street') && <p className="text-red-400 text-xs mt-1.5">Vul je straat en huisnummer in</p>}
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Postcode</label>
+              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
+                Postcode <span className="text-[#f97316]">*</span>
+              </label>
               <input
                 type="text"
                 value={contact.postcode}
                 onChange={e => setContact(p => ({ ...p, postcode: e.target.value }))}
+                onBlur={() => touchField('postcode')}
                 placeholder="1234 AB"
-                className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+                className={`w-full bg-[#07070f] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition ${fieldError('postcode') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
               />
+              {fieldError('postcode') && <p className="text-red-400 text-xs mt-1.5">Vul je postcode in</p>}
             </div>
             <div>
-              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Woonplaats</label>
+              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
+                Woonplaats <span className="text-[#f97316]">*</span>
+              </label>
               <input
                 type="text"
                 value={contact.city}
                 onChange={e => setContact(p => ({ ...p, city: e.target.value }))}
+                onBlur={() => touchField('city')}
                 placeholder="Amsterdam"
-                className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+                className={`w-full bg-[#07070f] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition ${fieldError('city') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
               />
+              {fieldError('city') && <p className="text-red-400 text-xs mt-1.5">Vul je woonplaats in</p>}
             </div>
           </div>
           <div>
-            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">E-mail</label>
+            <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
+              E-mail <span className="text-[#f97316]">*</span>
+            </label>
             <input
               type="email"
               value={contact.email}
               onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
+              onBlur={() => touchField('email')}
               placeholder="jan@bedrijf.nl"
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+              className={`w-full bg-[#07070f] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition ${fieldError('email') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
             />
+            {fieldError('email') && <p className="text-red-400 text-xs mt-1.5">Vul je e-mailadres in</p>}
           </div>
           <div>
             <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Telefoon <span className="text-white/20 normal-case font-normal">(optioneel)</span></label>
@@ -169,7 +205,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
               value={contact.phone}
               onChange={e => setContact(p => ({ ...p, phone: e.target.value }))}
               placeholder="+31 6 12345678"
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition"
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#f97316]/50 transition"
             />
           </div>
         </div>
@@ -189,7 +225,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
           <button
             onClick={submit}
             disabled={submitting}
-            className="justify-self-end bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+            className="justify-self-end bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
           >
             {submitting ? 'Versturen...' : 'Versturen →'}
           </button>
@@ -199,7 +235,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
   )
 
   return (
-    <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
           <h1 className="font-serif text-3xl italic text-white mb-1">{quiz.name}</h1>
@@ -208,12 +244,12 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
 
         <div className="w-full bg-white/5 rounded-full h-1 mb-8">
           <div
-            className="bg-[#6c5ce7] h-1 rounded-full transition-all"
+            className="bg-[#f97316] h-1 rounded-full transition-all"
             style={{ width: `${((current + 1) / questions.length) * 100}%` }}
           />
         </div>
 
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-8 mb-6">
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 sm:p-8 mb-6">
           <h2 className="text-white text-xl font-semibold mb-6">{q.question}</h2>
 
           {q.type === 'multiple' && (
@@ -224,7 +260,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
                   onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}
                   className={`text-left px-4 py-3 rounded-xl border transition text-sm font-medium ${
                     answers[q.id] === opt
-                      ? 'border-[#6c5ce7] bg-[#6c5ce7]/10 text-white'
+                      ? 'border-[#f97316] bg-[#f97316]/10 text-white'
                       : 'border-white/10 text-white/60 hover:border-white/20 hover:text-white'
                   }`}
                 >
@@ -240,7 +276,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
               onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
               placeholder="Typ je antwoord..."
               rows={4}
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#6c5ce7]/50 transition resize-none"
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#f97316]/50 transition resize-none"
             />
           )}
         </div>
@@ -257,23 +293,19 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
 
           <PoweredBy />
 
-          {current < questions.length - 1 ? (
-            <button
-              onClick={() => setCurrent(c => c + 1)}
-              disabled={!answers[q.id]}
-              className="justify-self-end bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
-            >
-              Volgende →
-            </button>
-          ) : (
-            <button
-              onClick={() => setStage('contact')}
-              disabled={!answers[q.id]}
-              className="justify-self-end bg-[#6c5ce7] hover:bg-[#7d6ef5] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
-            >
-              Volgende →
-            </button>
-          )}
+          <button
+            onClick={() => {
+              if (current < questions.length - 1) {
+                setCurrent(c => c + 1)
+              } else {
+                setStage('contact')
+              }
+            }}
+            disabled={!answers[q.id]}
+            className="justify-self-end bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+          >
+            Volgende →
+          </button>
         </div>
       </div>
     </div>
