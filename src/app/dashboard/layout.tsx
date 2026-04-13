@@ -25,35 +25,38 @@ export default async function DashboardLayout({
 
         <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
           <p className="text-white/25 text-[10px] font-bold uppercase tracking-widest px-3 mb-1.5 mt-2">Overzicht</p>
-          <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
-            <span className="text-base leading-none">▦</span> Dashboard
+          <Link href="/dashboard" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
+            Dashboard
           </Link>
-          <Link href="/dashboard/leads" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
-            <span className="text-base leading-none">◎</span> Leads
+          <Link href="/dashboard/leads" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
+            Leads
           </Link>
 
           <p className="text-white/25 text-[10px] font-bold uppercase tracking-widest px-3 mb-1.5 mt-4">Quiz</p>
-          <Link href="/dashboard/quiz" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
-            <span className="text-base leading-none">⊞</span> Mijn quizzes
+          <Link href="/dashboard/quiz" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
+            Mijn quizzes
           </Link>
-          <Link href="/dashboard/quiz/new" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
-            <span className="text-base leading-none">+</span> Nieuwe quiz
+          <Link href="/dashboard/quiz/new" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
+            + Nieuwe quiz
           </Link>
         </nav>
 
-        <div className="px-3 pb-2 border-t border-white/7 pt-3 flex flex-col gap-0.5">
-          <Link href="/dashboard/feedback" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
-            <span className="text-base leading-none">◈</span> Feedback
+        <div className="px-3 py-3 border-t border-white/7 flex flex-col gap-0.5">
+          <Link href="/dashboard/installeren" className="px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
+            Installeren
           </Link>
-          <Link href="/dashboard/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
-            <span className="text-base leading-none">⚙</span> Instellingen
+          <Link href="/dashboard/feedback" className="px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
+            Feedback
           </Link>
         </div>
 
-        <div className="px-6 py-4 border-t border-white/7">
-          <div className="flex items-center gap-3">
-            <UserButton />
-            <span className="text-sm font-medium text-white/50">Account</span>
+        <div className="px-3 py-3 border-t border-white/7 flex flex-col gap-0.5">
+          <Link href="/dashboard/settings" className="px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
+            ⚙ Instellingen
+          </Link>
+          <div className="flex items-center gap-3 px-3 py-2">
+            <UserButton appearance={{ elements: { avatarBox: 'w-4 h-4' } }} />
+            <span className="text-sm font-medium text-white/30">Account</span>
           </div>
         </div>
       </aside>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import LeadRowActions from './LeadRowActions'
+import { calculateScore, scoreColor } from '@/lib/scoring'
 
 interface Lead {
   id: string
@@ -12,7 +13,7 @@ interface Lead {
   status: string
   answers: Record<string, string>
   created_at: string
-  quizzes?: { name: string } | null
+  quizzes?: { name: string; config?: { scoring?: boolean; questions: { id: string; type: 'multiple' | 'text'; options: string[] }[] } } | null
 }
 
 export default function LeadsTable({ leads }: { leads: Lead[] }) {
@@ -107,6 +108,9 @@ export default function LeadsTable({ leads }: { leads: Lead[] }) {
         {leads.map((lead, i) => {
           const isLast = i === leads.length - 1
           const isSelected = selected.has(lead.id)
+          const score = lead.quizzes?.config
+            ? calculateScore(lead.quizzes.config as Parameters<typeof calculateScore>[0], lead.answers)
+            : null
           return (
             <div
               key={lead.id}
@@ -126,7 +130,7 @@ export default function LeadsTable({ leads }: { leads: Lead[] }) {
                   )}
                 </button>
               </div>
-              <Link href={`/dashboard/leads/${lead.id}`} className="flex-1 grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-4 items-center px-3 py-3.5 min-w-0">
+              <Link href={`/dashboard/leads/${lead.id}`} className="flex-1 grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-3 py-3.5 min-w-0">
                 <div>
                   <div className="font-semibold text-sm flex items-center gap-2">
                     {lead.name || '—'}
@@ -143,6 +147,15 @@ export default function LeadsTable({ leads }: { leads: Lead[] }) {
                 <div className="text-white/30 text-xs">
                   <div>{lead.quizzes?.name || '—'}</div>
                   <div className="mt-0.5">{new Date(lead.created_at).toLocaleDateString('nl-NL')}</div>
+                </div>
+                <div>
+                  {score !== null ? (
+                    <span className={`text-xs font-bold px-2 py-1 rounded-lg border ${scoreColor(score)}`}>
+                      {score}%
+                    </span>
+                  ) : (
+                    <span className="text-white/20 text-xs">—</span>
+                  )}
                 </div>
               </Link>
               <div className="pr-4">

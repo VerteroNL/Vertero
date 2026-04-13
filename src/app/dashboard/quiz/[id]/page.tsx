@@ -14,13 +14,14 @@ interface Quiz {
   name: string
   slug: string
   active: boolean
-  config: { questions: Question[] }
+  config: { questions: Question[]; scoring?: boolean }
 }
 
 export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const [quiz, setQuiz] = useState<Quiz | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
+  const [scoring, setScoring] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -32,6 +33,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
       .then(data => {
         setQuiz(data)
         setQuestions(data.config?.questions || [])
+        setScoring(data.config?.scoring ?? false)
       })
   }, [id])
 
@@ -66,6 +68,17 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     } : q))
   }
 
+  function moveOption(qId: string, index: number, direction: -1 | 1) {
+    setQuestions(prev => prev.map(q => {
+      if (q.id !== qId) return q
+      const opts = [...q.options]
+      const target = index + direction
+      if (target < 0 || target >= opts.length) return q;
+      [opts[index], opts[target]] = [opts[target], opts[index]]
+      return { ...q, options: opts }
+    }))
+  }
+
   function removeQuestion(qId: string) {
     setQuestions(prev => prev.filter(q => q.id !== qId))
   }
@@ -75,7 +88,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     await fetch(`/api/quiz/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: { questions } })
+      body: JSON.stringify({ config: { questions, scoring } })
     })
     setSaving(false)
     setSaved(true)
@@ -130,6 +143,24 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         </div>
       </div>
 
+      {/* Scoring toggle */}
+      <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-5 mb-6 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold">Lead scoring</p>
+          <p className="text-white/40 text-xs mt-0.5">
+            {scoring
+              ? 'Antwoorden bovenaan = beste score. Herorden per vraag.'
+              : 'Schakel in om leads automatisch te scoren op basis van hun antwoorden.'}
+          </p>
+        </div>
+        <button
+          onClick={() => setScoring(s => !s)}
+          className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${scoring ? 'bg-[#f97316]' : 'bg-white/10'}`}
+        >
+          <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${scoring ? 'translate-x-5' : 'translate-x-0'}`} />
+        </button>
+      </div>
+
       <div className="flex flex-col gap-4 mb-4">
         {questions.map((q, qi) => (
           <div key={q.id} className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6">
@@ -169,14 +200,35 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
               <div className="flex flex-col gap-2">
                 {q.options.map((opt, oi) => (
                   <div key={oi} className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded border border-white/10 flex-shrink-0"></div>
+                    {scoring && (
+                      <div className="flex flex-col gap-0.5 flex-shrink-0">
+                        <button
+                          onClick={() => moveOption(q.id, oi, -1)}
+                          disabled={oi === 0}
+                          className="text-white/20 hover:text-white disabled:opacity-0 text-[10px] leading-none transition"
+                        >▲</button>
+                        <button
+                          onClick={() => moveOption(q.id, oi, 1)}
+                          disabled={oi === q.options.length - 1}
+                          className="text-white/20 hover:text-white disabled:opacity-0 text-[10px] leading-none transition"
+                        >▼</button>
+                      </div>
+                    )}
+                    <div className="w-4 h-4 rounded border border-white/10 flex-shrink-0" />
                     <input
                       type="text"
                       value={opt}
                       onChange={e => updateOption(q.id, oi, e.target.value)}
-                      placeholder={`Optie ${oi + 1}`}
+                      placeholder={scoring
+                        ? oi === 0 ? 'Beste antwoord' : oi === q.options.length - 1 ? 'Minste antwoord' : `Optie ${oi + 1}`
+                        : `Optie ${oi + 1}`}
                       className="flex-1 bg-[#07070f] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 outline-none focus:border-[#f97316]/40 transition"
                     />
+                    {scoring && (
+                      <span className="text-[10px] text-white/20 w-14 text-right flex-shrink-0">
+                        {q.options.length - oi}pt
+                      </span>
+                    )}
                     {q.options.length > 2 && (
                       <button onClick={() => removeOption(q.id, oi)} className="text-white/20 hover:text-red-400 transition text-sm">✕</button>
                     )}
@@ -189,8 +241,13 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
             )}
 
             {q.type === 'text' && (
-              <div className="bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white/20 text-sm">
-                Bezoeker typt hier vrij...
+              <div className="flex flex-col gap-2">
+                <div className="bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white/20 text-sm">
+                  Bezoeker typt hier vrij...
+                </div>
+                {scoring && (
+                  <p className="text-white/25 text-xs pl-1">Tekstvragen tellen niet mee voor de score</p>
+                )}
               </div>
             )}
           </div>

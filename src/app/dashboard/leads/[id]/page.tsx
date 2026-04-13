@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { calculateScore, scoreColor } from '@/lib/scoring'
+
+type Question = { id: string; question: string; type: 'multiple' | 'text'; options: string[] }
 
 type Lead = {
   id: string
@@ -12,7 +15,7 @@ type Lead = {
   status: string
   created_at: string
   answers: Record<string, string>
-  quizzes: { name: string; config: { questions: { id: string; question: string }[] } } | null
+  quizzes: { name: string; config: { scoring?: boolean; questions: Question[] } } | null
 }
 
 export default function LeadDetailPage() {
@@ -57,7 +60,8 @@ export default function LeadDetailPage() {
   if (loading) return <div className="p-8 text-white/40 text-sm">Laden…</div>
   if (notFound || !lead) return <div className="p-8 text-white/40">Lead niet gevonden.</div>
 
-  const questions: { id: string; question: string }[] = lead.quizzes?.config?.questions || []
+  const questions: Question[] = lead.quizzes?.config?.questions || []
+  const score = lead.quizzes?.config ? calculateScore(lead.quizzes.config, lead.answers) : null
 
   return (
     <div className="p-8 max-w-2xl">
@@ -65,10 +69,18 @@ export default function LeadDetailPage() {
         ← Terug naar leads
       </Link>
 
-      <div className="mt-8 mb-8">
-        <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Lead</p>
-        <h1 className="text-3xl font-extrabold tracking-tight">{lead.name || 'Onbekend'}</h1>
-        <p className="text-white/40 text-sm mt-1">{lead.email}{lead.phone ? ` · ${lead.phone}` : ''}</p>
+      <div className="mt-8 mb-8 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Lead</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">{lead.name || 'Onbekend'}</h1>
+          <p className="text-white/40 text-sm mt-1">{lead.email}{lead.phone ? ` · ${lead.phone}` : ''}</p>
+        </div>
+        {score !== null && (
+          <div className={`flex flex-col items-center px-5 py-3 rounded-2xl border ${scoreColor(score)}`}>
+            <span className="text-2xl font-extrabold">{score}%</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 mt-0.5">Score</span>
+          </div>
+        )}
       </div>
 
       {/* Contactgegevens */}
@@ -99,14 +111,26 @@ export default function LeadDetailPage() {
             <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Antwoorden</p>
           </div>
           <div className="divide-y divide-white/5">
-            {questions.map((q, i) => (
-              <div key={q.id} className="px-5 py-4">
-                <p className="text-white/30 text-xs mb-1.5">{i + 1}. {q.question}</p>
-                <p className="text-white text-sm font-medium">
-                  {lead.answers?.[q.id] || <span className="text-white/20 italic font-normal">Geen antwoord</span>}
-                </p>
-              </div>
-            ))}
+            {questions.map((q, i) => {
+              const answer = lead.answers?.[q.id]
+              const optionIndex = q.type === 'multiple' ? q.options.indexOf(answer) : -1
+              const pts = lead.quizzes?.config?.scoring && q.type === 'multiple' && optionIndex !== -1
+                ? q.options.length - optionIndex
+                : null
+              return (
+                <div key={q.id} className="px-5 py-4 flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white/30 text-xs mb-1.5">{i + 1}. {q.question}</p>
+                    <p className="text-white text-sm font-medium">
+                      {answer || <span className="text-white/20 italic font-normal">Geen antwoord</span>}
+                    </p>
+                  </div>
+                  {pts !== null && (
+                    <span className="text-xs font-bold text-white/30 flex-shrink-0 mt-1">+{pts}pt</span>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
