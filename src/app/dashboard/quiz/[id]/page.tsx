@@ -209,21 +209,6 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
               >
                 Open tekst
               </button>
-              {q.type === 'multiple' && (
-                <button
-                  onClick={() => setQuestions(prev => prev.map(x => x.id === q.id ? { ...x, allowCustom: !x.allowCustom } : x))}
-                  className={`ml-auto flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border transition ${q.allowCustom ? 'border-[#f97316]/40 bg-[#f97316]/10 text-[#f97316]' : 'border-white/10 text-white/30 hover:text-white'}`}
-                >
-                  <span className={`w-3 h-3 rounded-sm border flex items-center justify-center flex-shrink-0 ${q.allowCustom ? 'bg-[#f97316] border-[#f97316]' : 'border-white/30'}`}>
-                    {q.allowCustom && (
-                      <svg className="w-2 h-2 text-white" viewBox="0 0 8 8" fill="none">
-                        <path d="M1 4l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                  </span>
-                  &quot;Anders, namelijk...&quot;
-                </button>
-              )}
             </div>
 
             {q.type === 'multiple' && (
