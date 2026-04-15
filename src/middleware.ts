@@ -8,7 +8,8 @@ const isPublicRoute = createRouteMatcher([
   '/sso-callback(.*)',
   '/faq',
   '/contact',
-  '/quiz(.*)'
+  '/quiz(.*)',
+  '/roi-calculator'
 ])
 
 const proxyHandler = clerkMiddleware(async (auth, req) => {
