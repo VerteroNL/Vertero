@@ -57,6 +57,26 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  const { ids, status } = await req.json()
+  if (!Array.isArray(ids) || ids.length === 0)
+    return NextResponse.json({ error: 'No ids' }, { status: 400 })
+
+  const { error } = await supabase.from('leads').update({ status }).in('id', ids)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
+
+export async function DELETE(req: Request) {
+  const { ids } = await req.json()
+  if (!Array.isArray(ids) || ids.length === 0)
+    return NextResponse.json({ error: 'No ids' }, { status: 400 })
+
+  const { error } = await supabase.from('leads').delete().in('id', ids)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
+
 export async function OPTIONS() {
   return new Response(null, {
     headers: {

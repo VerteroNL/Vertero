@@ -15,6 +15,20 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [code, setCode] = useState('')
+  const [resending, setResending] = useState(false)
+  const [resent, setResent] = useState(false)
+
+  async function handleResend() {
+    if (!isLoaded) return
+    setResending(true)
+    try {
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+      setResent(true)
+      setTimeout(() => setResent(false), 4000)
+    } finally {
+      setResending(false)
+    }
+  }
 
   async function handleGoogle() {
     if (!signInLoaded) return
@@ -82,6 +96,7 @@ export default function SignUpPage() {
           </div>
 
           {error && <p className="text-red-400 text-xs">{error}</p>}
+          {resent && <p className="text-green-400 text-xs">Nieuwe code verstuurd — check je inbox.</p>}
 
           <button
             type="submit"
@@ -89,6 +104,15 @@ export default function SignUpPage() {
             className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition text-sm mt-1"
           >
             {loading ? 'Bevestigen...' : 'Bevestigen →'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={resending}
+            className="w-full text-white/30 hover:text-white/60 disabled:opacity-40 text-xs transition text-center"
+          >
+            {resending ? 'Versturen...' : 'Code opnieuw sturen'}
           </button>
         </form>
       </div>

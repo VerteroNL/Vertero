@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
-import LeadRowActions from '../LeadRowActions'
+import ArchivedLeadsTable from './ArchivedLeadsTable'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -57,48 +57,7 @@ export default async function ArchivedLeadsPage() {
           Nog geen afgevinkte leads
         </div>
       ) : (
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-xl overflow-hidden">
-          {leads.map((lead, i) => {
-            const isLast = i === leads.length - 1
-            return (
-              <div key={lead.id} className={`${!isLast ? 'border-b border-white/5' : ''} hover:bg-white/[0.02] transition`}>
-                {/* Desktop row */}
-                <div className="hidden md:flex items-center gap-2">
-                  <Link href={`/dashboard/leads/${lead.id}`} className="flex-1 grid grid-cols-[1fr_1fr_1fr] gap-4 items-center px-5 py-3.5 min-w-0">
-                    <div>
-                      <div className="font-semibold text-sm text-white/70">{lead.name || '—'}</div>
-                      <div className="text-white/30 text-xs mt-0.5 font-mono truncate">{lead.email || '—'}</div>
-                    </div>
-                    <div className="text-white/40 text-xs">{lead.phone || <span className="text-white/20">Geen telefoon</span>}</div>
-                    <div className="text-white/30 text-xs">
-                      <div>{lead.quizzes?.name || '—'}</div>
-                      <div className="mt-0.5">{new Date(lead.created_at).toLocaleDateString('nl-NL')}</div>
-                    </div>
-                  </Link>
-                  <div className="pr-4">
-                    <LeadRowActions leadId={lead.id} deleteOnly />
-                  </div>
-                </div>
-
-                {/* Mobile card */}
-                <div className="flex md:hidden items-start gap-3 px-4 py-4">
-                  <Link href={`/dashboard/leads/${lead.id}`} className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm text-white/80 truncate mb-0.5">{lead.name || '—'}</div>
-                    <div className="text-white/30 text-xs font-mono truncate mb-1">{lead.email || '—'}</div>
-                    <div className="flex items-center gap-2 text-white/25 text-xs">
-                      <span>{lead.quizzes?.name || '—'}</span>
-                      <span>·</span>
-                      <span>{new Date(lead.created_at).toLocaleDateString('nl-NL')}</span>
-                    </div>
-                  </Link>
-                  <div className="flex-shrink-0">
-                    <LeadRowActions leadId={lead.id} deleteOnly />
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+        <ArchivedLeadsTable leads={leads} />
       )}
     </div>
   )

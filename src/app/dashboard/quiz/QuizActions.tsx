@@ -3,16 +3,16 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
-export default function QuizActions({ quizId, quizName, quizSlug, active }: {
+export default function QuizActions({ quizId, quizName, active }: {
   quizId: string
   quizName: string
-  quizSlug: string
   active: boolean
 }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -49,7 +49,14 @@ export default function QuizActions({ quizId, quizName, quizSlug, active }: {
 
   async function deleteQuiz() {
     setLoading(true)
-    await fetch(`/api/quiz/${quizId}`, { method: 'DELETE' })
+    setDeleteError('')
+    const res = await fetch(`/api/quiz/${quizId}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const data = await res.json()
+      setDeleteError(data.error || 'Verwijderen mislukt.')
+      setLoading(false)
+      return
+    }
     router.refresh()
     setLoading(false)
     setShowConfirm(false)
@@ -102,9 +109,14 @@ export default function QuizActions({ quizId, quizName, quizSlug, active }: {
             onClick={e => e.stopPropagation()}
           >
             <div className="font-semibold text-lg mb-2">Quiz verwijderen?</div>
-            <div className="text-white/40 text-sm mb-6 leading-relaxed">
+            <div className="text-white/40 text-sm mb-4 leading-relaxed">
               Je staat op het punt <span className="text-white font-medium">"{quizName}"</span> te verwijderen. Dit kan niet ongedaan worden gemaakt.
             </div>
+            {deleteError && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm mb-4">
+                {deleteError}
+              </div>
+            )}
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}

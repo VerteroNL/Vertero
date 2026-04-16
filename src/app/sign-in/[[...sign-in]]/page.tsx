@@ -12,6 +12,22 @@ export default function SignInPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
+
+  async function handleForgotPassword() {
+    if (!isLoaded || !email.trim()) { setError('Vul eerst je e-mailadres in.'); return }
+    setResetLoading(true)
+    setError('')
+    try {
+      await signIn.create({ strategy: 'reset_password_email_code', identifier: email })
+      setResetSent(true)
+    } catch {
+      setError('Kon geen resetmail sturen. Controleer je e-mailadres.')
+    } finally {
+      setResetLoading(false)
+    }
+  }
 
   async function handleGoogle() {
     if (!isLoaded) return
@@ -88,6 +104,7 @@ export default function SignInPage() {
           </div>
 
           {error && <p className="text-red-400 text-xs">{error}</p>}
+          {resetSent && <p className="text-green-400 text-xs">Resetlink verstuurd — check je inbox.</p>}
 
           <button
             type="submit"
@@ -95,6 +112,15 @@ export default function SignInPage() {
             className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition text-sm mt-1"
           >
             {loading ? 'Inloggen...' : 'Inloggen →'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            disabled={resetLoading}
+            className="w-full text-white/30 hover:text-white/60 disabled:opacity-40 text-xs transition text-center"
+          >
+            {resetLoading ? 'Versturen...' : 'Wachtwoord vergeten?'}
           </button>
         </form>
 

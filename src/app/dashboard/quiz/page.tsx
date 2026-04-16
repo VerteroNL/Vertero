@@ -67,7 +67,7 @@ export default async function QuizPage() {
                         </span>
                       </div>
                     </div>
-                    <QuizActions quizId={quiz.id} quizName={quiz.name} quizSlug={quiz.slug} active={quiz.active} />
+                    <QuizActions quizId={quiz.id} quizName={quiz.name} active={quiz.active} />
                   </div>
 
                   <div className="flex items-end gap-2">

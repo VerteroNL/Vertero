@@ -49,6 +49,13 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
     return touched[field] && !contact[field].trim()
   }
 
+  function emailError() {
+    if (!touched.email) return null
+    if (!contact.email.trim()) return 'Vul je e-mailadres in'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) return 'Vul een geldig e-mailadres in'
+    return null
+  }
+
   async function submit() {
     // Touch all required fields to show errors
     const allTouched = Object.fromEntries(REQUIRED_FIELDS.map(f => [f, true]))
@@ -57,6 +64,7 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
     const missing: string[] = []
     if (!contact.name.trim()) missing.push('naam')
     if (!contact.email.trim()) missing.push('e-mailadres')
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) missing.push('geldig e-mailadres')
     if (!contact.street.trim()) missing.push('straat en huisnummer')
     if (!contact.postcode.trim()) missing.push('postcode')
     if (!contact.city.trim()) missing.push('woonplaats')
@@ -195,9 +203,9 @@ export default function PublicQuizPage({ params }: { params: Promise<{ slug: str
               onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
               onBlur={() => touchField('email')}
               placeholder="jan@bedrijf.nl"
-              className={`w-full bg-[#07070f] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition ${fieldError('email') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
+              className={`w-full bg-[#07070f] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition ${emailError() ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
             />
-            {fieldError('email') && <p className="text-red-400 text-xs mt-1.5">Vul je e-mailadres in</p>}
+            {emailError() && <p className="text-red-400 text-xs mt-1.5">{emailError()}</p>}
           </div>
           <div>
             <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Telefoon <span className="text-white/20 normal-case font-normal">(optioneel)</span></label>

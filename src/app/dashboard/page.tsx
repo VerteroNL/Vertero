@@ -66,8 +66,11 @@ export default async function DashboardPage() {
           </Link>
         </div>
         {totalLeads === 0 ? (
-          <div className="px-5 py-10 text-center text-white/25 text-sm">
-            Nog geen leads
+          <div className="px-5 py-10 text-center">
+            <p className="text-white/25 text-sm mb-3">Nog geen leads ontvangen</p>
+            <Link href="/dashboard/quiz/new" className="inline-block text-xs font-semibold bg-[#f97316]/10 hover:bg-[#f97316]/20 text-[#f97316] px-4 py-2 rounded-lg transition">
+              Maak een quiz aan →
+            </Link>
           </div>
         ) : (
           <div className="divide-y divide-white/5">

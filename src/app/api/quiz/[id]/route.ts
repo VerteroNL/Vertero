@@ -56,6 +56,19 @@ export async function DELETE(
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const { count } = await supabase
+    .from('leads')
+    .select('*', { count: 'exact', head: true })
+    .eq('quiz_id', id)
+    .eq('user_id', userId)
+
+  if (count && count > 0) {
+    return NextResponse.json(
+      { error: `Deze quiz heeft ${count} lead${count === 1 ? '' : 's'}. Verwijder eerst de leads voordat je de quiz verwijdert.` },
+      { status: 409 }
+    )
+  }
+
   const { error } = await supabase
     .from('quizzes')
     .delete()
