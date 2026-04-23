@@ -150,7 +150,7 @@ export default function ProbeerPage() {
       <Nav />
       <div className="max-w-lg mx-auto px-5 pt-14 pb-24">
         <div className="inline-flex items-center gap-2 bg-[#f97316]/10 border border-[#f97316]/20 text-[#f97316] text-xs font-semibold px-3.5 py-1.5 rounded-full mb-10">
-          Gratis · Geen creditcard · Klaar in 2 minuten
+          Gratis · Klaar in 2 minuten
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3 leading-tight">
@@ -203,8 +203,6 @@ export default function ProbeerPage() {
         </button>
 
         <div className="flex items-center justify-center gap-5 mt-6 text-white/25 text-xs">
-          <span>✓ Geen creditcard</span>
-          <span>✓ Gratis voor altijd</span>
           <span>✓ Direct live</span>
         </div>
       </div>
@@ -481,7 +479,7 @@ export default function ProbeerPage() {
             </Link>
 
             <div className="flex items-center justify-center gap-5 mt-4">
-              {['Geen creditcard', 'Gratis starten', '2 minuten'].map(t => (
+              {['Gratis starten', '2 minuten'].map(t => (
                 <span key={t} className="text-[10px] text-white/30 flex items-center gap-1">
                   <span className="text-green-500 text-[10px]">✓</span> {t}
                 </span>

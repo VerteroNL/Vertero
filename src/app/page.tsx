@@ -175,7 +175,7 @@ export default function HomePage() {
                 {plan.monthly === 0 ? (
                   <>
                     <div className="text-4xl font-extrabold">€0</div>
-                    <div className="text-white/30 text-xs mt-1">voor altijd gratis</div>
+                    <div className="text-white/30 text-xs mt-1">gratis plan</div>
                   </>
                 ) : annual && plan.annualTotal ? (
                   <>
