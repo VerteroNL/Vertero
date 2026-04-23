@@ -40,7 +40,7 @@ export default function ContactPage() {
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/sign-in" className="hidden sm:block text-white/40 text-sm hover:text-white transition">Inloggen</Link>
-            <Link href="/sign-up" className="bg-[#f97316] hover:bg-[#ea6c0a] px-4 py-2 rounded-lg font-semibold text-sm transition">
+            <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-4 py-2 rounded-lg font-semibold text-sm transition">
               Gratis starten
             </Link>
           </div>
