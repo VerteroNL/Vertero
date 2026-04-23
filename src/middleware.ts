@@ -12,6 +12,8 @@ const isPublicRoute = createRouteMatcher([
   '/roi-calculator',
   '/probeer',
   '/api/quiz-temp',
+  '/api/webhooks/stripe',
+  '/embed(.*)',
 ])
 
 const proxyHandler = clerkMiddleware(async (auth, req) => {

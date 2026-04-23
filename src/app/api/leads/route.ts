@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { getUserPlan } from '@/lib/subscription'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,6 +21,24 @@ export async function POST(req: Request) {
 
     if (quizError || !quiz) {
       return NextResponse.json({ error: 'Quiz niet gevonden' }, { status: 404 })
+    }
+
+    // Free plan: max 5 leads per maand
+    if (quiz.user_id) {
+      const plan = await getUserPlan(quiz.user_id)
+      if (plan === 'free') {
+        const startOfMonth = new Date()
+        startOfMonth.setDate(1)
+        startOfMonth.setHours(0, 0, 0, 0)
+        const { count } = await supabase
+          .from('leads')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', quiz.user_id)
+          .gte('created_at', startOfMonth.toISOString())
+        if ((count ?? 0) >= 5) {
+          return NextResponse.json({ error: 'LIMIT_REACHED' }, { status: 403, headers: { 'Access-Control-Allow-Origin': '*' } })
+        }
+      }
     }
 
     const address = [street, postcode, city].filter(Boolean).join(', ')

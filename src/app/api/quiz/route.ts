@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { getUserPlan } from '@/lib/subscription'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,6 +12,17 @@ export async function POST(req: Request) {
   try {
     const { userId } = await auth()
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const plan = await getUserPlan(userId)
+    if (plan === 'free') {
+      const { count } = await supabase
+        .from('quizzes')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+      if ((count ?? 0) >= 1) {
+        return NextResponse.json({ error: 'UPGRADE_REQUIRED', message: 'Free plan is beperkt tot 1 quiz.' }, { status: 403 })
+      }
+    }
 
     const { name, config, duplicate_from } = await req.json()
 

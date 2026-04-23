@@ -18,7 +18,10 @@ export async function GET(
     .eq('slug', slug)
     .maybeSingle()
 
-  const headers = { 'Access-Control-Allow-Origin': '*' }
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+  }
   if (error || !data) return NextResponse.json({ error: 'Niet gevonden' }, { status: 404, headers })
   return NextResponse.json(data, { headers })
 }

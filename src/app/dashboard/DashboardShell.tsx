@@ -34,6 +34,9 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         <Link onClick={() => setOpen(false)} href="/dashboard/feedback" className="px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
           Feedback
         </Link>
+        <Link onClick={() => setOpen(false)} href="/dashboard/billing" className="px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
+          Abonnement
+        </Link>
       </div>
 
       <div className="px-3 py-3 border-t border-white/7 flex flex-col gap-0.5">
