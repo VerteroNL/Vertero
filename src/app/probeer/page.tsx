@@ -81,6 +81,8 @@ export default function ProbeerPage() {
       question: q.question,
       options: [...q.options],
     })))
+    setPreviewQ(0)
+    setPreviewStage('quiz')
     setStep(2)
   }
 
