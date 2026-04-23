@@ -88,7 +88,7 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
     <div className="min-h-screen bg-[#07070f] flex flex-col items-center justify-center">
       <div className="text-center">
         <div className="text-4xl mb-4">✓</div>
-        <h2 className="font-serif text-2xl italic text-white mb-2">Bedankt!</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">Bedankt!</h2>
         <p className="text-white/40 text-sm">Je antwoorden zijn ontvangen.</p>
       </div>
       <PoweredBy />
@@ -105,7 +105,7 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
     <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
-          <h1 className="font-serif text-3xl italic text-white mb-2">Bijna klaar!</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Bijna klaar!</h1>
           <p className="text-white/40 text-sm">Laat je gegevens achter zodat we contact kunnen opnemen.</p>
         </div>
 
@@ -222,7 +222,7 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
     <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
-          <h1 className="font-serif text-3xl italic text-white mb-1">{quiz.name}</h1>
+          <h1 className="text-3xl font-bold text-white mb-1">{quiz.name}</h1>
           <p className="text-white/30 text-sm">{current + 1} / {questions.length}</p>
         </div>
 

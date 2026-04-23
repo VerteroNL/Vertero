@@ -80,7 +80,7 @@ export default function EmbedClient({ quiz }: { quiz: Quiz }) {
       <div className="w-full max-w-[480px] bg-[#07070f] rounded-[20px] border border-white/10 overflow-hidden">
         <div className="p-8 text-center">
           <div className="text-4xl mb-4">✓</div>
-          <h2 className="font-serif text-2xl italic text-white mb-2">Bedankt!</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">Bedankt!</h2>
           <p className="text-white/40 text-sm">Je antwoorden zijn ontvangen.</p>
         </div>
         <PoweredBy />
