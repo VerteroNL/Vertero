@@ -214,7 +214,7 @@ export default function EmbedClient({ quiz }: { quiz: Quiz }) {
           <h2 className="text-white text-lg font-semibold mb-5 leading-snug">{q.question}</h2>
 
           <div className="flex flex-col gap-3 mb-6">
-            {q.type === 'multiple' && (
+            {(q.type === 'multiple' || !q.type) && (
               <>
                 {q.options.map((opt, i) => (
                   <button

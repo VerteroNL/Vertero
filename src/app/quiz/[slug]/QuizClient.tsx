@@ -236,7 +236,7 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
         <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 sm:p-8 mb-6">
           <h2 className="text-white text-xl font-semibold mb-6">{q.question}</h2>
 
-          {q.type === 'multiple' && (
+          {(q.type === 'multiple' || !q.type) && (
             <div className="flex flex-col gap-3">
               {q.options.map((opt, i) => (
                 <button
