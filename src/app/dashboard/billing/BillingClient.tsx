@@ -85,8 +85,8 @@ export default function BillingClient({ plan, justUpgraded }: { plan: Plan; just
               </li>
             ))}
           </ul>
-          <div className={`block text-center py-3 rounded-xl text-sm font-semibold border border-white/20 text-white/40 cursor-default`}>
-            Huidig plan
+          <div className="block text-center py-3 rounded-xl text-sm font-semibold border border-white/20 text-white/40 cursor-default">
+            {plan === 'free' ? 'Huidig plan' : 'Gedowngraded'}
           </div>
         </div>
 
