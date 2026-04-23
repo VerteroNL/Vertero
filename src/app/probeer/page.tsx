@@ -45,6 +45,7 @@ const FAKE_LEADS = [
 interface Question {
   id: string
   question: string
+  type: 'multiple' | 'text'
   options: string[]
 }
 
@@ -79,6 +80,7 @@ export default function ProbeerPage() {
     setQuestions((template?.questions || []).map(q => ({
       id: Math.random().toString(36).slice(2),
       question: q.question,
+      type: 'multiple' as const,
       options: [...q.options],
     })))
     setPreviewQ(0)
@@ -88,7 +90,7 @@ export default function ProbeerPage() {
 
   function addQuestion() {
     if (questions.length >= 5) return
-    setQuestions(prev => [...prev, { id: Math.random().toString(36).slice(2), question: '', options: ['', ''] }])
+    setQuestions(prev => [...prev, { id: Math.random().toString(36).slice(2), question: '', type: 'multiple' as const, options: ['', ''] }])
   }
 
   function removeQuestion(id: string) {
