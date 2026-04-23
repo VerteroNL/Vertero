@@ -8,8 +8,8 @@ const supabase = createClient(
   process.env.SUPABASE_SECRET_KEY!
 )
 
-const getQuiz = unstable_cache(
-  async (slug: string) => {
+const getQuiz = (slug: string) => unstable_cache(
+  async () => {
     const { data } = await supabase
       .from('quizzes')
       .select('*')
@@ -17,9 +17,9 @@ const getQuiz = unstable_cache(
       .maybeSingle()
     return data
   },
-  ['quiz-by-slug'],
-  { revalidate: 30, tags: ['quiz'] }
-)
+  [`quiz-${slug}`],
+  { revalidate: 30, tags: [`quiz-${slug}`] }
+)()
 
 export default async function PublicQuizPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
