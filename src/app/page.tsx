@@ -55,10 +55,10 @@ export default function HomePage() {
           </Link>
 
           <div className="flex items-center gap-4 md:gap-8">
-            {/* <a href="#prijzen" className="hidden md:block text-white/60 text-sm hover:text-[#f97316] transition">Prijzen</a> */}
+            <a href="#prijzen" className="hidden md:block text-white/60 text-sm hover:text-[#f97316] transition">Prijzen</a>
             <Link href="/faq" className="hidden md:block text-white/60 text-sm hover:text-[#f97316] transition">FAQ</Link>
             <Link href="/sign-in" className="hidden md:block text-white/60 text-sm hover:text-white transition">Inloggen</Link>
-            <Link href="/sign-up" className="bg-[#f97316] hover:bg-[#ea6c0a] px-4 md:px-5 py-2 rounded-lg font-semibold text-sm transition">
+            <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-4 md:px-5 py-2 rounded-lg font-semibold text-sm transition">
               Gratis starten
             </Link>
           </div>
@@ -82,8 +82,8 @@ export default function HomePage() {
             Werkt op je website óf deel simpel een link via WhatsApp, mail of social media
           </p>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <Link href="/sign-up" className="bg-[#f97316] hover:bg-[#ea6c0a] px-8 py-3.5 rounded-xl font-semibold text-base transition">
-              Gratis starten →
+            <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-8 py-3.5 rounded-xl font-semibold text-base transition">
+              Maak gratis je quiz →
             </Link>
             <Link href="/sign-in" className="text-white/50 hover:text-white text-sm transition">
               Al een account? Inloggen
@@ -154,8 +154,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* PRICING — verborgen, later activeren */}
-      {/*
+      {/* PRICING */}
       <section id="prijzen" className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-white/7">
         <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest text-center mb-4">Prijzen</p>
         <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-4">Simpel en duidelijk</h2>
@@ -238,7 +237,6 @@ export default function HomePage() {
           })}
         </div>
       </section>
-      */}
 
       {/* FOOTER */}
       <footer className="border-t border-white/7 py-10">
@@ -248,7 +246,7 @@ export default function HomePage() {
           </Link>
           <div className="flex gap-6 md:gap-8 flex-wrap justify-center">
             <Link href="/faq" className="text-white/40 text-sm hover:text-white transition">FAQ</Link>
-            {/* <a href="#prijzen" className="text-white/40 text-sm hover:text-white transition">Prijzen</a> */}
+            <a href="#prijzen" className="text-white/40 text-sm hover:text-white transition">Prijzen</a>
             <Link href="/sign-in" className="text-white/40 text-sm hover:text-white transition">Inloggen</Link>
             <Link href="/sign-up" className="text-white/40 text-sm hover:text-white transition">Registreren</Link>
           </div>

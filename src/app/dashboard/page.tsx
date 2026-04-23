@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
+import ClaimHandler from './ClaimHandler'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,6 +38,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-4 sm:p-8 max-w-3xl">
+      <ClaimHandler />
 
       {/* Hero: nieuwe leads */}
       <div className="mb-8">
