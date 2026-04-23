@@ -10,37 +10,20 @@ export default function HomePage() {
     {
       name: 'Free', monthly: 0, features: [
         '1 quiz',
-        '10 aanvragen per maand',
+        '5 aanvragen per maand',
         'Website + link',
-        'Vertero branding',
-      ], cta: 'Start gratis', href: '/sign-up', highlight: false
+        'Powered by Vertero zichtbaar',
+      ], cta: 'Start gratis', href: '/probeer', highlight: false
     },
     {
-      name: 'Premium', monthly: 39, features: [
-        '2 quizzen',
-        'Onbeperkt aanvragen',
-        'Eigen branding',
-        'E-mail notificaties',
-        'Website + link',
-      ], cta: 'Start Premium', href: '/sign-up', highlight: true
-    },
-    {
-      name: 'Pro', monthly: 69, features: [
-        '5 quizzen',
-        'Onbeperkt aanvragen',
-        'Eigen branding',
-        'Team gebruikers',
-        'Prioriteit support',
-      ], cta: 'Start Pro', href: '/sign-up', highlight: false
-    },
-    {
-      name: 'Enterprise', monthly: null, features: [
+      name: 'Pro', monthly: 69, annualTotal: 690, features: [
         'Onbeperkt quizzen',
         'Onbeperkt aanvragen',
-        'Custom integraties',
-        'Accountmanager',
-        'SLA',
-      ], cta: 'Neem contact op', href: '/contact', highlight: false
+        'Geen "Powered by Vertero"',
+        'Eigen branding + bedrijfskleuren',
+        'E-mail notificaties',
+        'Website + link',
+      ], cta: '14 dagen gratis proberen', href: '/sign-up', highlight: true
     },
   ]
 
@@ -174,67 +157,60 @@ export default function HomePage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {plans.map((plan) => {
-            const monthlyPrice = plan.monthly === null ? null : annual ? Math.round(plan.monthly * 0.83) : plan.monthly
-            const annualTotal = plan.monthly ? Math.round(plan.monthly * 0.83 * 12) : null
-            return (
-              <div
-                key={plan.name}
-                className={`bg-[#0d0d1c] rounded-2xl p-8 flex flex-col relative ${
-                  plan.highlight ? 'border border-[#f97316]' : 'border border-white/10'
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+          {plans.map((plan) => (
+            <div
+              key={plan.name}
+              className={`bg-[#0d0d1c] rounded-2xl p-8 flex flex-col relative ${
+                plan.highlight ? 'border border-[#f97316]' : 'border border-white/10'
+              }`}
+            >
+              {plan.highlight && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#f97316] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full whitespace-nowrap">
+                  Aanbevolen
+                </div>
+              )}
+              <h3 className="text-white/60 text-sm font-semibold mb-4">{plan.name}</h3>
+              <div className="h-24 flex flex-col justify-start mb-2">
+                {plan.monthly === 0 ? (
+                  <>
+                    <div className="text-4xl font-extrabold">€0</div>
+                    <div className="text-white/30 text-xs mt-1">voor altijd gratis</div>
+                  </>
+                ) : annual && plan.annualTotal ? (
+                  <>
+                    <div className="text-4xl font-extrabold">€{plan.annualTotal}</div>
+                    <div className="text-white/30 text-xs mt-1">per jaar</div>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="bg-[#f97316]/15 text-[#f97316] text-[10px] font-bold px-2 py-0.5 rounded-full">2 maanden gratis</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-4xl font-extrabold">€{plan.monthly}</div>
+                    <div className="text-white/30 text-xs mt-1">per maand</div>
+                  </>
+                )}
+              </div>
+              <ul className="text-white/50 text-sm space-y-2.5 flex-1 mb-8">
+                {plan.features.map(f => (
+                  <li key={f} className="flex items-start gap-2">
+                    <span className="text-[#f97316] text-xs mt-0.5 flex-shrink-0">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href={plan.href}
+                className={`block text-center py-3 rounded-xl text-sm font-semibold transition ${
+                  plan.highlight
+                    ? 'bg-[#f97316] hover:bg-[#ea6c0a] text-white'
+                    : 'border border-white/20 hover:border-white/40 text-white/60 hover:text-white'
                 }`}
               >
-                {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#f97316] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full whitespace-nowrap">
-                    Aanbevolen
-                  </div>
-                )}
-                <h3 className="text-white/60 text-sm font-semibold mb-4">{plan.name}</h3>
-                <div className="h-24 flex flex-col justify-start mb-2">
-                  {plan.monthly === null ? (
-                    <div className="text-3xl font-extrabold mt-2">Op aanvraag</div>
-                  ) : plan.monthly === 0 ? (
-                    <>
-                      <div className="text-4xl font-extrabold">€0</div>
-                      <div className="text-white/30 text-xs mt-1">voor altijd gratis</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-baseline gap-2">
-                        <div className="text-4xl font-extrabold">€{monthlyPrice}</div>
-                        {annual && <div className="text-white/30 text-sm line-through">€{plan.monthly}</div>}
-                      </div>
-                      <div className="text-white/30 text-xs mt-1">per maand</div>
-                      {annual && annualTotal && (
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[#f97316] text-xs font-semibold">€{annualTotal} / jaar</span>
-                          <span className="bg-[#f97316]/15 text-[#f97316] text-[10px] font-bold px-1.5 py-0.5 rounded-full">−17%</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-                <ul className="text-white/50 text-sm space-y-2.5 flex-1 mb-8">
-                  {plan.features.map(f => (
-                    <li key={f} className="flex items-start gap-2">
-                      <span className="text-[#f97316] text-xs mt-0.5 flex-shrink-0">✓</span> {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={plan.href}
-                  className={`block text-center py-3 rounded-xl text-sm font-semibold transition ${
-                    plan.highlight
-                      ? 'bg-[#f97316] hover:bg-[#ea6c0a] text-white'
-                      : 'border border-white/20 hover:border-white/40 text-white/60 hover:text-white'
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
-              </div>
-            )
-          })}
+                {plan.cta}
+              </Link>
+            </div>
+          ))}
         </div>
       </section>
 
