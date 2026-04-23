@@ -207,31 +207,31 @@ export default function ProbeerPage() {
 
   /* ─── STEP 2 ─── */
   if (step === 2) return (
-    <div className="h-screen bg-[#07070f] text-white flex flex-col overflow-hidden">
-      <div className="flex-shrink-0"><Nav /></div>
-
-      {/* Sub-header */}
-      <div className="flex-shrink-0 border-b border-white/[0.07] px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <button onClick={() => setStep(1)} className="text-white/35 hover:text-white text-sm transition flex-shrink-0">← Terug</button>
-          <span className="text-white/20 text-sm flex-shrink-0">|</span>
-          <span className="text-sm font-semibold text-white/80 truncate">{quizName}</span>
-        </div>
-        {/* Mobile tabs */}
-        <div className="flex md:hidden bg-white/5 rounded-lg p-1 gap-1 flex-shrink-0">
-          {(['bouwen', 'preview'] as const).map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition capitalize ${activeTab === tab ? 'bg-white/10 text-white' : 'text-white/40'}`}>
-              {tab === 'bouwen' ? 'Bouwen' : 'Preview'}
-            </button>
-          ))}
+    <div className="bg-[#07070f] text-white">
+      <div className="sticky top-0 z-50">
+        <Nav />
+        {/* Sub-header */}
+        <div className="border-b border-white/[0.07] px-4 sm:px-6 py-3 flex items-center justify-between gap-3 bg-[#07070f]">
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={() => setStep(1)} className="text-white/35 hover:text-white text-sm transition flex-shrink-0">← Terug</button>
+            <span className="text-white/20 text-sm flex-shrink-0">|</span>
+            <span className="text-sm font-semibold text-white/80 truncate">{quizName}</span>
+          </div>
+          <div className="flex md:hidden bg-white/5 rounded-lg p-1 gap-1 flex-shrink-0">
+            {(['bouwen', 'preview'] as const).map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)}
+                className={`px-3 py-1 rounded-md text-xs font-semibold transition ${activeTab === tab ? 'bg-white/10 text-white' : 'text-white/40'}`}>
+                {tab === 'bouwen' ? 'Bouwen' : 'Preview'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-1 min-h-0">
-        {/* LEFT: Builder */}
-        <div className={`${activeTab === 'preview' ? 'hidden' : 'flex'} md:flex flex-col w-full md:w-[54%] border-r border-white/[0.07] min-h-0`}>
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+      <div className="flex">
+        {/* LEFT: Builder — scrolls normally */}
+        <div className={`${activeTab === 'preview' ? 'hidden' : 'block'} md:block w-full md:w-[54%] border-r border-white/[0.07]`}>
+          <div className="p-4 sm:p-6">
             {questions.length === 0 && (
               <div className="border border-dashed border-white/10 rounded-xl p-12 text-center text-white/25 text-sm mb-4">
                 Voeg je eerste vraag toe
@@ -279,20 +279,17 @@ export default function ProbeerPage() {
             {questions.length < 5 ? (
               <button
                 onClick={addQuestion}
-                className="w-full border border-dashed border-white/[0.12] hover:border-white/25 rounded-xl py-3.5 text-sm text-white/35 hover:text-white/60 transition"
+                className="w-full border border-dashed border-white/[0.12] hover:border-white/25 rounded-xl py-3.5 text-sm text-white/35 hover:text-white/60 transition mb-4"
               >
                 + Vraag toevoegen
               </button>
             ) : (
-              <p className="text-center text-white/25 text-xs py-1">
+              <p className="text-center text-white/25 text-xs py-1 mb-4">
                 Maximum van 5 vragen bereikt ·{' '}
                 <Link href="/sign-up" className="text-[#f97316] hover:text-[#ea6c0a] transition">Meer? Maak een account</Link>
               </p>
             )}
-          </div>
 
-          {/* Sticky publish */}
-          <div className="border-t border-white/[0.07] p-4 sm:p-5 flex-shrink-0">
             <button
               onClick={publish}
               disabled={publishing || !canPublish}
@@ -300,77 +297,71 @@ export default function ProbeerPage() {
             >
               {publishing ? 'Publiceren...' : 'Publiceer gratis →'}
             </button>
-            <p className="text-center text-white/25 text-xs mt-2">Geen account vereist</p>
+            <p className="text-center text-white/25 text-xs mt-2 pb-6">Geen account vereist</p>
           </div>
         </div>
 
-        {/* RIGHT: Live preview */}
-        <div className={`${activeTab === 'bouwen' ? 'hidden' : 'flex'} md:flex flex-col flex-1 items-center justify-center bg-white/[0.012] p-6 overflow-y-auto`}>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-6">Live voorbeeld</p>
-
-          {/* Phone frame */}
-          <div className="w-[268px] bg-[#07070f] rounded-[34px] border-2 border-white/[0.12] shadow-2xl overflow-hidden">
-            {/* Notch */}
-            <div className="h-7 flex items-center justify-center">
-              <div className="w-14 h-1 bg-white/10 rounded-full" />
-            </div>
-
-            <div className="px-4 pb-5 min-h-[400px] flex flex-col">
-              {questions.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center text-white/20 text-xs text-center px-4">
-                  Voeg vragen toe om de preview te zien
-                </div>
-              ) : previewStage === 'quiz' && currentQ ? (
-                <div className="flex-1 flex flex-col">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[9px] text-white/30">{previewQ + 1} / {questions.length}</span>
+        {/* RIGHT: Live preview — sticky so it stays in view while left scrolls */}
+        <div className={`${activeTab === 'bouwen' ? 'hidden' : 'flex'} md:flex flex-1 sticky top-[89px] h-[calc(100vh-89px)] items-center justify-center bg-white/[0.012] p-6`}>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-6 text-center">Live voorbeeld</p>
+            <div className="w-[268px] bg-[#07070f] rounded-[34px] border-2 border-white/[0.12] shadow-2xl overflow-hidden">
+              <div className="h-7 flex items-center justify-center">
+                <div className="w-14 h-1 bg-white/10 rounded-full" />
+              </div>
+              <div className="px-4 pb-5 min-h-[400px] flex flex-col">
+                {questions.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center text-white/20 text-xs text-center px-4">
+                    Voeg vragen toe om de preview te zien
                   </div>
-                  <div className="w-full bg-white/5 rounded-full h-[2px] mb-4">
-                    <div className="bg-[#f97316] h-[2px] rounded-full transition-all" style={{ width: `${((previewQ + 1) / questions.length) * 100}%` }} />
+                ) : previewStage === 'quiz' && currentQ ? (
+                  <div className="flex-1 flex flex-col">
+                    <div className="mb-2">
+                      <span className="text-[9px] text-white/30">{previewQ + 1} / {questions.length}</span>
+                    </div>
+                    <div className="w-full bg-white/5 rounded-full h-[2px] mb-4">
+                      <div className="bg-[#f97316] h-[2px] rounded-full transition-all" style={{ width: `${((previewQ + 1) / questions.length) * 100}%` }} />
+                    </div>
+                    <p className="text-white text-[13px] font-semibold mb-4 leading-snug">
+                      {currentQ.question || <span className="text-white/20 italic">Jouw vraag...</span>}
+                    </p>
+                    <div className="space-y-2 flex-1">
+                      {currentQ.options.filter(Boolean).map((opt, i) => (
+                        <div key={i} className="text-left text-[11px] px-3 py-2.5 rounded-lg border border-white/10 text-white/60">{opt}</div>
+                      ))}
+                      {currentQ.options.filter(Boolean).length === 0 && (
+                        <div className="border border-dashed border-white/10 rounded-lg p-3 text-white/15 text-[10px]">Voeg opties toe...</div>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between mt-4 pt-2">
+                      {previewQ > 0
+                        ? <button onClick={() => setPreviewQ(p => p - 1)} className="text-white/30 text-[11px]">← Vorige</button>
+                        : <div />}
+                      <button
+                        onClick={() => previewQ < questions.length - 1 ? setPreviewQ(p => p + 1) : setPreviewStage('contact')}
+                        className="bg-[#f97316] text-white text-[11px] font-bold px-4 py-2 rounded-lg"
+                      >
+                        Volgende →
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-white text-[13px] font-semibold mb-4 leading-snug flex-shrink-0">
-                    {currentQ.question || <span className="text-white/20 italic">Jouw vraag...</span>}
-                  </p>
-                  <div className="space-y-2 flex-1">
-                    {currentQ.options.filter(Boolean).map((opt, i) => (
-                      <div key={i} className="text-left text-[11px] px-3 py-2.5 rounded-lg border border-white/10 text-white/60">
-                        {opt}
-                      </div>
+                ) : (
+                  <div className="flex-1 flex flex-col">
+                    <p className="text-white text-[13px] font-semibold mb-1">Bijna klaar!</p>
+                    <p className="text-white/40 text-[10px] mb-3">Laat je gegevens achter.</p>
+                    {['Naam', 'E-mail', 'Telefoon (optioneel)'].map(f => (
+                      <div key={f} className="bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2.5 mb-2 text-white/25 text-[10px]">{f}</div>
                     ))}
-                    {currentQ.options.filter(Boolean).length === 0 && (
-                      <div className="border border-dashed border-white/10 rounded-lg p-3 text-white/15 text-[10px]">Voeg opties toe...</div>
-                    )}
+                    <button className="w-full bg-[#f97316] text-white text-[11px] font-bold py-2.5 rounded-lg mt-1">Versturen →</button>
+                    <button onClick={() => { setPreviewStage('quiz'); setPreviewQ(0) }} className="text-center text-white/25 text-[10px] mt-2">← Terug</button>
                   </div>
-                  <div className="flex items-center justify-between mt-4 pt-2">
-                    {previewQ > 0
-                      ? <button onClick={() => setPreviewQ(p => p - 1)} className="text-white/30 text-[11px]">← Vorige</button>
-                      : <div />
-                    }
-                    <button
-                      onClick={() => previewQ < questions.length - 1 ? setPreviewQ(p => p + 1) : setPreviewStage('contact')}
-                      className="bg-[#f97316] text-white text-[11px] font-bold px-4 py-2 rounded-lg"
-                    >
-                      Volgende →
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-1 flex flex-col">
-                  <p className="text-white text-[13px] font-semibold mb-1">Bijna klaar!</p>
-                  <p className="text-white/40 text-[10px] mb-3">Laat je gegevens achter.</p>
-                  {['Naam', 'E-mail', 'Telefoon (optioneel)'].map(f => (
-                    <div key={f} className="bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2.5 mb-2 text-white/25 text-[10px]">{f}</div>
-                  ))}
-                  <button className="w-full bg-[#f97316] text-white text-[11px] font-bold py-2.5 rounded-lg mt-1">Versturen →</button>
-                  <button onClick={() => { setPreviewStage('quiz'); setPreviewQ(0) }} className="text-center text-white/25 text-[10px] mt-2">← Terug</button>
-                </div>
-              )}
-            </div>
-
-            <div className="px-4 pb-4 flex items-center justify-center gap-1.5 opacity-30">
-              <span className="text-[8px] text-white/50">Powered by</span>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Vertero" className="h-[8px]" />
+                )}
+              </div>
+              <div className="px-4 pb-4 flex items-center justify-center gap-1.5 opacity-30">
+                <span className="text-[8px] text-white/50">Powered by</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="Vertero" className="h-[8px]" />
+              </div>
             </div>
           </div>
         </div>
