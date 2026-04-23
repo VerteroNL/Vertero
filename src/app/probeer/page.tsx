@@ -207,11 +207,11 @@ export default function ProbeerPage() {
 
   /* ─── STEP 2 ─── */
   if (step === 2) return (
-    <div className="min-h-screen bg-[#07070f] text-white flex flex-col">
-      <Nav />
+    <div className="h-screen bg-[#07070f] text-white flex flex-col overflow-hidden">
+      <div className="flex-shrink-0"><Nav /></div>
 
       {/* Sub-header */}
-      <div className="border-b border-white/[0.07] px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <div className="flex-shrink-0 border-b border-white/[0.07] px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <button onClick={() => setStep(1)} className="text-white/35 hover:text-white text-sm transition flex-shrink-0">← Terug</button>
           <span className="text-white/20 text-sm flex-shrink-0">|</span>
