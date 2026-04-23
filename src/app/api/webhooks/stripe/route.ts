@@ -32,13 +32,14 @@ export async function POST(req: Request) {
       const isProYearly = priceId === process.env.STRIPE_PRICE_PRO_YEARLY
       const plan = (isProMonthly || isProYearly) ? 'pro' : 'free'
 
+      const periodEnd = sub.items.data[0]?.current_period_end
       await supabase.from('subscriptions').upsert({
         user_id: userId,
         stripe_customer_id: sub.customer as string,
         stripe_subscription_id: sub.id,
         plan,
         status: sub.status,
-        current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+        current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
       }, { onConflict: 'user_id' })
       break
     }
@@ -52,12 +53,13 @@ export async function POST(req: Request) {
       const userId = sub.metadata?.userId
       if (!userId) break
 
+      const periodEnd = sub.items.data[0]?.current_period_end
       await supabase.from('subscriptions').upsert({
         user_id: userId,
         stripe_subscription_id: sub.id,
         plan: 'free',
         status: 'canceled',
-        current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+        current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
       }, { onConflict: 'user_id' })
       break
     }
