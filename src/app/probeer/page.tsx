@@ -57,7 +57,6 @@ export default function ProbeerPage() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [publishing, setPublishing] = useState(false)
   const [publishedSlug, setPublishedSlug] = useState('')
-  const [publishedToken, setPublishedToken] = useState('')
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<'bouwen' | 'preview'>('bouwen')
   const [previewQ, setPreviewQ] = useState(0)
@@ -73,10 +72,6 @@ export default function ProbeerPage() {
   }, [step])
 
   // Reset preview when questions change
-  useEffect(() => {
-    setPreviewQ(0)
-    setPreviewStage('quiz')
-  }, [questions])
 
   function goToStep2() {
     if (!quizName.trim()) return
@@ -124,7 +119,6 @@ export default function ProbeerPage() {
     const data = await res.json()
     if (data.slug) {
       setPublishedSlug(data.slug)
-      setPublishedToken(data.token)
       if (typeof window !== 'undefined') {
         localStorage.setItem('vertero_claim_token', data.token)
       }
