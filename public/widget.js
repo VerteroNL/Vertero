@@ -136,8 +136,13 @@
     const city = document.getElementById('vertero-city')?.value || '';
     const err = document.getElementById('vertero-error');
 
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
     if (!name || !email || !street || !postcode || !city) {
       if (err) { err.textContent = 'Vul alsjeblieft alle verplichte velden in.'; err.classList.add('visible'); }
+      return;
+    }
+    if (!emailValid) {
+      if (err) { err.textContent = 'Vul een geldig e-mailadres in.'; err.classList.add('visible'); }
       return;
     }
     if (err) err.classList.remove('visible');
