@@ -7,15 +7,16 @@
 
   const style = document.createElement('style');
   style.textContent = `
+    :root { --vt-brand: #f97316; }
     #vertero-btn {
       position: fixed; bottom: 24px; right: 24px;
-      background: #6c5ce7; color: white; border: none;
+      background: var(--vt-brand); color: white; border: none;
       padding: 14px 24px; border-radius: 50px;
       font-family: sans-serif; font-size: 15px; font-weight: 600;
-      cursor: pointer; box-shadow: 0 8px 24px rgba(108,92,231,0.4);
+      cursor: pointer; box-shadow: 0 8px 24px rgba(249,115,22,0.4);
       z-index: 9999; transition: all 0.2s;
     }
-    #vertero-btn:hover { transform: translateY(-2px); background: #7d6ef5; }
+    #vertero-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
     #vertero-overlay {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.7); z-index: 10000;
@@ -36,7 +37,7 @@
     }
     .vertero-progress { display: flex; gap: 5px; margin-bottom: 24px; }
     .vertero-seg { flex: 1; height: 2px; border-radius: 1px; background: rgba(255,255,255,0.1); }
-    .vertero-seg.on { background: #6c5ce7; }
+    .vertero-seg.on { background: var(--vt-brand); }
     .vertero-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
     .vertero-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
     .vertero-options { display: flex; flex-direction: column; gap: 8px; }
@@ -46,23 +47,23 @@
       color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.03);
       transition: all 0.15s; text-align: left;
     }
-    .vertero-opt:hover { border-color: #6c5ce7; color: white; }
-    .vertero-opt.selected { border-color: #6c5ce7; background: rgba(108,92,231,0.12); color: white; }
+    .vertero-opt:hover { border-color: var(--vt-brand); color: white; }
+    .vertero-opt.selected { border-color: var(--vt-brand); background: rgba(249,115,22,0.12); color: white; }
     .vertero-input {
       width: 100%; padding: 12px 14px;
       background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
       border-radius: 10px; color: white; font-size: 14px;
       outline: none; margin-bottom: 10px; box-sizing: border-box;
     }
-    .vertero-input:focus { border-color: #6c5ce7; }
+    .vertero-input:focus { border-color: var(--vt-brand); }
     .vertero-input::placeholder { color: rgba(255,255,255,0.2); }
     .vertero-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
     .vertero-next {
-      background: #6c5ce7; color: white; border: none;
+      background: var(--vt-brand); color: white; border: none;
       padding: 11px 24px; border-radius: 10px; font-size: 14px;
       font-weight: 600; cursor: pointer; transition: all 0.15s;
     }
-    .vertero-next:hover { background: #7d6ef5; }
+    .vertero-next:hover { filter: brightness(1.1); }
     .vertero-back {
       background: none; border: 1px solid rgba(255,255,255,0.1);
       color: rgba(255,255,255,0.4); padding: 10px 18px;
@@ -171,7 +172,11 @@
 
   fetch(`${apiBase}/api/quiz-public/${quizId}`)
     .then(r => r.json())
-    .then(data => { quiz = data; })
+    .then(data => {
+      quiz = data;
+      const color = data?.config?.brandColor || '#f97316';
+      document.documentElement.style.setProperty('--vt-brand', color);
+    })
     .catch(() => console.error('vertero: quiz kon niet worden geladen'));
 
   document.getElementById('vertero-btn').onclick = () => {
@@ -208,7 +213,7 @@
         ${progressHTML}
         <div class="vertero-title">${q.question}</div>
         ${isOptional ? `<div class="vertero-sub">Optioneel</div>` : ''}
-        ${q.type === 'multiple' ? `
+        ${(q.type === 'multiple' || !q.type) ? `
           <div class="vertero-options">
             ${q.options.map(opt => `
               <button class="vertero-opt ${answers[currentStep] === opt ? 'selected' : ''}"
