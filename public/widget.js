@@ -176,12 +176,20 @@
       quiz = data;
       const color = data?.config?.brandColor || '#f97316';
       document.documentElement.style.setProperty('--vt-brand', color);
+      // Als modal al open is (gebruiker klikte voor fetch klaar was), render nu
+      if (document.getElementById('vertero-overlay').classList.contains('open')) {
+        renderStep();
+      }
     })
     .catch(() => console.error('vertero: quiz kon niet worden geladen'));
 
   document.getElementById('vertero-btn').onclick = () => {
     document.getElementById('vertero-overlay').classList.add('open');
-    renderStep();
+    if (quiz) {
+      renderStep();
+    } else {
+      document.getElementById('vertero-content').innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);font-size:14px">Laden...</div>';
+    }
   };
   document.getElementById('vertero-close').onclick = closeModal;
   document.getElementById('vertero-overlay').onclick = (e) => {
