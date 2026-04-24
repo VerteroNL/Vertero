@@ -47,7 +47,7 @@
       color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.03);
       transition: all 0.15s; text-align: left;
     }
-    .vertero-opt:hover { border-color: var(--vt-brand); color: white; }
+    .vertero-opt:hover { border-color: rgba(255,255,255,0.25); color: white; }
     .vertero-opt.selected { border-color: var(--vt-brand); background: rgba(249,115,22,0.12); color: white; }
     .vertero-input {
       width: 100%; padding: 12px 14px;
