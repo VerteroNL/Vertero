@@ -14,13 +14,14 @@ interface Quiz {
   id: string
   name: string
   slug: string
-  config: { questions: Question[] }
+  config: { questions: Question[]; brandColor?: string }
 }
 
 const REQUIRED_FIELDS = ['name', 'email', 'street', 'postcode', 'city'] as const
 type ContactField = typeof REQUIRED_FIELDS[number] | 'phone'
 
-export default function QuizClient({ quiz }: { quiz: Quiz }) {
+export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz; showPoweredBy?: boolean }) {
+  const brand = quiz.config?.brandColor || '#f97316'
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [current, setCurrent] = useState(0)
   const [stage, setStage] = useState<'quiz' | 'contact' | 'done'>('quiz')
@@ -205,11 +206,12 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
           >
             ← Terug
           </button>
-          <PoweredBy />
+          {showPoweredBy && <PoweredBy />}
           <button
             onClick={submit}
             disabled={submitting}
-            className="justify-self-end bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+            className="justify-self-end disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+            style={{ background: brand }}
           >
             {submitting ? 'Versturen...' : 'Versturen →'}
           </button>
@@ -228,8 +230,8 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
 
         <div className="w-full bg-white/5 rounded-full h-1 mb-8">
           <div
-            className="bg-[#f97316] h-1 rounded-full transition-all"
-            style={{ width: `${((current + 1) / questions.length) * 100}%` }}
+            className="h-1 rounded-full transition-all"
+            style={{ width: `${((current + 1) / questions.length) * 100}%`, background: brand }}
           />
         </div>
 
@@ -242,22 +244,16 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
                 <button
                   key={i}
                   onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}
-                  className={`text-left px-4 py-3 rounded-xl border transition text-sm font-medium ${
-                    answers[q.id] === opt
-                      ? 'border-[#f97316] bg-[#f97316]/10 text-white'
-                      : 'border-white/10 text-white/60 hover:border-white/20 hover:text-white'
-                  }`}
+                  className="text-left px-4 py-3 rounded-xl border transition text-sm font-medium border-white/10 text-white/60 hover:border-white/20 hover:text-white"
+                  style={answers[q.id] === opt ? { borderColor: brand, background: `${brand}1a`, color: '#fff' } : {}}
                 >
                   {opt}
                 </button>
               ))}
               {q.allowCustom && (
                 <div
-                  className={`rounded-xl border transition ${
-                    answers[q.id] !== undefined && !q.options.includes(answers[q.id])
-                      ? 'border-[#f97316] bg-[#f97316]/10'
-                      : 'border-white/10'
-                  }`}
+                  className="rounded-xl border transition border-white/10"
+                  style={answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? { borderColor: brand, background: `${brand}1a` } : {}}
                 >
                   <button
                     onClick={() => setAnswers(prev => ({ ...prev, [q.id]: prev[q.id] !== undefined && !q.options.includes(prev[q.id]) ? prev[q.id] : '' }))}
@@ -272,7 +268,7 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
                       value={answers[q.id]}
                       onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                       placeholder="Typ je antwoord..."
-                      className="w-full bg-transparent border-t border-[#f97316]/20 px-4 py-3 text-sm text-white placeholder-white/30 outline-none"
+                      className="w-full bg-transparent border-t border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 outline-none"
                     />
                   )}
                 </div>
@@ -286,7 +282,7 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
               onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
               placeholder="Typ je antwoord..."
               rows={4}
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#f97316]/50 transition resize-none"
+              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition resize-none"
             />
           )}
         </div>
@@ -301,7 +297,7 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
             </button>
           ) : <div />}
 
-          <PoweredBy />
+          {showPoweredBy && <PoweredBy />}
 
           <button
             onClick={() => {
@@ -312,7 +308,8 @@ export default function QuizClient({ quiz }: { quiz: Quiz }) {
               }
             }}
             disabled={!answers[q.id]}
-            className="justify-self-end bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+            className="justify-self-end disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+            style={{ background: brand }}
           >
             Volgende →
           </button>

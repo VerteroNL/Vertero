@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
 import QuizClient from './QuizClient'
+import { getUserPlan } from '@/lib/subscription'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,5 +28,8 @@ export default async function PublicQuizPage({ params }: { params: Promise<{ slu
 
   if (!quiz) notFound()
 
-  return <QuizClient quiz={quiz} />
+  const plan = quiz.user_id ? await getUserPlan(quiz.user_id) : 'free'
+  const showPoweredBy = plan !== 'pro'
+
+  return <QuizClient quiz={quiz} showPoweredBy={showPoweredBy} />
 }

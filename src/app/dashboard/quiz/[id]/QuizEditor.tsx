@@ -15,13 +15,14 @@ interface Quiz {
   name: string
   slug: string
   active: boolean
-  config: { questions: Question[]; scoring?: boolean }
+  config: { questions: Question[]; scoring?: boolean; brandColor?: string }
 }
 
 export default function QuizEditor({ quiz: initial }: { quiz: Quiz }) {
   const [quiz] = useState<Quiz>(initial)
   const [questions, setQuestions] = useState<Question[]>(initial.config?.questions || [])
   const [scoring, setScoring] = useState(initial.config?.scoring ?? false)
+  const [brandColor, setBrandColor] = useState(initial.config?.brandColor ?? '#f97316')
   const [saving, setSaving] = useState(false)
   const [savedAt, setSavedAt] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -82,7 +83,7 @@ export default function QuizEditor({ quiz: initial }: { quiz: Quiz }) {
     await fetch(`/api/quiz/${quiz.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: { questions, scoring } })
+      body: JSON.stringify({ config: { questions, scoring, brandColor } })
     })
     setSaving(false)
     setSavedAt(new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))
@@ -140,6 +141,26 @@ export default function QuizEditor({ quiz: initial }: { quiz: Quiz }) {
           >
             {saving ? 'Opslaan...' : 'Opslaan →'}
           </button>
+        </div>
+      </div>
+
+      {/* Branding */}
+      <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-5 mb-6 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold">Merkkleur</p>
+          <p className="text-white/40 text-xs mt-0.5">Wordt gebruikt voor knoppen en accenten in je quiz.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg border border-white/10 overflow-hidden cursor-pointer relative">
+            <input
+              type="color"
+              value={brandColor}
+              onChange={e => setBrandColor(e.target.value)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+            <div className="w-full h-full rounded-lg" style={{ background: brandColor }} />
+          </div>
+          <span className="text-white/40 text-xs font-mono uppercase">{brandColor}</span>
         </div>
       </div>
 

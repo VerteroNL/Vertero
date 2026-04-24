@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { getUserPlan } from '@/lib/subscription'
+import { clerkClient } from '@clerk/nextjs/server'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,13 +63,51 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: leadError.message }, { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } })
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: 'website@vertero.nl',
-      subject: 'Nieuwe lead via Vertero',
-      html: `<p>Nieuwe lead van <strong>${name}</strong> (${email}${phone ? `, ${phone}` : ''}) via quiz <strong>${quiz.title ?? slug}</strong>.</p>${address ? `<p><strong>Adres:</strong> ${address}</p>` : ''}`
-    })
+    // Stuur e-mail naar de quiz-eigenaar als die dat wil
+    if (quiz.user_id) {
+      const { data: settings } = await supabase
+        .from('user_settings')
+        .select('email_on_new_lead')
+        .eq('user_id', quiz.user_id)
+        .maybeSingle()
+
+      const emailEnabled = settings?.email_on_new_lead !== false
+
+      if (emailEnabled) {
+        try {
+          const clerk = await clerkClient()
+          const owner = await clerk.users.getUser(quiz.user_id)
+          const ownerEmail = owner.emailAddresses[0]?.emailAddress
+          if (ownerEmail) {
+            const resend = new Resend(process.env.RESEND_API_KEY)
+            const answersHtml = Object.entries(answers as Record<string, string>)
+              .map(([q, a]) => `<tr><td style="padding:6px 12px;color:#999;font-size:13px">${q}</td><td style="padding:6px 12px;font-size:13px">${a}</td></tr>`)
+              .join('')
+            await resend.emails.send({
+              from: 'Vertero <noreply@vertero.nl>',
+              to: ownerEmail,
+              subject: `Nieuwe lead: ${name}`,
+              html: `
+                <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#07070f;color:#fff;padding:32px;border-radius:16px">
+                  <h2 style="margin:0 0 4px;font-size:20px">Nieuwe lead ontvangen</h2>
+                  <p style="margin:0 0 24px;color:#999;font-size:14px">Via quiz: <strong style="color:#f97316">${quiz.name ?? slug}</strong></p>
+                  <table style="width:100%;border-collapse:collapse;background:#0d0d1c;border-radius:12px;overflow:hidden">
+                    <tr><td style="padding:6px 12px;color:#999;font-size:13px">Naam</td><td style="padding:6px 12px;font-size:13px">${name}</td></tr>
+                    <tr><td style="padding:6px 12px;color:#999;font-size:13px">E-mail</td><td style="padding:6px 12px;font-size:13px">${email}</td></tr>
+                    ${phone ? `<tr><td style="padding:6px 12px;color:#999;font-size:13px">Telefoon</td><td style="padding:6px 12px;font-size:13px">${phone}</td></tr>` : ''}
+                    ${address ? `<tr><td style="padding:6px 12px;color:#999;font-size:13px">Adres</td><td style="padding:6px 12px;font-size:13px">${address}</td></tr>` : ''}
+                    ${answersHtml}
+                  </table>
+                  <p style="margin:24px 0 0;font-size:12px;color:#555">Vertero · <a href="https://vertero.nl/dashboard" style="color:#f97316">Bekijk in dashboard</a></p>
+                </div>
+              `
+            })
+          }
+        } catch {
+          // e-mail fout mag lead niet blokkeren
+        }
+      }
+    }
 
     return NextResponse.json({ success: true, lead }, { headers: { 'Access-Control-Allow-Origin': '*' } })
   } catch (err) {
