@@ -12,6 +12,8 @@ const isPublicRoute = createRouteMatcher([
   '/roi-calculator',
   '/probeer',
   '/api/quiz-temp',
+  '/api/quiz-public(.*)',
+  '/api/leads',
   '/api/webhooks/stripe',
   '/embed(.*)',
 ])
