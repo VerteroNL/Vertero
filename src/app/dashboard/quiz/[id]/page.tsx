@@ -21,5 +21,5 @@ export default async function QuizPage({ params }: { params: Promise<{ id: strin
 
   if (!quiz) notFound()
 
-  return <QuizEditor quiz={quiz} />
+  return <div className="h-full flex flex-col"><QuizEditor quiz={quiz} /></div>
 }
