@@ -214,33 +214,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* DATA TRANSPARENCY — required for Google OAuth verification */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-24 border-t border-white/7">
-        <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest text-center mb-4">Jouw gegevens</p>
-        <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-4">Transparant over privacy</h2>
-        <p className="text-white/40 text-center text-sm mb-12 max-w-xl mx-auto">
-          Vertero vraagt toegang tot je Google-account uitsluitend om je aan te melden. We gebruiken alleen je naam en e-mailadres.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {[
-            { icon: '👤', title: 'Naam en e-mail', desc: 'We gebruiken je Google-naam en e-mailadres om je account aan te maken en je te kunnen bereiken.' },
-            { icon: '🔒', title: 'Geen wachtwoord', desc: 'Vertero slaat nooit je Google-wachtwoord op. Inloggen verloopt volledig via Google\'s beveiligde OAuth.' },
-            { icon: '🚫', title: 'Geen doorverkoop', desc: 'We verkopen je gegevens nooit aan derden en gebruiken ze uitsluitend voor het leveren van onze dienst.' },
-          ].map((item, i) => (
-            <div key={i} className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition text-center">
-              <div className="text-3xl mb-4">{item.icon}</div>
-              <h3 className="font-bold text-base mb-2">{item.title}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-        <p className="text-center mt-8 text-white/30 text-sm">
-          Lees ons volledige{' '}
-          <Link href="/privacy" className="text-[#f97316] hover:underline">privacybeleid</Link>
-          {' '}voor meer informatie.
-        </p>
-      </section>
-
       {/* FOOTER */}
       <footer className="border-t border-white/7 py-10">
         <div className="max-w-7xl mx-auto px-5 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -255,7 +228,9 @@ export default function HomePage() {
             <Link href="/privacy" className="text-white/40 text-sm hover:text-white transition">Privacybeleid</Link>
             <Link href="/terms" className="text-white/40 text-sm hover:text-white transition">Voorwaarden</Link>
           </div>
-          <p className="text-white/20 text-sm">© 2025 Vertero. Alle rechten voorbehouden.</p>
+          <p className="text-white/20 text-sm">
+            © 2025 Vertero · We gebruiken je naam en e-mail uitsluitend voor je account. <Link href="/privacy" className="underline hover:text-white/40 transition">Privacybeleid</Link>
+          </p>
         </div>
       </footer>
 
