@@ -228,9 +228,7 @@ export default function HomePage() {
             <Link href="/privacy" className="text-white/40 text-sm hover:text-white transition">Privacybeleid</Link>
             <Link href="/terms" className="text-white/40 text-sm hover:text-white transition">Voorwaarden</Link>
           </div>
-          <p className="text-white/20 text-sm">
-            © 2025 Vertero · We gebruiken je naam en e-mail uitsluitend voor je account. <Link href="/privacy" className="underline hover:text-white/40 transition">Privacybeleid</Link>
-          </p>
+          <p className="text-white/20 text-sm">© 2025 Vertero. Alle rechten voorbehouden.</p>
         </div>
       </footer>
 
