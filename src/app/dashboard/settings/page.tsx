@@ -1,6 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
+import { getUserPlan } from '@/lib/subscription'
 import SettingsForm from './SettingsForm'
 
 const supabase = createClient(
@@ -12,9 +13,10 @@ export default async function SettingsPage() {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
-  const [user, settingsResult] = await Promise.all([
+  const [user, settingsResult, plan] = await Promise.all([
     currentUser(),
     supabase.from('user_settings').select('*').eq('user_id', userId).maybeSingle(),
+    getUserPlan(userId),
   ])
 
   const settings = settingsResult.data
@@ -48,7 +50,7 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      <SettingsForm initialEmailOnNewLead={settings?.email_on_new_lead ?? true} />
+      <SettingsForm initialEmailOnNewLead={settings?.email_on_new_lead ?? true} plan={plan} />
       </div>
     </div>
   )

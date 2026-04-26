@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { getUserPlan } from '@/lib/subscription'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,6 +36,12 @@ export async function PATCH(
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
+
+  // Strip pro-only fields for free users
+  const plan = await getUserPlan(userId)
+  if (plan === 'free' && body.config?.brandColor) {
+    body.config = { ...body.config, brandColor: '#f97316' }
+  }
 
   const { data, error } = await supabase
     .from('quizzes')

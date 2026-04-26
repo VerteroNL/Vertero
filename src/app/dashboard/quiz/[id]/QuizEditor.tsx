@@ -18,7 +18,8 @@ interface Quiz {
   config: { questions: Question[]; scoring?: boolean; brandColor?: string }
 }
 
-export default function QuizEditor({ quiz: initial }: { quiz: Quiz }) {
+export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 'free' | 'pro' }) {
+  const isPro = plan === 'pro'
   const [quiz] = useState<Quiz>(initial)
   const [questions, setQuestions] = useState<Question[]>(initial.config?.questions || [])
   const [scoring, setScoring] = useState(initial.config?.scoring ?? false)
@@ -242,15 +243,18 @@ export default function QuizEditor({ quiz: initial }: { quiz: Quiz }) {
             <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-4">Instellingen</p>
 
             {/* Merkkleur */}
-            <div className="flex items-center justify-between mb-5">
+            <div className={`flex items-center justify-between mb-5 ${!isPro ? 'opacity-50' : ''}`}>
               <div>
-                <p className="text-sm font-medium">Merkkleur</p>
-                <p className="text-white/35 text-xs mt-0.5">Knoppen en accenten</p>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  Merkkleur
+                  {!isPro && <span className="text-[9px] font-bold uppercase tracking-widest bg-[#f97316]/20 text-[#f97316] px-1.5 py-0.5 rounded-full">Pro</span>}
+                </p>
+                <p className="text-white/35 text-xs mt-0.5">{isPro ? 'Knoppen en accenten' : 'Upgrade naar Pro om eigen kleuren te gebruiken'}</p>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg border border-white/10 overflow-hidden cursor-pointer relative flex-shrink-0">
-                  <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <div className={`w-7 h-7 rounded-lg border border-white/10 overflow-hidden relative flex-shrink-0 ${isPro ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                  {isPro && <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />}
                   <div className="w-full h-full" style={{ background: brandColor }} />
                 </div>
                 <span className="text-white/30 text-[11px] font-mono">{brandColor.toUpperCase()}</span>

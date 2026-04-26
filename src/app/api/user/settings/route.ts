@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { getUserPlan } from '@/lib/subscription'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,6 +26,15 @@ export async function PATCH(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
+
+  // email_on_new_lead is a pro-only feature
+  if ('email_on_new_lead' in body) {
+    const plan = await getUserPlan(userId)
+    if (plan === 'free') {
+      return NextResponse.json({ error: 'UPGRADE_REQUIRED' }, { status: 403 })
+    }
+  }
+
   const allowed = ['email_on_new_lead']
   const updates: Record<string, unknown> = {}
   for (const key of allowed) {

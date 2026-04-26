@@ -63,15 +63,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: leadError.message }, { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } })
     }
 
-    // Stuur e-mail naar de quiz-eigenaar als die dat wil
+    // Stuur e-mail naar de quiz-eigenaar als die dat wil (pro only)
     if (quiz.user_id) {
-      const { data: settings } = await supabase
-        .from('user_settings')
-        .select('email_on_new_lead')
-        .eq('user_id', quiz.user_id)
-        .maybeSingle()
+      const [ownerPlan, { data: settings }] = await Promise.all([
+        getUserPlan(quiz.user_id),
+        supabase.from('user_settings').select('email_on_new_lead').eq('user_id', quiz.user_id).maybeSingle(),
+      ])
 
-      const emailEnabled = settings?.email_on_new_lead !== false
+      const emailEnabled = ownerPlan === 'pro' && settings?.email_on_new_lead !== false
 
       if (emailEnabled) {
         try {

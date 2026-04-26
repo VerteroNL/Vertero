@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 
 interface Props {
   initialEmailOnNewLead: boolean
+  plan: 'free' | 'pro'
 }
 
-export default function SettingsForm({ initialEmailOnNewLead }: Props) {
+export default function SettingsForm({ initialEmailOnNewLead, plan }: Props) {
+  const isPro = plan === 'pro'
   const router = useRouter()
   const [emailOnNewLead, setEmailOnNewLead] = useState(initialEmailOnNewLead)
   const [savingNotif, setSavingNotif] = useState(false)
@@ -47,18 +49,23 @@ export default function SettingsForm({ initialEmailOnNewLead }: Props) {
       {/* Notificaties */}
       <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6">
         <h2 className="text-sm font-bold mb-4">Notificaties</h2>
-        <div className="flex items-center justify-between">
+        <div className={`flex items-center justify-between ${!isPro ? 'opacity-50' : ''}`}>
           <div>
-            <p className="text-sm font-medium">E-mail bij nieuwe lead</p>
-            <p className="text-white/40 text-xs mt-0.5">Ontvang een e-mail zodra er een nieuwe lead binnenkomt</p>
+            <p className="text-sm font-medium flex items-center gap-2">
+              E-mail bij nieuwe lead
+              {!isPro && <span className="text-[9px] font-bold uppercase tracking-widest bg-[#f97316]/20 text-[#f97316] px-1.5 py-0.5 rounded-full">Pro</span>}
+            </p>
+            <p className="text-white/40 text-xs mt-0.5">
+              {isPro ? 'Ontvang een e-mail zodra er een nieuwe lead binnenkomt' : 'Upgrade naar Pro voor e-mail notificaties'}
+            </p>
           </div>
           <button
-            onClick={toggleEmailOnNewLead}
-            disabled={savingNotif}
-            className={`relative w-11 h-6 rounded-full transition-colors ${emailOnNewLead ? 'bg-[#f97316]' : 'bg-white/10'}`}
+            onClick={isPro ? toggleEmailOnNewLead : undefined}
+            disabled={savingNotif || !isPro}
+            className={`relative w-11 h-6 rounded-full transition-colors ${emailOnNewLead && isPro ? 'bg-[#f97316]' : 'bg-white/10'} ${!isPro ? 'cursor-not-allowed' : ''}`}
           >
             <span
-              className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${emailOnNewLead ? 'translate-x-5' : 'translate-x-0'}`}
+              className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${emailOnNewLead && isPro ? 'translate-x-5' : 'translate-x-0'}`}
             />
           </button>
         </div>
