@@ -80,9 +80,14 @@ export default function NewQuizPage() {
   }
 
   return (
-    <div className="p-4 sm:p-8 max-w-2xl">
-      <h1 className="font-serif text-3xl italic mb-2">Nieuwe quiz</h1>
-      <p className="text-white/40 text-sm mb-8">Geef je quiz een naam en kies een template</p>
+    <div className="flex flex-col h-full overflow-y-auto">
+      <div className="px-6 pt-8 pb-6 border-b border-white/[0.07] flex-shrink-0">
+        <p className="text-[#f97316] text-[10px] font-bold uppercase tracking-widest mb-1.5">Beheer</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Nieuwe quiz</h1>
+        <p className="text-white/40 text-sm mt-1">Geef je quiz een naam en kies een template</p>
+      </div>
+
+      <div className="px-6 py-6 max-w-2xl">
 
       <div className="mb-8">
         <label className="block text-xs font-bold uppercase tracking-widest text-white/40 mb-2">
@@ -130,6 +135,7 @@ export default function NewQuizPage() {
       >
         {loading ? 'Aanmaken...' : 'Quiz aanmaken →'}
       </button>
+      </div>
     </div>
   )
 }

@@ -26,12 +26,13 @@ export default async function ArchivedLeadsPage() {
   ])
 
   return (
-    <div className="p-4 sm:p-8 max-w-5xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight mb-4">Leads</h1>
-
-        {/* Tab-style navigation */}
-        <div className="flex items-center gap-1 bg-white/[0.03] border border-white/7 rounded-xl p-1 w-fit">
+    <div className="flex flex-col h-full overflow-y-auto">
+      <div className="px-6 pt-8 pb-6 border-b border-white/[0.07] flex-shrink-0 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-[#f97316] text-[10px] font-bold uppercase tracking-widest mb-1.5">Overzicht</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Leads</h1>
+        </div>
+        <div className="flex items-center gap-1 bg-white/[0.03] border border-white/[0.07] rounded-xl p-1 w-fit">
           <Link
             href="/dashboard/leads"
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white/40 hover:text-white hover:bg-white/5 transition"
@@ -52,13 +53,15 @@ export default async function ArchivedLeadsPage() {
         </div>
       </div>
 
-      {!leads?.length ? (
-        <div className="border border-dashed border-white/10 rounded-xl p-16 text-center text-white/25 text-sm">
-          Nog geen afgevinkte leads
-        </div>
-      ) : (
-        <ArchivedLeadsTable leads={leads} />
-      )}
+      <div className="px-6 py-6 flex-1">
+        {!leads?.length ? (
+          <div className="border border-dashed border-white/[0.08] rounded-2xl p-16 text-center text-white/25 text-sm">
+            Nog geen afgevinkte leads
+          </div>
+        ) : (
+          <ArchivedLeadsTable leads={leads} />
+        )}
+      </div>
     </div>
   )
 }

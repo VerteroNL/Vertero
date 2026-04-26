@@ -37,30 +37,37 @@ export default async function DashboardPage() {
   })).sort((a, b) => b.leadCount - a.leadCount) || []
 
   return (
-    <div className="p-4 sm:p-8 max-w-3xl">
+    <div className="flex flex-col h-full overflow-y-auto">
       <ClaimHandler />
 
-      {/* Hero: nieuwe leads */}
-      <div className="mb-8">
-        <div className="text-[11px] font-bold uppercase tracking-widest text-white/25 mb-2">Nieuwe leads</div>
-        <div className="flex flex-wrap items-end gap-4">
-          <Link href="/dashboard/leads" className="text-7xl font-extrabold leading-none text-[#f97316] hover:text-[#ea6c0a] transition">
-            {newLeads.length}
-          </Link>
-          <div className="mb-2 flex flex-wrap gap-3 sm:gap-4 text-sm text-white/30">
-            <Link href="/dashboard/leads" className="hover:text-white/60 transition">
-              <span className="text-white/60 font-semibold">{leadsToday.length}</span> vandaag
-            </Link>
-            <Link href="/dashboard/leads" className="hover:text-white/60 transition">
-              <span className="text-white/60 font-semibold">{leadsThisWeek.length}</span> deze week
-            </Link>
-            <span><span className="text-white/60 font-semibold">{totalLeads}</span> totaal</span>
-          </div>
-        </div>
+      {/* Page header */}
+      <div className="px-6 pt-8 pb-6 border-b border-white/[0.07] flex-shrink-0">
+        <p className="text-[#f97316] text-[10px] font-bold uppercase tracking-widest mb-1.5">Overzicht</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Dashboard</h1>
       </div>
 
+      <div className="px-6 py-6 flex-1">
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {[
+          { label: 'Nieuw', value: newLeads.length, href: '/dashboard/leads', highlight: true },
+          { label: 'Vandaag', value: leadsToday.length, href: '/dashboard/leads' },
+          { label: 'Deze week', value: leadsThisWeek.length, href: '/dashboard/leads' },
+          { label: 'Totaal', value: totalLeads, href: '/dashboard/leads' },
+        ].map(stat => (
+          <Link key={stat.label} href={stat.href}
+            className="bg-[#0d0d1c] border border-white/[0.08] rounded-2xl px-5 py-4 hover:border-white/[0.15] transition group">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">{stat.label}</div>
+            <div className={`text-3xl font-extrabold ${stat.highlight ? 'text-[#f97316]' : 'text-white'}`}>{stat.value}</div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
       {/* Leads lijst */}
-      <div className="bg-[#0d0d1c] border border-white/10 rounded-xl overflow-hidden mb-4">
+      <div className="bg-[#0d0d1c] border border-white/[0.08] rounded-2xl overflow-hidden">
         <div className="flex justify-between items-center px-5 py-3.5 border-b border-white/7">
           <div className="text-xs font-bold uppercase tracking-widest text-white/40">Recente leads</div>
           <Link href="/dashboard/leads" className="text-xs font-semibold text-[#f97316] hover:text-[#ea6c0a] transition">
@@ -113,7 +120,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Quizzes — compact, leads per quiz */}
-      <div className="bg-[#0d0d1c] border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-[#0d0d1c] border border-white/[0.08] rounded-2xl overflow-hidden">
         <div className="flex justify-between items-center px-5 py-3.5 border-b border-white/7">
           <div className="text-xs font-bold uppercase tracking-widest text-white/40">Quizzes</div>
           <Link href="/dashboard/quiz/new" className="text-xs font-semibold text-[#f97316] hover:text-[#ea6c0a] transition">
@@ -146,6 +153,8 @@ export default async function DashboardPage() {
         )}
       </div>
 
+      </div>
+      </div>
     </div>
   )
 }

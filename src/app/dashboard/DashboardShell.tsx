@@ -52,7 +52,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   )
 
   return (
-    <div className="flex min-h-screen bg-[#07070f] text-white">
+    <div className="flex h-screen bg-[#07070f] text-white">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-60 flex-shrink-0 border-r border-white/7 flex-col sticky top-0 h-screen">
         <div className="px-6 py-5 border-b border-white/7">
@@ -109,8 +109,10 @@ export default function DashboardShell({ children }: { children: React.ReactNode
       )}
 
       {/* Main content — add top padding on mobile for fixed header */}
-      <main className="flex-1 overflow-y-auto pt-[57px] md:pt-0">
-        {children}
+      <main className="flex-1 min-h-0 overflow-y-auto pt-[57px] md:pt-0 flex flex-col">
+        <div className="flex-1 flex flex-col">
+          {children}
+        </div>
       </main>
     </div>
   )

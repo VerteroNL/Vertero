@@ -21,11 +21,11 @@ export default async function QuizPage() {
   quizzes?.sort((a, b) => (b.leads?.[0]?.count || 0) - (a.leads?.[0]?.count || 0))
 
   return (
-    <div className="p-4 sm:p-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="flex flex-col h-full overflow-y-auto">
+      <div className="px-6 pt-8 pb-6 border-b border-white/[0.07] flex-shrink-0 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Mijn quizzes</h1>
-          <p className="text-white/30 text-sm mt-1">{quizzes?.length || 0} quizzes</p>
+          <p className="text-[#f97316] text-[10px] font-bold uppercase tracking-widest mb-1.5">Beheer</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Quizzes</h1>
         </div>
         <Link
           href="/dashboard/quiz/new"
@@ -34,6 +34,8 @@ export default async function QuizPage() {
           + Nieuwe quiz
         </Link>
       </div>
+
+      <div className="px-6 py-6 flex-1">
 
       {quizzes?.length === 0 ? (
         <div className="border border-dashed border-white/10 rounded-2xl p-20 text-center">
@@ -101,6 +103,7 @@ export default async function QuizPage() {
           </Link>
         </div>
       )}
+      </div>
     </div>
   )
 }

@@ -29,7 +29,14 @@ export default function BillingClient({ plan, justUpgraded }: { plan: Plan; just
   }
 
   return (
-    <div className="p-4 sm:p-8 max-w-2xl">
+    <div className="flex flex-col h-full overflow-y-auto">
+      <div className="px-6 pt-8 pb-6 border-b border-white/[0.07] flex-shrink-0">
+        <p className="text-[#f97316] text-[10px] font-bold uppercase tracking-widest mb-1.5">Account</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Abonnement</h1>
+        <p className="text-white/40 text-sm mt-1">Beheer je plan en betaalinformatie</p>
+      </div>
+
+      <div className="px-6 py-6 max-w-2xl">
 
       {justUpgraded && (
         <div className="mb-8 bg-green-500/10 border border-green-500/20 rounded-2xl px-6 py-5 flex items-center gap-4">
@@ -44,9 +51,6 @@ export default function BillingClient({ plan, justUpgraded }: { plan: Plan; just
           </div>
         </div>
       )}
-
-      <h1 className="text-2xl font-extrabold mb-1">Abonnement</h1>
-      <p className="text-white/40 text-sm mb-8">Beheer je plan en betaalinformatie.</p>
 
       {/* Toggle */}
       <div className="flex items-center gap-4 mb-8">
@@ -139,6 +143,8 @@ export default function BillingClient({ plan, justUpgraded }: { plan: Plan; just
             </button>
           )}
         </div>
+
+      </div>
 
       </div>
     </div>

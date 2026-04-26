@@ -178,12 +178,14 @@ export default function InstallerenPage() {
   const [active, setActive] = useState('wordpress')
 
   return (
-    <div className="p-4 sm:p-8 max-w-3xl">
-      <div className="mb-10">
-        <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Aan de slag</p>
+    <div className="flex flex-col h-full overflow-y-auto">
+      <div className="px-6 pt-8 pb-6 border-b border-white/[0.07] flex-shrink-0">
+        <p className="text-[#f97316] text-[10px] font-bold uppercase tracking-widest mb-1.5">Aan de slag</p>
         <h1 className="text-3xl font-extrabold tracking-tight">Quiz installeren</h1>
         <p className="text-white/40 text-sm mt-1">Volg de stappen voor jouw websiteplatform</p>
       </div>
+
+      <div className="px-6 py-6 max-w-3xl">
 
       {/* Platform tabs */}
       <div className="flex flex-wrap gap-2 mb-8">
@@ -210,6 +212,7 @@ export default function InstallerenPage() {
       {/* Footer note */}
       <div className="mt-6 text-white/30 text-xs leading-relaxed">
         Je quiz-ID vind je op de pagina van je quiz in het Vertero dashboard. Klik op een quiz en kopieer de ID uit de URL of gebruik de knop "Embed code" bovenin.
+      </div>
       </div>
     </div>
   )

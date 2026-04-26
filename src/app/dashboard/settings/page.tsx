@@ -23,12 +23,14 @@ export default async function SettingsPage() {
   const email = user?.emailAddresses?.[0]?.emailAddress ?? '—'
 
   return (
-    <div className="p-4 sm:p-8 max-w-2xl">
-      <div className="mb-10">
-        <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Account</p>
+    <div className="flex flex-col h-full overflow-y-auto">
+      <div className="px-6 pt-8 pb-6 border-b border-white/[0.07] flex-shrink-0">
+        <p className="text-[#f97316] text-[10px] font-bold uppercase tracking-widest mb-1.5">Account</p>
         <h1 className="text-3xl font-extrabold tracking-tight">Instellingen</h1>
         <p className="text-white/40 text-sm mt-1">Beheer je account en voorkeuren</p>
       </div>
+
+      <div className="px-6 py-6 max-w-2xl">
 
       {/* Profiel */}
       <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 mb-6">
@@ -47,6 +49,7 @@ export default async function SettingsPage() {
       </div>
 
       <SettingsForm initialEmailOnNewLead={settings?.email_on_new_lead ?? true} />
+      </div>
     </div>
   )
 }

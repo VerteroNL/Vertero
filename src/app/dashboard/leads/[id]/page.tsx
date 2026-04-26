@@ -89,22 +89,21 @@ export default function LeadDetailPage() {
     router.push('/dashboard/leads')
   }
 
-  if (loading) return <div className="p-8 text-white/40 text-sm">Laden…</div>
+  if (loading) return <div className="px-6 pt-8 text-white/40 text-sm">Laden…</div>
 
-  if (notFound || !lead) return <div className="p-8 text-white/40">Lead niet gevonden.</div>
+  if (notFound || !lead) return <div className="px-6 pt-8 text-white/40">Lead niet gevonden.</div>
 
   const questions: Question[] = lead.quizzes?.config?.questions || []
   const score = lead.quizzes?.config ? calculateScore(lead.quizzes.config, lead.answers) : null
 
   return (
-    <div className="p-4 sm:p-8 max-w-2xl">
-      <Link href="/dashboard/leads" className="text-white/30 hover:text-white text-sm transition mb-8 inline-flex items-center gap-1.5">
-        ← Terug naar leads
-      </Link>
-
-      <div className="mt-8 mb-8 flex items-start justify-between gap-4">
+    <div className="flex flex-col h-full overflow-y-auto">
+      <div className="px-6 pt-8 pb-6 border-b border-white/[0.07] flex-shrink-0 flex items-end justify-between gap-4">
         <div>
-          <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-2">Lead</p>
+          <Link href="/dashboard/leads" className="text-white/30 hover:text-white text-xs transition inline-flex items-center gap-1 mb-2">
+            ← Leads
+          </Link>
+          <p className="text-[#f97316] text-[10px] font-bold uppercase tracking-widest mb-1.5">Lead</p>
           <h1 className="text-3xl font-extrabold tracking-tight">{lead.name || 'Onbekend'}</h1>
           <p className="text-white/40 text-sm mt-1">{lead.email}{lead.phone ? ` · ${lead.phone}` : ''}</p>
         </div>
@@ -112,6 +111,8 @@ export default function LeadDetailPage() {
           <ScoreRing score={score} />
         )}
       </div>
+
+      <div className="px-6 py-6 max-w-2xl">
 
       {/* Contactgegevens */}
       <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden mb-6">
@@ -219,6 +220,7 @@ export default function LeadDetailPage() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   )
