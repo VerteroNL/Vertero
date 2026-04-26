@@ -1,12 +1,12 @@
 'use client'
 
-import { useSignIn } from '@clerk/react/legacy'
+import { useSignIn } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 
 export default function SignInPage() {
-  const { signIn, isLoaded } = useSignIn()
+  const { signIn } = useSignIn()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -16,11 +16,14 @@ export default function SignInPage() {
   const [resetLoading, setResetLoading] = useState(false)
 
   async function handleForgotPassword() {
-    if (!isLoaded || !email.trim()) { setError('Vul eerst je e-mailadres in.'); return }
+    if (!signIn || !email.trim()) { setError('Vul eerst je e-mailadres in.'); return }
     setResetLoading(true)
     setError('')
     try {
-      await signIn.create({ strategy: 'reset_password_email_code', identifier: email })
+      const { error: createError } = await signIn.create({ identifier: email })
+      if (createError) throw createError
+      const { error: sendError } = await signIn.resetPasswordEmailCode.sendCode()
+      if (sendError) throw sendError
       setResetSent(true)
     } catch {
       setError('Kon geen resetmail sturen. Controleer je e-mailadres.')
@@ -30,24 +33,27 @@ export default function SignInPage() {
   }
 
   async function handleGoogle() {
-    if (!isLoaded) return
-    await signIn.authenticateWithRedirect({
+    if (!signIn) return
+    const callbackUrl = `${window.location.origin}/sso-callback`
+    await signIn.sso({
       strategy: 'oauth_google',
-      redirectUrl: '/sso-callback',
-      redirectUrlComplete: '/dashboard',
+      redirectUrl: callbackUrl,
+      redirectCallbackUrl: callbackUrl,
     })
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!isLoaded) return
+    if (!signIn) return
     setLoading(true)
     setError('')
     try {
-      const result = await signIn.create({ identifier: email, password })
-      if (result.status === 'complete') router.push('/dashboard')
+      const { error: pwError } = await signIn.password({ identifier: email, password })
+      if (pwError) throw pwError
+      await signIn.finalize({ navigate: ({ decorateUrl }) => router.push(decorateUrl('/dashboard')) })
     } catch (err: unknown) {
-      const msg = (err as { errors?: { message: string }[] })?.errors?.[0]?.message
+      const msg = (err as { longMessage?: string; message?: string })?.longMessage
+        || (err as { longMessage?: string; message?: string })?.message
       setError(msg || 'Inloggen mislukt. Controleer je gegevens.')
     } finally {
       setLoading(false)
@@ -108,7 +114,7 @@ export default function SignInPage() {
 
           <button
             type="submit"
-            disabled={loading || !isLoaded}
+            disabled={loading || !signIn}
             className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition text-sm mt-1"
           >
             {loading ? 'Inloggen...' : 'Inloggen →'}

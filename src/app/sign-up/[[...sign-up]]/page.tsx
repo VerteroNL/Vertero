@@ -1,13 +1,13 @@
 'use client'
 
-import { useSignUp, useSignIn } from '@clerk/react/legacy'
+import { useSignUp, useSignIn } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 
 export default function SignUpPage() {
-  const { signUp, isLoaded } = useSignUp()
-  const { signIn, isLoaded: signInLoaded } = useSignIn()
+  const { signUp } = useSignUp()
+  const { signIn } = useSignIn()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,10 +19,10 @@ export default function SignUpPage() {
   const [resent, setResent] = useState(false)
 
   async function handleResend() {
-    if (!isLoaded) return
+    if (!signUp) return
     setResending(true)
     try {
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+      await signUp.verifications.sendEmailCode()
       setResent(true)
       setTimeout(() => setResent(false), 4000)
     } finally {
@@ -31,25 +31,27 @@ export default function SignUpPage() {
   }
 
   async function handleGoogle() {
-    if (!signInLoaded) return
-    await signIn.authenticateWithRedirect({
+    if (!signIn) return
+    const callbackUrl = `${window.location.origin}/sso-callback`
+    await signIn.sso({
       strategy: 'oauth_google',
-      redirectUrl: '/sso-callback',
-      redirectUrlComplete: '/dashboard',
+      redirectUrl: callbackUrl,
+      redirectCallbackUrl: callbackUrl,
     })
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!isLoaded) return
+    if (!signUp) return
     setLoading(true)
     setError('')
     try {
-      await signUp.create({ emailAddress: email, password })
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+      const { error: signUpError } = await signUp.password({ emailAddress: email, password })
+      if (signUpError) throw signUpError
       setVerifying(true)
     } catch (err: unknown) {
-      const msg = (err as { errors?: { message: string }[] })?.errors?.[0]?.message
+      const msg = (err as { longMessage?: string; message?: string })?.longMessage
+        || (err as { longMessage?: string; message?: string })?.message
       setError(msg || 'Registreren mislukt. Probeer het opnieuw.')
     } finally {
       setLoading(false)
@@ -58,14 +60,16 @@ export default function SignUpPage() {
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault()
-    if (!isLoaded) return
+    if (!signUp) return
     setLoading(true)
     setError('')
     try {
-      const result = await signUp.attemptEmailAddressVerification({ code })
-      if (result.status === 'complete') router.push('/dashboard')
+      const { error: verifyError } = await signUp.verifications.verifyEmailCode({ code })
+      if (verifyError) throw verifyError
+      await signUp.finalize({ navigate: ({ decorateUrl }) => router.push(decorateUrl('/dashboard')) })
     } catch (err: unknown) {
-      const msg = (err as { errors?: { message: string }[] })?.errors?.[0]?.message
+      const msg = (err as { longMessage?: string; message?: string })?.longMessage
+        || (err as { longMessage?: string; message?: string })?.message
       setError(msg || 'Ongeldige code. Probeer het opnieuw.')
     } finally {
       setLoading(false)
@@ -172,7 +176,7 @@ export default function SignUpPage() {
 
           <button
             type="submit"
-            disabled={loading || !isLoaded}
+            disabled={loading || !signUp}
             className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition text-sm mt-1"
           >
             {loading ? 'Account aanmaken...' : 'Account aanmaken →'}
