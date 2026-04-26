@@ -32,11 +32,10 @@ export default function SignUpPage() {
 
   async function handleGoogle() {
     if (!signIn) return
-    const callbackUrl = `${window.location.origin}/sso-callback`
     await signIn.sso({
       strategy: 'oauth_google',
-      redirectUrl: callbackUrl,
-      redirectCallbackUrl: callbackUrl,
+      redirectUrl: `${window.location.origin}/sso-callback`,
+      redirectCallbackUrl: `${window.location.origin}/dashboard`,
     })
   }
 
