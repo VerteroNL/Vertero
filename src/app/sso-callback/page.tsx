@@ -1,10 +1,19 @@
-import { AuthenticateWithRedirectCallback } from '@clerk/nextjs'
+'use client'
+
+import { useClerk } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function SSOCallbackPage() {
-  return (
-    <AuthenticateWithRedirectCallback
-      signInForceRedirectUrl="/dashboard"
-      signUpForceRedirectUrl="/dashboard"
-    />
-  )
+  const clerk = useClerk()
+  const router = useRouter()
+
+  useEffect(() => {
+    clerk.handleRedirectCallback({
+      signInForceRedirectUrl: '/dashboard',
+      signUpForceRedirectUrl: '/dashboard',
+    }, (url) => Promise.resolve(router.push(url)))
+  }, [])
+
+  return null
 }
