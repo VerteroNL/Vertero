@@ -59,7 +59,9 @@ function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
   )
 }
 
-export default function LeadsTable({ leads }: { leads: Lead[] }) {
+const FREE_LEAD_LIMIT = 5
+
+export default function LeadsTable({ leads, plan }: { leads: Lead[]; plan: 'free' | 'pro' }) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('date')
@@ -303,6 +305,49 @@ export default function LeadsTable({ leads }: { leads: Lead[] }) {
             const isLast = i === paginated.length - 1
             const isSelected = selected.has(lead.id)
             const { score } = lead
+            const globalIndex = (page - 1) * PAGE_SIZE + i
+            const isLocked = plan === 'free' && globalIndex >= FREE_LEAD_LIMIT
+
+            if (isLocked) return (
+              <div key={lead.id} className={`${!isLast ? 'border-b border-white/5' : ''}`}>
+                {/* Desktop locked row */}
+                <div className="hidden md:flex items-center gap-2 opacity-60">
+                  <div className="pl-5 flex-shrink-0">
+                    <div className="w-4 h-4 rounded border border-white/10" />
+                  </div>
+                  <div className="flex-1 grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-3 py-3.5">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-24 bg-white/10 rounded blur-sm" />
+                      {lead.status === 'new' && (
+                        <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#f97316]/10 text-[#f97316]">Nieuw</span>
+                      )}
+                      <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/10 text-white/40">Pro</span>
+                    </div>
+                    <div className="h-3 w-16 bg-white/10 rounded blur-sm" />
+                    <div className="h-3 w-20 bg-white/10 rounded blur-sm" />
+                    <div className="text-white/30 text-xs">{new Date(lead.created_at).toLocaleDateString('nl-NL')}</div>
+                    <div className="flex justify-end">
+                      <svg className="w-4 h-4 text-white/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                  </div>
+                </div>
+                {/* Mobile locked card */}
+                <div className="flex md:hidden items-start gap-3 px-4 py-4 opacity-60">
+                  <div className="w-4 h-4 rounded border border-white/10 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="h-3 w-24 bg-white/10 rounded blur-sm" />
+                      {lead.status === 'new' && (
+                        <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#f97316]/10 text-[#f97316]">Nieuw</span>
+                      )}
+                      <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/10 text-white/40">Pro</span>
+                    </div>
+                    <div className="h-2.5 w-32 bg-white/10 rounded blur-sm mb-1" />
+                    <div className="text-white/25 text-xs">{new Date(lead.created_at).toLocaleDateString('nl-NL')}</div>
+                  </div>
+                </div>
+              </div>
+            )
 
             return (
               <div

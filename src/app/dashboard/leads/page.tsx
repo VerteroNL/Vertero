@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import LeadsTable from './LeadsTable'
+import { getUserPlan } from '@/lib/subscription'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,7 +12,7 @@ const supabase = createClient(
 export default async function LeadsPage() {
   const { userId } = await auth()
 
-  const [{ data: leads }, { count: archivedCount }] = await Promise.all([
+  const [{ data: leads }, { count: archivedCount }, plan] = await Promise.all([
     supabase
       .from('leads')
       .select('*, quizzes(name, config)')
@@ -23,6 +24,7 @@ export default async function LeadsPage() {
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId!)
       .eq('status', 'done'),
+    getUserPlan(userId!),
   ])
 
   return (
@@ -60,7 +62,7 @@ export default async function LeadsPage() {
             Geen actieve leads — embed een quiz op je website om te beginnen
           </div>
         ) : (
-          <LeadsTable leads={leads} />
+          <LeadsTable leads={leads} plan={plan} />
         )}
       </div>
     </div>
