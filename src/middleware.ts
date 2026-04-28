@@ -17,7 +17,6 @@ const isPublicRoute = createRouteMatcher([
   '/api/quiz-public(.*)',
   '/api/leads',
   '/api/webhooks/stripe',
-  '/api/webhooks/clerk',
   '/embed(.*)',
 ])
 
