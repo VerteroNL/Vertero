@@ -135,6 +135,8 @@ export default function SignInPage() {
           </button>
         </form>
 
+        <div id="clerk-captcha" />
+
         <p className="text-white/30 text-sm text-center mt-6">
           Nog geen account?{' '}
           <Link href="/sign-up" className="text-[#f97316] hover:text-[#ea6c0a] transition font-medium">
