@@ -34,11 +34,12 @@ export default function SignUpPage() {
     if (!signIn) { console.error('[Google] signIn is null'); return }
     try {
       console.log('[Google] calling sso, origin:', window.location.origin)
-      await signIn.sso({
+      const { error: ssoError } = await signIn.sso({
         strategy: 'oauth_google',
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectCallbackUrl: `${window.location.origin}/dashboard`,
       })
+      console.log('[Google] sso result error:', ssoError)
     } catch (err) {
       console.error('[Google] sso error:', err)
     }
