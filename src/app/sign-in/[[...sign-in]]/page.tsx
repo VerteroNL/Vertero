@@ -33,18 +33,21 @@ export default function SignInPage() {
   }
 
   async function handleGoogle() {
-    if (!signIn) { console.error('[Google] signIn is null'); return }
+    if (!signIn) return
     try {
-      console.log('[Google] calling sso, origin:', window.location.origin)
+      const popup = window.open('about:blank', '', 'width=600,height=800')
+      if (!popup) { setError('Popup geblokkeerd. Sta popups toe voor deze site.'); return }
       const { error: ssoError } = await signIn.sso({
+        popup,
         strategy: 'oauth_google',
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectCallbackUrl: `${window.location.origin}/dashboard`,
       })
-      console.log('[Google] sso result error:', ssoError)
+      if (ssoError) throw ssoError
     } catch (err) {
-      console.error('[Google] sso error:', err)
-      setError('Google inloggen mislukt. Probeer het opnieuw.')
+      const msg = (err as { longMessage?: string; message?: string })?.longMessage
+        || (err as { longMessage?: string; message?: string })?.message
+      setError(msg || 'Google inloggen mislukt. Probeer het opnieuw.')
     }
   }
 

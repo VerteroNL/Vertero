@@ -31,15 +31,17 @@ export default function SignUpPage() {
   }
 
   async function handleGoogle() {
-    if (!signIn) { console.error('[Google] signIn is null'); return }
+    if (!signIn) return
     try {
-      console.log('[Google] calling sso, origin:', window.location.origin)
+      const popup = window.open('about:blank', '', 'width=600,height=800')
+      if (!popup) return
       const { error: ssoError } = await signIn.sso({
+        popup,
         strategy: 'oauth_google',
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectCallbackUrl: `${window.location.origin}/dashboard`,
       })
-      console.log('[Google] sso result error:', ssoError)
+      if (ssoError) throw ssoError
     } catch (err) {
       console.error('[Google] sso error:', err)
     }
