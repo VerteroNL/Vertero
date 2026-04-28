@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignUp, useSignIn } from '@clerk/nextjs'
+import { useSignUp, useSignIn, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -8,6 +8,7 @@ import Link from 'next/link'
 export default function SignUpPage() {
   const { signUp } = useSignUp()
   const { signIn } = useSignIn()
+  const clerk = useClerk()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -31,19 +32,14 @@ export default function SignUpPage() {
   }
 
   async function handleGoogle() {
-    if (!signIn) return
     try {
-      const popup = window.open('about:blank', '', 'width=600,height=800')
-      if (!popup) return
-      const { error: ssoError } = await signIn.sso({
-        popup,
+      await clerk.client!.signUp.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectCallbackUrl: `${window.location.origin}/dashboard`,
+        redirectUrlComplete: `${window.location.origin}/dashboard`,
       })
-      if (ssoError) throw ssoError
     } catch (err) {
-      console.error('[Google] sso error:', err)
+      console.error('[Google] error:', err)
     }
   }
 
