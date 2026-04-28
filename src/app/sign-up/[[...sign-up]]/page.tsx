@@ -31,12 +31,17 @@ export default function SignUpPage() {
   }
 
   async function handleGoogle() {
-    if (!signIn) return
-    await signIn.sso({
-      strategy: 'oauth_google',
-      redirectUrl: `${window.location.origin}/sso-callback`,
-      redirectCallbackUrl: `${window.location.origin}/dashboard`,
-    })
+    if (!signIn) { console.error('[Google] signIn is null'); return }
+    try {
+      console.log('[Google] calling sso, origin:', window.location.origin)
+      await signIn.sso({
+        strategy: 'oauth_google',
+        redirectUrl: `${window.location.origin}/sso-callback`,
+        redirectCallbackUrl: `${window.location.origin}/dashboard`,
+      })
+    } catch (err) {
+      console.error('[Google] sso error:', err)
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
