@@ -62,6 +62,11 @@ function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
 const FREE_LEAD_LIMIT = 5
 
 export default function LeadsTable({ leads, plan }: { leads: Lead[]; plan: 'free' | 'pro' }) {
+  // leads komen binnen gesorteerd op datum desc (nieuwste eerst)
+  // free: de nieuwste leads boven de limiet zijn locked
+  const lockedIds = plan === 'free' && leads.length > FREE_LEAD_LIMIT
+    ? new Set(leads.slice(0, leads.length - FREE_LEAD_LIMIT).map(l => l.id))
+    : new Set<string>()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('date')
@@ -305,8 +310,7 @@ export default function LeadsTable({ leads, plan }: { leads: Lead[]; plan: 'free
             const isLast = i === paginated.length - 1
             const isSelected = selected.has(lead.id)
             const { score } = lead
-            const globalIndex = (page - 1) * PAGE_SIZE + i
-            const isLocked = plan === 'free' && globalIndex >= FREE_LEAD_LIMIT
+            const isLocked = lockedIds.has(lead.id)
 
             if (isLocked) return (
               <div key={lead.id} className={`${!isLast ? 'border-b border-white/5' : ''}`}>
