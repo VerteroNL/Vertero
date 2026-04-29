@@ -112,7 +112,7 @@ export default function PrivacyPage() {
                 'Clerk — voor authenticatie en accountbeheer',
                 'Stripe — voor betalingsverwerking',
                 'Supabase — voor gegevensopslag (servers in de EU)',
-                'Resend — voor het verzenden van e-mailnotificaties',
+                'Nodemailer — voor het verzenden van e-mailnotificaties',
               ].map(item => (
                 <li key={item} className="flex items-start gap-2.5 text-sm">
                   <span className="text-[#f97316] text-xs mt-0.5 flex-shrink-0">→</span> {item}
