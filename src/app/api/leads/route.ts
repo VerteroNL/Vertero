@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import { getUserPlan } from '@/lib/subscription'
 import { clerkClient } from '@clerk/nextjs/server'
 
@@ -60,28 +60,71 @@ export async function POST(req: Request) {
           const owner = await clerk.users.getUser(quiz.user_id)
           const ownerEmail = owner.emailAddresses[0]?.emailAddress
           if (ownerEmail) {
-            const resend = new Resend(process.env.RESEND_API_KEY)
-            const answersHtml = Object.entries(answers as Record<string, string>)
-              .map(([q, a]) => `<tr><td style="padding:6px 12px;color:#999;font-size:13px">${q}</td><td style="padding:6px 12px;font-size:13px">${a}</td></tr>`)
-              .join('')
-            await resend.emails.send({
+            const transporter = nodemailer.createTransport({
+              host: process.env.SMTP_HOST,
+              port: Number(process.env.SMTP_PORT),
+              secure: false,
+              auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+            })
+            const answersHtml = [
+              `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">Naam</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${name}</td></tr>`,
+              `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">E-mail</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${email}</td></tr>`,
+              phone ? `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">Telefoon</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${phone}</td></tr>` : '',
+              address ? `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">Adres</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${address}</td></tr>` : '',
+              ...Object.entries(answers as Record<string, string>).map(([q, a]) =>
+                `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">${q}</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${a}</td></tr>`
+              ),
+            ].filter(Boolean).join('')
+            await transporter.sendMail({
               from: 'Vertero <noreply@vertero.nl>',
               to: ownerEmail,
               subject: `Nieuwe lead: ${name}`,
-              html: `
-                <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#07070f;color:#fff;padding:32px;border-radius:16px">
-                  <h2 style="margin:0 0 4px;font-size:20px">Nieuwe lead ontvangen</h2>
-                  <p style="margin:0 0 24px;color:#999;font-size:14px">Via quiz: <strong style="color:#f97316">${quiz.name ?? slug}</strong></p>
-                  <table style="width:100%;border-collapse:collapse;background:#0d0d1c;border-radius:12px;overflow:hidden">
-                    <tr><td style="padding:6px 12px;color:#999;font-size:13px">Naam</td><td style="padding:6px 12px;font-size:13px">${name}</td></tr>
-                    <tr><td style="padding:6px 12px;color:#999;font-size:13px">E-mail</td><td style="padding:6px 12px;font-size:13px">${email}</td></tr>
-                    ${phone ? `<tr><td style="padding:6px 12px;color:#999;font-size:13px">Telefoon</td><td style="padding:6px 12px;font-size:13px">${phone}</td></tr>` : ''}
-                    ${address ? `<tr><td style="padding:6px 12px;color:#999;font-size:13px">Adres</td><td style="padding:6px 12px;font-size:13px">${address}</td></tr>` : ''}
-                    ${answersHtml}
-                  </table>
-                  <p style="margin:24px 0 0;font-size:12px;color:#555">Vertero · <a href="https://vertero.nl/dashboard" style="color:#f97316">Bekijk in dashboard</a></p>
-                </div>
-              `
+              html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/></head>
+<body style="margin:0;padding:0;background-color:#07070f;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#07070f;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background-color:#0f0f1a;border-radius:12px;overflow:hidden;border:1px solid #1e1e2e;">
+        <tr>
+          <td style="background-color:#0d0d1f;padding:28px 40px;text-align:center;border-bottom:1px solid #1e1e2e;">
+            <img src="https://vertero.nl/logo.png" alt="Vertero" width="140" style="display:block;margin:0 auto;border:0;"/>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px;color:#e0e0e0;font-size:15px;line-height:1.8;">
+            <p style="margin:0 0 20px;font-size:16px;color:#ffffff;">
+              Je hebt een nieuwe lead ontvangen via quiz <strong style="color:#f86c06;">${quiz.name ?? slug}</strong>:
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a14;border-radius:8px;overflow:hidden;border:1px solid #1e1e2e;margin-bottom:32px;">
+              ${answersHtml}
+            </table>
+            <table cellpadding="0" cellspacing="0" style="margin:0 0 36px;">
+              <tr>
+                <td style="background:#f86c06;border-radius:8px;">
+                  <a href="https://vertero.nl/dashboard/leads" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.5px;">
+                    Bekijk in dashboard &rarr;
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:0;color:#b0b0c0;">
+              Groeten,<br>
+              <strong style="color:#ffffff;">Het Vertero Team</strong><br>
+              <a href="mailto:info@vertero.nl" style="color:#a29bfe;text-decoration:none;">info@vertero.nl</a>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#0a0a14;padding:16px 40px;font-size:11px;color:#555577;text-align:center;border-top:1px solid #1e1e2e;">
+            <span style="color:#3a3a5c;">Powered by Vertero</span>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
             })
           }
         } catch {
