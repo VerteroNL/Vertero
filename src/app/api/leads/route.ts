@@ -71,9 +71,11 @@ export async function POST(req: Request) {
               `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">E-mail</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${email}</td></tr>`,
               phone ? `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">Telefoon</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${phone}</td></tr>` : '',
               address ? `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">Adres</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${address}</td></tr>` : '',
-              ...Object.entries(answers as Record<string, string>).map(([q, a]) =>
-                `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">${q}</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${a}</td></tr>`
-              ),
+              ...Object.entries(answers as Record<string, string>).map(([qId, a]) => {
+                const questionText = (quiz.config?.questions as { id: string; question: string }[] | undefined)
+                  ?.find(q => q.id === qId)?.question ?? qId
+                return `<tr><td style="padding:10px 16px;color:#888;font-size:13px;border-bottom:1px solid #1e1e2e;">${questionText}</td><td style="padding:10px 16px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #1e1e2e;">${a}</td></tr>`
+              }),
             ].filter(Boolean).join('')
             await transporter.sendMail({
               from: 'Vertero <noreply@vertero.nl>',
