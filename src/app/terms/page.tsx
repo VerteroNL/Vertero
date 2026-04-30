@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export const metadata = {
   title: 'Algemene voorwaarden — Vertero',
@@ -6,6 +6,7 @@ export const metadata = {
 }
 
 export default function TermsPage() {
+  redirect('/')
   return (
     <div className="min-h-screen bg-[#07070f] text-white">
       {/* Nav */}

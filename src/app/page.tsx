@@ -225,8 +225,6 @@ export default function HomePage() {
             <a href="#prijzen" className="text-white/40 text-sm hover:text-white transition">Prijzen</a>
             <Link href="/sign-in" className="text-white/40 text-sm hover:text-white transition">Inloggen</Link>
             <Link href="/sign-up" className="text-white/40 text-sm hover:text-white transition">Registreren</Link>
-            <Link href="/privacy" className="text-white/40 text-sm hover:text-white transition">Privacybeleid</Link>
-            <Link href="/terms" className="text-white/40 text-sm hover:text-white transition">Voorwaarden</Link>
           </div>
           <p className="text-white/20 text-sm">© 2025 Vertero. Alle rechten voorbehouden.</p>
         </div>

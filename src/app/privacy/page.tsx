@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export const metadata = {
   title: 'Privacybeleid — Vertero',
@@ -6,6 +6,7 @@ export const metadata = {
 }
 
 export default function PrivacyPage() {
+  redirect('/')
   return (
     <div className="min-h-screen bg-[#07070f] text-white">
       {/* Nav */}
