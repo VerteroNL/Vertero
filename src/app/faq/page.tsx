@@ -9,70 +9,70 @@ const FAQS = [
     items: [
       {
         q: 'Wat is Vertero?',
-        a: 'Vertero is een tool waarmee je een quiz maakt die je op je website plaatst of via een link deelt. Bezoekers vullen de quiz in, jij ontvangt een compleet lead met alle informatie die je nodig hebt om direct een offerte te sturen.',
+        a: 'Vertero is een tool waarmee je een quiz maakt die je op je website zet of via een link deelt. Bezoekers beantwoorden een paar vragen, en jij ziet precies wat ze nodig hebben — inclusief contactgegevens en alle antwoorden.',
       },
       {
         q: 'Hoe begin ik?',
-        a: 'Maak een gratis account aan, stel je eerste quiz in en kopieer de embedcode naar je website. In minder dan 10 minuten ontvang je je eerste leads.',
+        a: 'Maak een account aan, stel je vragen in en zet de quiz live. Embed hem op je site met één regel code, of stuur gewoon de link door. Duurt hooguit een kwartier.',
       },
       {
         q: 'Heb ik technische kennis nodig?',
-        a: 'Nee. De quizbuilder werkt volledig zonder code. Voor het embedden op je website plak je één regel HTML — dat is alles.',
+        a: 'Nee. Alles werkt via een gewone editor, zonder code. Voor het plaatsen op je website kopieer je één stukje HTML — dat is het enige.',
       },
     ],
   },
   {
-    category: 'Quiz & leads',
+    category: 'Quiz en leads',
     items: [
       {
         q: 'Wat voor vragen kan ik stellen?',
-        a: 'Je kunt meerkeuze-vragen en open tekstvragen toevoegen. Bij meerkeuze kun je ook een "Anders, namelijk..."-optie inschakelen zodat bezoekers een eigen antwoord kunnen invullen.',
+        a: 'Meerkeuze en open vragen. Bij meerkeuze kun je ook een "Anders, namelijk..."-optie aanzetten zodat mensen een eigen antwoord kunnen typen.',
       },
       {
         q: 'Wat is lead scoring?',
-        a: 'Met lead scoring krijgt elk antwoord automatisch een score. De beste antwoorden staan bovenaan, de minste onderaan. Zo zie je in één oogopslag welke lead de meeste kans heeft op een opdracht.',
+        a: 'Je kunt per antwoord een score instellen. Leads worden daarna automatisch gesorteerd van meest naar minst interessant. Handig als je veel aanvragen ontvangt.',
       },
       {
-        q: 'Welke contactgegevens worden verzameld?',
-        a: 'Na de quiz wordt de bezoeker gevraagd om naam, e-mailadres, adres en optioneel telefoonnummer in te vullen. Deze gegevens zijn direct zichtbaar in je dashboard.',
+        q: 'Welke contactgegevens worden er gevraagd?',
+        a: 'Na de quiz vult de bezoeker naam, e-mailadres en adres in. Telefoonnummer is optioneel. Je ziet alles direct in je dashboard.',
       },
       {
-        q: 'Kan ik mijn quiz op meerdere plekken gebruiken?',
-        a: 'Ja. Elke quiz heeft een directe link én een embedcode. Je kunt dezelfde quiz op meerdere pagina\'s embedden of de link delen via e-mail, social media of WhatsApp.',
+        q: 'Kan ik dezelfde quiz op meerdere plekken gebruiken?',
+        a: 'Ja. Elke quiz heeft een eigen link en embedcode. Je kunt hem op meerdere pagina\'s embedden of de link doorsturen via e-mail, WhatsApp of social media.',
       },
     ],
   },
   {
-    category: 'Prijzen & abonnement',
+    category: 'Prijzen en abonnement',
     items: [
       {
-        q: 'Is Vertero gratis?',
-        a: 'Ja, er is een gratis plan waarmee je 1 quiz kunt aanmaken en tot 10 aanvragen per maand kunt ontvangen. Voor meer quizzen of onbeperkte aanvragen kun je upgraden naar een betaald plan.',
+        q: 'Is er een gratis versie?',
+        a: 'Ja. Met het gratis plan maak je 1 quiz en ontvang je tot 5 aanvragen per maand. Genoeg om te testen of het voor jou werkt.',
       },
       {
         q: 'Kan ik op elk moment opzeggen?',
-        a: 'Ja. Je betaalt per maand en kunt op elk moment opzeggen. Na opzegging blijf je actief tot het einde van de betaalperiode.',
+        a: 'Ja. Je betaalt per maand en kunt altijd stoppen. Na opzegging blijft je account actief tot het einde van de betaalperiode.',
       },
       {
         q: 'Zijn er opstartkosten?',
-        a: 'Nee. Je betaalt alleen het maandelijkse bedrag, geen eenmalige kosten.',
+        a: 'Nee. Alleen het maandelijkse bedrag, verder niets.',
       },
     ],
   },
   {
-    category: 'Privacy & data',
+    category: 'Privacy en beveiliging',
     items: [
       {
         q: 'Waar worden mijn gegevens opgeslagen?',
-        a: 'Alle data wordt opgeslagen in een beveiligde database binnen de EU. Wij delen jouw gegevens of die van je leads nooit met derden.',
+        a: 'Alles staat in een beveiligde database in de EU. We delen jouw gegevens of die van je leads nooit met anderen.',
       },
       {
         q: 'Voldoet Vertero aan de AVG?',
-        a: 'Ja. Als verwerkingsverantwoordelijke ben jij verantwoordelijk voor de verwerking van persoonsgegevens via jouw quiz. Vertero treedt op als verwerker en verwerkt gegevens uitsluitend in jouw opdracht.',
+        a: 'Ja. Jij bent als gebruiker de verwerkingsverantwoordelijke voor de gegevens die via jouw quiz binnenkomen. Vertero verwerkt ze alleen namens jou.',
       },
       {
-        q: 'Kan ik mijn data exporteren?',
-        a: 'Ja. In de leads-pagina kun je met één klik al je leads exporteren als CSV-bestand.',
+        q: 'Kan ik mijn leads exporteren?',
+        a: 'Ja, als CSV. Eén klik vanuit het leads-overzicht.',
       },
     ],
   },
@@ -86,15 +86,15 @@ function Item({ q, a }: { q: string; a: string }) {
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between gap-4 py-5 text-left"
       >
-        <span className="font-semibold text-sm text-white">{q}</span>
-        <span className={`flex-shrink-0 w-5 h-5 rounded-full border border-white/20 flex items-center justify-center transition-transform ${open ? 'rotate-45' : ''}`}>
+        <span className="font-medium text-sm text-white">{q}</span>
+        <span className={`flex-shrink-0 w-5 h-5 rounded-full border border-white/15 flex items-center justify-center transition-transform ${open ? 'rotate-45' : ''}`}>
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
             <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
         </span>
       </button>
       {open && (
-        <p className="text-white/50 text-sm leading-relaxed pb-5 pr-8">{a}</p>
+        <p className="text-white/45 text-sm leading-relaxed pb-5 pr-8">{a}</p>
       )}
     </div>
   )
@@ -104,11 +104,9 @@ export default function FAQPage() {
   return (
     <div className="bg-[#07070f] text-white min-h-screen">
 
-      {/* NAV */}
       <nav className="sticky top-0 z-50 bg-[#07070f]/90 backdrop-blur-md border-b border-white/[0.06]">
         <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="hover:opacity-75 transition">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="Vertero" className="h-7" />
           </Link>
           <div className="flex items-center gap-3">
@@ -122,22 +120,20 @@ export default function FAQPage() {
 
       <div className="max-w-3xl mx-auto px-6 py-16 pb-24">
 
-        {/* HEADER */}
         <div className="mb-14">
-          <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest mb-3">Veelgestelde vragen</p>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-[1.08] mb-4">
-            Hoe werkt Vertero?
+            Veelgestelde vragen
           </h1>
           <p className="text-white/40 text-base max-w-md leading-relaxed">
-            Staat je vraag er niet bij? Stuur ons een bericht via de <Link href="/contact" className="text-white/60 hover:text-white underline underline-offset-2 transition">contactpagina</Link>.
+            Staat je vraag er niet bij? Stuur een bericht via de{' '}
+            <Link href="/contact" className="text-white/60 hover:text-white underline underline-offset-2 transition">contactpagina</Link>.
           </p>
         </div>
 
-        {/* FAQ SECTIONS */}
         <div className="flex flex-col gap-10">
           {FAQS.map(section => (
             <div key={section.category}>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">{section.category}</p>
+              <p className="text-xs font-semibold text-white/25 mb-2 uppercase tracking-widest">{section.category}</p>
               <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl px-6">
                 {section.items.map(item => (
                   <Item key={item.q} q={item.q} a={item.a} />
@@ -147,17 +143,16 @@ export default function FAQPage() {
           ))}
         </div>
 
-        {/* CTA */}
         <div className="mt-14 bg-[#0d0d1c] border border-white/10 rounded-2xl p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div>
             <p className="font-bold text-base mb-1">Klaar om te starten?</p>
-            <p className="text-white/40 text-sm">Maak gratis een account aan en ontvang je eerste leads vandaag.</p>
+            <p className="text-white/40 text-sm">Gratis account aanmaken, geen creditcard nodig.</p>
           </div>
           <Link
             href="/probeer"
             className="flex-shrink-0 bg-[#f97316] hover:bg-[#ea6c0a] text-white font-semibold px-6 py-3 rounded-lg text-sm transition whitespace-nowrap"
           >
-            Gratis beginnen →
+            Probeer Vertero gratis
           </Link>
         </div>
 
@@ -166,15 +161,14 @@ export default function FAQPage() {
       <footer className="border-t border-white/[0.06] py-8">
         <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="hover:opacity-70 transition">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="Vertero" className="h-6" />
           </Link>
           <div className="flex gap-6">
             <Link href="/faq" className="text-white/25 text-sm hover:text-white transition">FAQ</Link>
+            <Link href="/contact" className="text-white/25 text-sm hover:text-white transition">Contact</Link>
             <Link href="/sign-in" className="text-white/25 text-sm hover:text-white transition">Inloggen</Link>
-            <Link href="/sign-up" className="text-white/25 text-sm hover:text-white transition">Registreren</Link>
           </div>
-          <p className="text-white/15 text-xs">© 2026 Vertero</p>
+          <p className="text-white/15 text-xs">© 2025 Vertero</p>
         </div>
       </footer>
 

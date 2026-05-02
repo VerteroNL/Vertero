@@ -11,18 +11,18 @@ export default function HomePage() {
       name: 'Free', monthly: 0, features: [
         '1 quiz',
         '5 aanvragen per maand',
-        'Website + link',
-        'Powered by Vertero zichtbaar',
-      ], cta: 'Start gratis', href: '/probeer', highlight: false
+        'Website + directe link',
+        'Vertero-branding zichtbaar',
+      ], cta: 'Gratis beginnen', href: '/probeer', highlight: false
     },
     {
       name: 'Pro', monthly: 69, annualTotal: 690, features: [
         'Onbeperkt quizzen',
         'Onbeperkt aanvragen',
-        'Geen "Powered by Vertero"',
-        'Eigen branding + bedrijfskleuren',
-        'E-mail notificaties',
-        'Website + link',
+        'Geen Vertero-branding',
+        'Eigen kleuren en logo',
+        'Mailmelding bij nieuwe lead',
+        'Website + directe link',
       ], cta: '14 dagen gratis proberen', href: '/sign-up', highlight: true
     },
   ]
@@ -38,8 +38,8 @@ export default function HomePage() {
           </Link>
 
           <div className="flex items-center gap-4 md:gap-8">
-            <a href="#prijzen" className="hidden md:block text-white/60 text-sm hover:text-[#f97316] transition">Prijzen</a>
-            <Link href="/faq" className="hidden md:block text-white/60 text-sm hover:text-[#f97316] transition">FAQ</Link>
+            <a href="#prijzen" className="hidden md:block text-white/60 text-sm hover:text-white transition">Prijzen</a>
+            <Link href="/faq" className="hidden md:block text-white/60 text-sm hover:text-white transition">FAQ</Link>
             <Link href="/sign-in" className="hidden md:block text-white/60 text-sm hover:text-white transition">Inloggen</Link>
             <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-4 md:px-5 py-2 rounded-lg font-semibold text-sm transition">
               Gratis starten
@@ -51,24 +51,21 @@ export default function HomePage() {
       {/* HERO */}
       <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
         <div>
-          <div className="inline-block bg-[#f97316]/10 border border-[#f97316]/20 text-[#f97316] text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
-            Plug &amp; play quiz builder
-          </div>
           <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6">
-            Meer aanvragen<br />via je website<br />
-            <span className="text-[#f97316]">zonder gedoe</span>
+            Meer aanvragen,<br />betere klanten,<br />
+            <span className="text-[#f97316]">minder rommel</span>
           </h1>
           <p className="text-white/60 text-lg md:text-xl mb-4 leading-relaxed">
-            Laat bezoekers een paar simpele vragen invullen en ontvang direct serieuze aanvragen.
+            Zet een quiz op je website. Bezoekers vullen een paar vragen in, jij ziet direct wie het waard is om terug te bellen.
           </p>
-          <p className="text-white/40 text-sm mb-10">
-            Werkt op je website óf deel simpel een link via WhatsApp, mail of social media
+          <p className="text-white/35 text-sm mb-10">
+            Werkt ingebouwd op je website of gewoon als link via WhatsApp of mail
           </p>
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-8 py-3.5 rounded-xl font-semibold text-base transition">
-              Maak gratis je quiz →
+              Maak je eerste quiz
             </Link>
-            <Link href="/sign-in" className="text-white/50 hover:text-white text-sm transition">
+            <Link href="/sign-in" className="text-white/40 hover:text-white text-sm transition">
               Al een account? Inloggen
             </Link>
           </div>
@@ -77,26 +74,26 @@ export default function HomePage() {
         {/* PREVIEW */}
         <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 md:p-10">
           <div className="flex items-center justify-between mb-6">
-            <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest">Voorbeeld quiz</p>
-            <p className="text-white/30 text-xs">Vraag 1 van 3</p>
+            <p className="text-white/30 text-xs font-medium">Voorbeeld quiz</p>
+            <p className="text-white/25 text-xs">Stap 1 van 3</p>
           </div>
-          <div className="w-full bg-white/5 rounded-full h-1 mb-8">
-            <div className="bg-[#f97316] h-1 rounded-full w-1/3"></div>
+          <div className="w-full bg-white/5 rounded-full h-0.5 mb-8">
+            <div className="bg-[#f97316] h-0.5 rounded-full w-1/3"></div>
           </div>
           <h3 className="text-xl font-bold mb-6">Wat wil je laten doen?</h3>
           <div className="flex flex-col gap-3 mb-8">
-            {['Badkamer verbouwen', 'Uitbouw plaatsen', 'Dak renovatie', 'Ik weet het nog niet'].map((item, i) => (
+            {['Badkamer verbouwen', 'Uitbouw plaatsen', 'Dakrenovatie', 'Weet ik nog niet'].map((item, i) => (
               <div key={i} className={`border p-4 rounded-xl text-sm cursor-pointer transition ${
                 i === 0
                   ? 'border-[#f97316] bg-[#f97316]/10 text-white'
-                  : 'border-white/10 text-white/60 hover:border-[#f97316]/50'
+                  : 'border-white/10 text-white/50 hover:border-white/25'
               }`}>
                 {item}
               </div>
             ))}
           </div>
           <button className="w-full bg-[#f97316] hover:bg-[#ea6c0a] py-3.5 rounded-xl font-semibold text-sm transition">
-            Volgende stap →
+            Volgende
           </button>
         </div>
       </section>
@@ -104,34 +101,34 @@ export default function HomePage() {
       {/* BENEFITS */}
       <section className="max-w-7xl mx-auto px-5 md:px-10 pb-16 md:pb-28 grid grid-cols-1 sm:grid-cols-3 gap-6">
         {[
-          { icon: '📈', title: 'Meer aanvragen', desc: 'Bezoekers vullen sneller iets in dan een standaard contactformulier.' },
-          { icon: '🎯', title: 'Betere klanten', desc: 'Je stelt vooraf de juiste vragen en filtert ongeschikte aanvragen eruit.' },
-          { icon: '🔗', title: 'Flexibel te gebruiken', desc: 'Embed op je website of deel gewoon een directe link via WhatsApp of mail.' },
+          { title: 'Meer aanvragen', desc: 'Een quiz voelt laagdrempeliger dan een contactformulier. Meer bezoekers maken het af.' },
+          { title: 'Betere kwalificatie', desc: 'Je stelt precies de vragen die jij nodig hebt. Geen vage berichten meer, alleen bruikbare leads.' },
+          { title: 'Overal te gebruiken', desc: 'Embed de quiz op je site, of deel gewoon een link. Werkt ook goed via WhatsApp of social.' },
         ].map((item, i) => (
           <div key={i} className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition">
-            <div className="text-3xl mb-4">{item.icon}</div>
-            <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-            <p className="text-white/50 text-sm leading-relaxed">{item.desc}</p>
+            <div className="w-1.5 h-1.5 rounded-full bg-[#f97316] mb-5"></div>
+            <h3 className="font-bold text-base mb-2">{item.title}</h3>
+            <p className="text-white/45 text-sm leading-relaxed">{item.desc}</p>
           </div>
         ))}
       </section>
 
       {/* HOW IT WORKS */}
       <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-white/7">
-        <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest text-center mb-4">Hoe het werkt</p>
-        <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-12 md:mb-16">In 3 stappen live</h2>
+        <div className="max-w-xl mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Binnen een kwartier live</h2>
+          <p className="text-white/40 text-base leading-relaxed">Geen developer nodig. Geen ingewikkeld dashboard. Gewoon aanmelden, instellen en klaar.</p>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {[
-            { n: '1', title: 'Maak je vragen', desc: 'Kies een template of begin leeg. Voeg je eigen vragen toe in een paar klikken.' },
-            { n: '2', title: 'Plaats of deel', desc: 'Zet de quiz op je website met één regel code, of stuur gewoon de directe link.' },
-            { n: '3', title: 'Ontvang aanvragen', desc: 'Leads komen direct binnen in je dashboard met naam, telefoon en alle antwoorden.' },
+            { n: '1', title: 'Stel je vragen in', desc: 'Begin met een leeg formulier of een template. Voeg vragen toe, pas de volgorde aan, klaar.' },
+            { n: '2', title: 'Zet hem live', desc: 'Kopieer één regel code naar je website of gebruik de directe link. Werkt op elk platform.' },
+            { n: '3', title: 'Leads binnenhalen', desc: 'Elke inzending komt direct in je dashboard met naam, telefoonnummer en alle antwoorden.' },
           ].map((item) => (
             <div key={item.n} className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition">
-              <div className="w-9 h-9 rounded-full bg-[#f97316]/10 border border-[#f97316]/20 flex items-center justify-center text-[#f97316] font-bold mb-5">
-                {item.n}
-              </div>
-              <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{item.desc}</p>
+              <div className="text-[#f97316]/40 text-sm font-bold mb-5">{item.n}</div>
+              <h3 className="font-bold text-base mb-2">{item.title}</h3>
+              <p className="text-white/45 text-sm leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -139,12 +136,13 @@ export default function HomePage() {
 
       {/* PRICING */}
       <section id="prijzen" className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-white/7">
-        <p className="text-[#f97316] text-xs font-bold uppercase tracking-widest text-center mb-4">Prijzen</p>
-        <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-4">Simpel en duidelijk</h2>
-        <p className="text-white/40 text-center text-sm mb-10">Geen contract. Stop wanneer je wilt.</p>
+        <div className="max-w-xl mb-10 md:mb-14">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3">Geen verrassingen</h2>
+          <p className="text-white/40 text-base">Vaste prijs, geen contract, op elk moment op te zeggen.</p>
+        </div>
 
-        <div className="flex items-center justify-center gap-4 mb-10 md:mb-14">
-          <span className={`text-sm font-semibold ${!annual ? 'text-white' : 'text-white/40'}`}>Maandelijks</span>
+        <div className="flex items-center gap-4 mb-10 md:mb-14">
+          <span className={`text-sm font-semibold ${!annual ? 'text-white' : 'text-white/40'}`}>Per maand</span>
           <button
             onClick={() => setAnnual(!annual)}
             className={`w-12 h-6 rounded-full relative transition-colors ${annual ? 'bg-[#f97316]' : 'bg-white/20'}`}
@@ -152,12 +150,12 @@ export default function HomePage() {
             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${annual ? 'left-7' : 'left-1'}`}></div>
           </button>
           <span className={`text-sm font-semibold ${annual ? 'text-white' : 'text-white/40'}`}>
-            Jaarlijks
+            Per jaar
             <span className="ml-2 bg-[#f97316]/20 text-[#f97316] text-xs font-bold px-2 py-0.5 rounded-full">−17%</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -170,20 +168,17 @@ export default function HomePage() {
                   Aanbevolen
                 </div>
               )}
-              <h3 className="text-white/60 text-sm font-semibold mb-4">{plan.name}</h3>
+              <h3 className="text-white/50 text-sm font-semibold mb-4">{plan.name}</h3>
               <div className="h-24 flex flex-col justify-start mb-2">
                 {plan.monthly === 0 ? (
                   <>
                     <div className="text-4xl font-extrabold">€0</div>
-                    <div className="text-white/30 text-xs mt-1">gratis plan</div>
+                    <div className="text-white/30 text-xs mt-1">altijd gratis</div>
                   </>
                 ) : annual && plan.annualTotal ? (
                   <>
                     <div className="text-4xl font-extrabold">€{plan.annualTotal}</div>
-                    <div className="text-white/30 text-xs mt-1">per jaar</div>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="bg-[#f97316]/15 text-[#f97316] text-[10px] font-bold px-2 py-0.5 rounded-full">2 maanden gratis</span>
-                    </div>
+                    <div className="text-white/30 text-xs mt-1">per jaar — 2 maanden gratis</div>
                   </>
                 ) : (
                   <>
@@ -221,12 +216,12 @@ export default function HomePage() {
              <img src="/logo.png" alt="Vertero" className="h-7" />
           </Link>
           <div className="flex gap-6 md:gap-8 flex-wrap justify-center">
-            <Link href="/faq" className="text-white/40 text-sm hover:text-white transition">FAQ</Link>
-            <a href="#prijzen" className="text-white/40 text-sm hover:text-white transition">Prijzen</a>
-            <Link href="/sign-in" className="text-white/40 text-sm hover:text-white transition">Inloggen</Link>
-            <Link href="/sign-up" className="text-white/40 text-sm hover:text-white transition">Registreren</Link>
+            <Link href="/faq" className="text-white/35 text-sm hover:text-white transition">FAQ</Link>
+            <a href="#prijzen" className="text-white/35 text-sm hover:text-white transition">Prijzen</a>
+            <Link href="/contact" className="text-white/35 text-sm hover:text-white transition">Contact</Link>
+            <Link href="/sign-in" className="text-white/35 text-sm hover:text-white transition">Inloggen</Link>
           </div>
-          <p className="text-white/20 text-sm">© 2025 Vertero. Alle rechten voorbehouden.</p>
+          <p className="text-white/20 text-sm">© 2025 Vertero</p>
         </div>
       </footer>
 
