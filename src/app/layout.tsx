@@ -16,6 +16,10 @@ export default function RootLayout({
   return (
     <ClerkProvider signInFallbackRedirectUrl="/dashboard" signUpFallbackRedirectUrl="/dashboard">
       <html lang="nl">
+        <head>
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-8STB5EY6KF"></script>
+          <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-8STB5EY6KF');` }} />
+        </head>
         <body>{children}<Analytics /></body>
       </html>
     </ClerkProvider>
