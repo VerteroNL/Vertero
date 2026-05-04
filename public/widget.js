@@ -1,9 +1,7 @@
 (function () {
   const script = document.currentScript;
-  const quizId = script.getAttribute('data-id');
+  const defaultQuizId = script.getAttribute('data-id');
   const apiBase = new URL(script.src).origin;
-
-  if (!quizId) return console.error('vertero: geen data-id gevonden');
 
   const style = document.createElement('style');
   style.textContent = `
@@ -83,7 +81,7 @@
   document.head.appendChild(style);
 
   document.body.insertAdjacentHTML('beforeend', `
-    <button id="vertero-btn">📋 Offerte aanvragen</button>
+    ${defaultQuizId ? `<button id="vertero-btn">📋 Offerte aanvragen</button>` : ''}
     <div id="vertero-overlay">
       <div id="vertero-modal">
         <button id="vertero-close">✕</button>
@@ -93,16 +91,13 @@
     </div>
   `);
 
+  const quizCache = {};
+  let activeQuizId = null;
   let quiz = null;
-  let quizLoaded = false;
-  let pendingRender = false;
   let currentStep = 0;
   let answers = {};
 
-  window.verteroSetContact = (field, value) => {
-    answers[field] = value;
-    console.log('Contact updated:', field, value, answers);
-  };
+  window.verteroSetContact = (field, value) => { answers[field] = value; };
   window.verteroSelect = (step, value, el) => {
     answers[step] = value;
     document.querySelectorAll('.vertero-opt').forEach(o => o.classList.remove('selected'));
@@ -114,10 +109,9 @@
     const questions = quiz.config?.questions || [];
     if (currentStep < questions.length) {
       const q = questions[currentStep];
-      const isOptional = q.optional === true;
-      if (!isOptional && !answers[currentStep]) {
+      if (!q.optional && !answers[currentStep]) {
         const err = document.getElementById('vertero-error');
-        if (err) { err.classList.add('visible'); }
+        if (err) err.classList.add('visible');
         return;
       }
       currentStep++;
@@ -155,15 +149,14 @@
       const res = await fetch(`${apiBase}/api/leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug: quizId, name, email, phone, street, postcode, city, answers: formattedAnswers })
+        body: JSON.stringify({ slug: activeQuizId, name, email, phone, street, postcode, city, answers: formattedAnswers })
       });
-
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         if (err) { err.textContent = data.error || 'Er ging iets mis. Probeer het opnieuw.'; err.classList.add('visible'); }
         return;
       }
-    } catch (e) {
+    } catch {
       if (err) { err.textContent = 'Er ging iets mis. Probeer het opnieuw.'; err.classList.add('visible'); }
       return;
     }
@@ -177,39 +170,44 @@
     `;
   };
 
-  fetch(`${apiBase}/api/quiz-public/${quizId}`)
-    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(data => {
-      quiz = data;
-      quizLoaded = true;
-      const color = data?.config?.brandColor || '#f97316';
-      document.documentElement.style.setProperty('--vt-brand', color);
-      if (pendingRender) { pendingRender = false; renderStep(); }
-    })
-    .catch(e => {
-      quizLoaded = true;
-      console.error('vertero: quiz kon niet worden geladen', e);
-      if (pendingRender) {
-        pendingRender = false;
-        document.getElementById('vertero-content').innerHTML = '<div style="text-align:center;padding:40px;color:#ff6b6b;font-size:14px">Quiz kon niet worden geladen.</div>';
-      }
-    });
+  function openQuiz(id) {
+    activeQuizId = id;
+    currentStep = 0;
+    answers = {};
+    quiz = null;
 
-  document.getElementById('vertero-btn').onclick = () => {
-    document.getElementById('vertero-overlay').classList.add('open');
-    if (quizLoaded && quiz) {
+    const overlay = document.getElementById('vertero-overlay');
+    const content = document.getElementById('vertero-content');
+    overlay.classList.add('open');
+
+    if (quizCache[id]) {
+      quiz = quizCache[id];
+      applyBrandColor(quiz);
       renderStep();
-    } else if (quizLoaded && !quiz) {
-      document.getElementById('vertero-content').innerHTML = '<div style="text-align:center;padding:40px;color:#ff6b6b;font-size:14px">Quiz kon niet worden geladen.</div>';
-    } else {
-      pendingRender = true;
-      document.getElementById('vertero-content').innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);font-size:14px">Laden...</div>';
+      return;
     }
-  };
-  document.getElementById('vertero-close').onclick = closeModal;
-  document.getElementById('vertero-overlay').onclick = (e) => {
-    if (e.target === document.getElementById('vertero-overlay')) closeModal();
-  };
+
+    content.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);font-size:14px">Laden...</div>';
+
+    fetch(`${apiBase}/api/quiz-public/${id}`)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(data => {
+        quizCache[id] = data;
+        if (activeQuizId !== id) return;
+        quiz = data;
+        applyBrandColor(quiz);
+        renderStep();
+      })
+      .catch(() => {
+        if (activeQuizId !== id) return;
+        content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff6b6b;font-size:14px">Quiz kon niet worden geladen.</div>';
+      });
+  }
+
+  function applyBrandColor(data) {
+    const color = data?.config?.brandColor || '#f97316';
+    document.documentElement.style.setProperty('--vt-brand', color);
+  }
 
   function closeModal() {
     document.getElementById('vertero-overlay').classList.remove('open');
@@ -277,4 +275,15 @@
       `;
     }
   }
+
+  if (defaultQuizId) {
+    document.getElementById('vertero-btn').onclick = () => openQuiz(defaultQuizId);
+  }
+
+  document.getElementById('vertero-close').onclick = closeModal;
+  document.getElementById('vertero-overlay').onclick = (e) => {
+    if (e.target === document.getElementById('vertero-overlay')) closeModal();
+  };
+
+  window.Vertero = { open: openQuiz };
 })()
