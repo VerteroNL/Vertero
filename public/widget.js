@@ -97,6 +97,24 @@
     .vertero-powered span { font-size: 11px; font-weight: 500; letter-spacing: 0.03em; color: rgba(255,255,255,0.25); }
     .vt-light .vertero-powered span { color: rgba(0,0,0,0.25); }
     .vertero-powered img { height: 11px; opacity: 0.4; }
+    .vertero-radio {
+      display: flex; align-items: center; gap: 12px;
+      padding: 4px; cursor: pointer; background: none; border: none;
+      font-size: 14px; color: rgba(255,255,255,0.45); transition: color 0.15s;
+    }
+    .vt-light .vertero-radio { color: rgba(0,0,0,0.45); }
+    .vertero-radio.active { color: white; }
+    .vt-light .vertero-radio.active { color: #111; }
+    .vertero-radio-dot {
+      width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.15s;
+    }
+    .vt-light .vertero-radio-dot { border-color: rgba(0,0,0,0.2); }
+    .vertero-radio-inner {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--vt-brand); display: none;
+    }
+    .vertero-radio.active .vertero-radio-dot { border-color: var(--vt-brand); }
+    .vertero-radio.active .vertero-radio-inner { display: block; }
   `;
   document.head.appendChild(style);
 
@@ -155,18 +173,15 @@
     el.classList.add('selected');
     el.style.borderColor = brand + '99';
     el.style.background = brand + '18';
-    const customInp = document.getElementById('vertero-custom-wrap-' + qId);
-    if (customInp) customInp.style.display = 'none';
   };
   window.verteroInput = (qId, value) => { answers[qId] = value; };
   window.verteroToggleCustom = (qId) => {
-    if (answers[qId] !== undefined && !quiz?.config?.questions?.find(q => q.id === qId)?.options?.includes(answers[qId])) return;
+    const q = quiz?.config?.questions?.find(q => q.id === qId);
+    if (!q) return;
+    if (answers[qId] !== undefined && !q.options.includes(answers[qId])) return;
     answers[qId] = '';
     renderStep();
-    setTimeout(() => {
-      const inp = document.getElementById('vertero-custom-wrap-' + qId);
-      if (inp && inp.tagName === 'INPUT') inp.focus();
-    }, 0);
+    setTimeout(() => document.getElementById('vertero-custom-inp-' + qId)?.focus(), 0);
   };
   window.verteroCustomInput = (qId, value) => { answers[qId] = value; };
 
@@ -336,15 +351,15 @@
           `).join('')}
           ${q.allowCustom ? (() => {
             const isCustomSelected = answers[q.id] !== undefined && !q.options.includes(answers[q.id]);
-            const brand = getComputedStyle(document.documentElement).getPropertyValue('--vt-brand').trim() || '#f97316';
-            const selStyle = isCustomSelected ? `style="border-color:${brand}99;background:${brand}18"` : '';
             const customVal = isCustomSelected ? answers[q.id].replace(/"/g, '&quot;') : '';
             return `
-              <button class="vertero-opt" ${selStyle} onclick="verteroToggleCustom('${q.id}')">Anders, namelijk...</button>
-              ${isCustomSelected ? `<input class="vertero-input" type="text" id="vertero-custom-wrap-${q.id}"
+              <button class="vertero-radio${isCustomSelected ? ' active' : ''}" onclick="verteroToggleCustom('${q.id}')">
+                <span class="vertero-radio-dot"><span class="vertero-radio-inner"></span></span>
+                Anders, namelijk...
+              </button>
+              ${isCustomSelected ? `<input class="vertero-input" type="text" id="vertero-custom-inp-${q.id}"
                 value="${customVal}" placeholder="Typ je antwoord..."
-                style="margin-top:8px"
-                oninput="verteroCustomInput('${q.id}', this.value)" />` : `<span id="vertero-custom-wrap-${q.id}" style="display:none"></span>`}
+                oninput="verteroCustomInput('${q.id}', this.value)" />` : ''}
             `;
           })() : ''}
         </div>

@@ -249,18 +249,23 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
                 {q.allowCustom && (() => {
                   const isCustomSelected = answers[q.id] !== undefined && !q.options.includes(answers[q.id])
                   return (
-                    <div>
+                    <div className="flex flex-col gap-2">
                       <button
                         onClick={() => setAnswers(prev => ({ ...prev, [q.id]: isCustomSelected ? prev[q.id] : '' }))}
-                        className={`w-full text-left px-4 py-3 rounded-xl border transition text-sm font-medium ${c.opt}`}
-                        style={isCustomSelected ? { borderColor: `${brand}99`, background: `${brand}18`, color: isLight ? '#111' : '#fff' } : {}}>
-                        Anders, namelijk...
+                        className="flex items-center gap-3 px-1 py-1 text-sm transition">
+                        <span className="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+                          style={{ borderColor: isCustomSelected ? brand : isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)' }}>
+                          {isCustomSelected && <span className="w-2 h-2 rounded-full" style={{ background: brand }} />}
+                        </span>
+                        <span style={{ color: isCustomSelected ? (isLight ? '#111' : '#fff') : isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)' }}>
+                          Anders, namelijk...
+                        </span>
                       </button>
                       {isCustomSelected && (
                         <input type="text" autoFocus value={answers[q.id]}
                           onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                           placeholder="Typ je antwoord..."
-                          className={`w-full mt-2 border rounded-xl px-4 py-3 text-sm outline-none transition ${c.input}`} />
+                          className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition ${c.input}`} />
                       )}
                     </div>
                   )
