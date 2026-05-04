@@ -258,22 +258,25 @@ export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz;
                   {opt}
                 </button>
               ))}
-              {q.allowCustom && (
-                <div className={`rounded-xl border transition ${answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? '' : isLight ? 'border-gray-200' : 'border-white/10'}`}
-                  style={answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? { borderColor: `${brand}99`, background: `${brand}18` } : {}}>
-                  <button
-                    onClick={() => setAnswers(prev => ({ ...prev, [q.id]: prev[q.id] !== undefined && !q.options.includes(prev[q.id]) ? prev[q.id] : '' }))}
-                    className={`w-full text-left px-4 py-3 text-sm font-medium ${c.back} transition`}>
-                    Anders, namelijk...
-                  </button>
-                  {answers[q.id] !== undefined && !q.options.includes(answers[q.id]) && (
-                    <input type="text" autoFocus value={answers[q.id]}
-                      onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-                      placeholder="Typ je antwoord..."
-                      className={`w-full bg-transparent border-t ${isLight ? 'border-gray-200 text-gray-900 placeholder-gray-300' : 'border-white/10 text-white placeholder-white/30'} px-4 py-3 text-sm outline-none`} />
-                  )}
-                </div>
-              )}
+              {q.allowCustom && (() => {
+                const isCustomSelected = answers[q.id] !== undefined && !q.options.includes(answers[q.id])
+                return (
+                  <div>
+                    <button
+                      onClick={() => setAnswers(prev => ({ ...prev, [q.id]: isCustomSelected ? prev[q.id] : '' }))}
+                      className={`w-full text-left px-4 py-3 rounded-xl border transition text-sm font-medium ${c.opt}`}
+                      style={isCustomSelected ? { borderColor: `${brand}99`, background: `${brand}18`, color: isLight ? '#111' : '#fff' } : {}}>
+                      Anders, namelijk...
+                    </button>
+                    {isCustomSelected && (
+                      <input type="text" autoFocus value={answers[q.id]}
+                        onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                        placeholder="Typ je antwoord..."
+                        className={`w-full mt-2 border rounded-xl px-4 py-3 text-sm outline-none transition ${c.input}`} />
+                    )}
+                  </div>
+                )
+              })()}
             </div>
           )}
 
