@@ -24,7 +24,7 @@ interface Quiz {
   name: string
   slug: string
   active: boolean
-  config: { questions: Question[]; scoring?: boolean; brandColor?: string; contactFields?: ContactFieldConfig[]; theme?: 'dark' | 'light' }
+  config: { questions: Question[]; scoring?: boolean; brandColor?: string; contactFields?: ContactFieldConfig[]; theme?: 'dark' | 'light'; hidePoweredBy?: boolean }
 }
 
 const DEFAULT_CONTACT_FIELDS: ContactFieldConfig[] = [
@@ -47,6 +47,7 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
   const [questions, setQuestions] = useState<Question[]>(initial.config?.questions || [])
   const [scoring, setScoring] = useState(initial.config?.scoring ?? false)
   const [theme, setTheme] = useState<'dark' | 'light'>(initial.config?.theme ?? 'dark')
+  const [hidePoweredBy, setHidePoweredBy] = useState(initial.config?.hidePoweredBy ?? false)
   const [brandColor, setBrandColor] = useState(initial.config?.brandColor ?? '#f97316')
   const [contactFields, setContactFields] = useState<ContactFieldConfig[]>(
     initial.config?.contactFields ?? DEFAULT_CONTACT_FIELDS
@@ -162,7 +163,7 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
     await fetch(`/api/quiz/${quiz.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: { questions, scoring, brandColor, contactFields, theme } }),
+      body: JSON.stringify({ config: { questions, scoring, brandColor, contactFields, theme, hidePoweredBy } }),
     })
     setSaving(false)
     setSavedAt(new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))
@@ -423,6 +424,22 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Powered by verbergen */}
+            <div className={`flex items-center justify-between mb-5 ${!isPro ? 'opacity-50' : ''}`}>
+              <div>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  "Powered by Vertero"
+                  {!isPro && <span className="text-[9px] font-bold uppercase tracking-widest bg-[#f97316]/20 text-[#f97316] px-1.5 py-0.5 rounded-full">Pro</span>}
+                </p>
+                <p className="text-white/35 text-xs mt-0.5">{isPro ? 'Verberg de Vertero-vermelding' : 'Upgrade naar Pro om de vermelding te verbergen'}</p>
+              </div>
+              <button
+                onClick={() => isPro && setHidePoweredBy(h => !h)}
+                className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${!isPro ? 'cursor-not-allowed' : 'cursor-pointer'} ${hidePoweredBy ? 'bg-[#f97316]' : 'bg-white/10'}`}>
+                <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${hidePoweredBy ? 'translate-x-4' : 'translate-x-0'}`} />
+              </button>
             </div>
 
             {/* Lead scoring */}

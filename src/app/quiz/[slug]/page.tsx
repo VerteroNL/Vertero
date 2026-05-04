@@ -29,7 +29,7 @@ export default async function PublicQuizPage({ params }: { params: Promise<{ slu
   if (!quiz) notFound()
 
   const plan = quiz.user_id ? await getUserPlan(quiz.user_id) : 'free'
-  const showPoweredBy = plan !== 'pro'
+  const showPoweredBy = !(plan === 'pro' && quiz.config?.hidePoweredBy === true)
 
   return <QuizClient quiz={quiz} showPoweredBy={showPoweredBy} />
 }

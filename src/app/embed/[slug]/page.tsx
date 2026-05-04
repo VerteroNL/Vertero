@@ -29,7 +29,7 @@ export default async function EmbedQuizPage({ params }: { params: Promise<{ slug
   if (!quiz) notFound()
 
   const plan = quiz.user_id ? await getUserPlan(quiz.user_id) : 'free'
-  const showPoweredBy = plan !== 'pro'
+  const showPoweredBy = !(plan === 'pro' && quiz.config?.hidePoweredBy === true)
 
   return <EmbedClient quiz={quiz} showPoweredBy={showPoweredBy} />
 }
