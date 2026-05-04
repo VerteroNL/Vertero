@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-const SCRIPT_TAG = `<script src="https://vertero.nl/widget.js" data-id="JOUW-QUIZ-ID"></scr` + `ipt>`
+const SCRIPT_TAG = `<script src="https://vertero.nl/widget.js" data-id="JOUW-QUIZ-ID" data-label="Vraag een offerte aan"></scr` + `ipt>`
 const SCRIPT_TAG_NO_ID = `<script src="https://vertero.nl/widget.js"></scr` + `ipt>`
 const BUTTON_EXAMPLE = `<button onclick="Vertero.open('JOUW-QUIZ-ID')">
   Vraag een offerte aan

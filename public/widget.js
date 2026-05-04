@@ -1,6 +1,7 @@
 (function () {
   const script = document.currentScript;
   const defaultQuizId = script.getAttribute('data-id');
+  const defaultLabel = script.getAttribute('data-label') || '📋 Offerte aanvragen';
   const apiBase = new URL(script.src).origin;
 
   const style = document.createElement('style');
@@ -81,7 +82,7 @@
   document.head.appendChild(style);
 
   document.body.insertAdjacentHTML('beforeend', `
-    ${defaultQuizId ? `<button id="vertero-btn">📋 Offerte aanvragen</button>` : ''}
+    ${defaultQuizId ? `<button id="vertero-btn">${defaultLabel}</button>` : ''}
     <div id="vertero-overlay">
       <div id="vertero-modal">
         <button id="vertero-close">✕</button>
