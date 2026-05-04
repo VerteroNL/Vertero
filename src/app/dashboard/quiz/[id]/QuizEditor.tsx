@@ -24,7 +24,7 @@ interface Quiz {
   name: string
   slug: string
   active: boolean
-  config: { questions: Question[]; scoring?: boolean; brandColor?: string; contactFields?: ContactFieldConfig[] }
+  config: { questions: Question[]; scoring?: boolean; brandColor?: string; contactFields?: ContactFieldConfig[]; theme?: 'dark' | 'light' }
 }
 
 const DEFAULT_CONTACT_FIELDS: ContactFieldConfig[] = [
@@ -46,6 +46,7 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
   const [quiz] = useState<Quiz>(initial)
   const [questions, setQuestions] = useState<Question[]>(initial.config?.questions || [])
   const [scoring, setScoring] = useState(initial.config?.scoring ?? false)
+  const [theme, setTheme] = useState<'dark' | 'light'>(initial.config?.theme ?? 'dark')
   const [brandColor, setBrandColor] = useState(initial.config?.brandColor ?? '#f97316')
   const [contactFields, setContactFields] = useState<ContactFieldConfig[]>(
     initial.config?.contactFields ?? DEFAULT_CONTACT_FIELDS
@@ -161,7 +162,7 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
     await fetch(`/api/quiz/${quiz.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: { questions, scoring, brandColor, contactFields } }),
+      body: JSON.stringify({ config: { questions, scoring, brandColor, contactFields, theme } }),
     })
     setSaving(false)
     setSavedAt(new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))
@@ -399,6 +400,28 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                   <div className="w-full h-full" style={{ background: brandColor }} />
                 </div>
                 <span className="text-white/30 text-[11px] font-mono">{brandColor.toUpperCase()}</span>
+              </div>
+            </div>
+
+            {/* Thema */}
+            <div className={`flex items-center justify-between mb-5 ${!isPro ? 'opacity-50' : ''}`}>
+              <div>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  Thema
+                  {!isPro && <span className="text-[9px] font-bold uppercase tracking-widest bg-[#f97316]/20 text-[#f97316] px-1.5 py-0.5 rounded-full">Pro</span>}
+                </p>
+                <p className="text-white/35 text-xs mt-0.5">{isPro ? 'Donker of licht kleurenschema' : 'Upgrade naar Pro voor lichte modus'}</p>
+              </div>
+              <div className="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
+                {(['dark', 'light'] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => isPro && setTheme(t)}
+                    className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition ${theme === t ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/60'} ${!isPro ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    {t === 'dark' ? 'Donker' : 'Licht'}
+                  </button>
+                ))}
               </div>
             </div>
 

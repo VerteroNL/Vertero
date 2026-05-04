@@ -23,7 +23,7 @@ interface Quiz {
   id: string
   name: string
   slug: string
-  config: { questions: Question[]; brandColor?: string; contactFields?: ContactFieldConfig[] }
+  config: { questions: Question[]; brandColor?: string; contactFields?: ContactFieldConfig[]; theme?: 'dark' | 'light' }
 }
 
 const DEFAULT_CONTACT_FIELDS: ContactFieldConfig[] = [
@@ -65,6 +65,30 @@ function resolveNext(q: Question, answer: string, questions: Question[]): number
 
 export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz; showPoweredBy?: boolean }) {
   const brand = quiz.config?.brandColor || '#f97316'
+  const isLight = quiz.config?.theme === 'light'
+  const c = isLight ? {
+    page: 'bg-[#f5f5f7]',
+    card: 'bg-white border-black/[0.06]',
+    title: 'text-gray-900',
+    sub: 'text-gray-400',
+    opt: 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-900',
+    input: 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-300 focus:border-[#f97316]/50',
+    progress: 'bg-black/5',
+    back: 'text-gray-400 hover:text-gray-900',
+    label: 'text-gray-400',
+    powered: 'text-gray-300',
+  } : {
+    page: 'bg-[#07070f]',
+    card: 'bg-[#0d0d1c] border-white/10',
+    title: 'text-white',
+    sub: 'text-white/40',
+    opt: 'border-white/10 text-white/60 hover:border-white/20 hover:text-white',
+    input: 'bg-[#07070f] border-white/10 text-white placeholder-white/20',
+    progress: 'bg-white/5',
+    back: 'text-white/40 hover:text-white',
+    label: 'text-white/40',
+    powered: 'text-white/25',
+  }
   const activeFields = (quiz.config?.contactFields ?? DEFAULT_CONTACT_FIELDS).filter(f => f.enabled)
   const requiredKeys = activeFields.filter(f => f.required).map(f => f.key)
 
@@ -138,38 +162,38 @@ export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz;
   }
 
   if (stage === 'done') return (
-    <div className="min-h-screen bg-[#07070f] flex flex-col items-center justify-center">
+    <div className={`min-h-screen ${c.page} flex flex-col items-center justify-center`}>
       <div className="text-center">
         <div className="text-4xl mb-4">✓</div>
-        <h2 className="text-2xl font-bold text-white mb-2">Bedankt!</h2>
-        <p className="text-white/40 text-sm">Je antwoorden zijn ontvangen.</p>
+        <h2 className={`text-2xl font-bold ${c.title} mb-2`}>Bedankt!</h2>
+        <p className={`${c.sub} text-sm`}>Je antwoorden zijn ontvangen.</p>
       </div>
-      <PoweredBy />
+      <PoweredBy isLight={isLight} />
     </div>
   )
 
   if (questions.length === 0) return (
-    <div className="min-h-screen bg-[#07070f] flex items-center justify-center text-white/40">
+    <div className={`min-h-screen ${c.page} flex items-center justify-center ${c.sub}`}>
       Deze quiz heeft nog geen vragen.
     </div>
   )
 
   if (stage === 'contact') return (
-    <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-4 sm:p-6">
+    <div className={`min-h-screen ${c.page} flex items-center justify-center p-4 sm:p-6`}>
       <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">Bijna klaar!</h1>
-          <p className="text-white/40 text-sm">Laat je gegevens achter zodat we contact kunnen opnemen.</p>
+          <h1 className={`text-3xl font-bold ${c.title} mb-2`}>Bijna klaar!</h1>
+          <p className={`${c.sub} text-sm`}>Laat je gegevens achter zodat we contact kunnen opnemen.</p>
         </div>
 
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 sm:p-8 mb-6 flex flex-col gap-4">
+        <div className={`${c.card} border rounded-2xl p-6 sm:p-8 mb-6 flex flex-col gap-4`}>
           {activeFields.map(f => (
             <div key={f.key}>
-              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
+              <label className={`${c.label} text-xs font-semibold uppercase tracking-widest mb-2 block`}>
                 {FIELD_LABELS[f.key] || f.key}
                 {f.required
                   ? <span className="text-[#f97316] ml-1">*</span>
-                  : <span className="text-white/20 normal-case font-normal ml-1">(optioneel)</span>
+                  : <span className={`${isLight ? 'text-gray-300' : 'text-white/20'} normal-case font-normal ml-1`}>(optioneel)</span>
                 }
               </label>
               <input
@@ -178,10 +202,10 @@ export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz;
                 onChange={e => setContact(p => ({ ...p, [f.key]: e.target.value }))}
                 onBlur={() => setTouched(p => ({ ...p, [f.key]: true }))}
                 placeholder={FIELD_PLACEHOLDERS[f.key] || ''}
-                className={`w-full bg-[#07070f] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition ${
+                className={`w-full border rounded-xl px-4 py-3 outline-none transition ${c.input} ${
                   (f.key === 'email' ? emailError() : fieldError(f.key))
-                    ? 'border-red-500/60 focus:border-red-500'
-                    : 'border-white/10 focus:border-[#f97316]/50'
+                    ? 'border-red-400 focus:border-red-500'
+                    : ''
                 }`}
               />
               {f.key === 'email' && emailError() && <p className="text-red-400 text-xs mt-1.5">{emailError()}</p>}
@@ -193,10 +217,10 @@ export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz;
         {contactError && <p className="text-red-400 text-sm mb-4">{contactError}</p>}
 
         <div className="grid grid-cols-3 items-center">
-          <button onClick={() => setStage('quiz')} className="text-white/40 hover:text-white text-sm transition justify-self-start">
+          <button onClick={() => setStage('quiz')} className={`${c.back} text-sm transition justify-self-start`}>
             ← Terug
           </button>
-          {showPoweredBy && <PoweredBy />}
+          {showPoweredBy && <PoweredBy isLight={isLight} />}
           <button
             onClick={submit}
             disabled={submitting}
@@ -211,42 +235,42 @@ export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz;
   )
 
   return (
-    <div className="min-h-screen bg-[#07070f] flex items-center justify-center p-4 sm:p-6">
+    <div className={`min-h-screen ${c.page} flex items-center justify-center p-4 sm:p-6`}>
       <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white mb-1">{quiz.name}</h1>
-          <p className="text-white/30 text-sm">{history.length} / {questions.length}</p>
+          <h1 className={`text-3xl font-bold ${c.title} mb-1`}>{quiz.name}</h1>
+          <p className={`${c.sub} text-sm`}>{history.length} / {questions.length}</p>
         </div>
 
-        <div className="w-full bg-white/5 rounded-full h-1 mb-8">
+        <div className={`w-full ${c.progress} rounded-full h-1 mb-8`}>
           <div className="h-1 rounded-full transition-all" style={{ width: `${(history.length / questions.length) * 100}%`, background: brand }} />
         </div>
 
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 sm:p-8 mb-6">
-          <h2 className="text-white text-xl font-semibold mb-6">{q.question}</h2>
+        <div className={`${c.card} border rounded-2xl p-6 sm:p-8 mb-6`}>
+          <h2 className={`${c.title} text-xl font-semibold mb-6`}>{q.question}</h2>
 
           {(q.type === 'multiple' || !q.type) && (
             <div className="flex flex-col gap-3">
               {q.options.map((opt, i) => (
                 <button key={i} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}
-                  className="text-left px-4 py-3 rounded-xl border transition text-sm font-medium border-white/10 text-white/60 hover:border-white/20 hover:text-white"
-                  style={answers[q.id] === opt ? { borderColor: brand, background: `${brand}1a`, color: '#fff' } : {}}>
+                  className={`text-left px-4 py-3 rounded-xl border transition text-sm font-medium ${c.opt}`}
+                  style={answers[q.id] === opt ? { borderColor: brand, background: `${brand}1a`, color: isLight ? '#111' : '#fff' } : {}}>
                   {opt}
                 </button>
               ))}
               {q.allowCustom && (
-                <div className="rounded-xl border transition border-white/10"
+                <div className={`rounded-xl border transition ${answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? '' : isLight ? 'border-gray-200' : 'border-white/10'}`}
                   style={answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? { borderColor: brand, background: `${brand}1a` } : {}}>
                   <button
                     onClick={() => setAnswers(prev => ({ ...prev, [q.id]: prev[q.id] !== undefined && !q.options.includes(prev[q.id]) ? prev[q.id] : '' }))}
-                    className="w-full text-left px-4 py-3 text-sm font-medium text-white/60 hover:text-white transition">
+                    className={`w-full text-left px-4 py-3 text-sm font-medium ${c.back} transition`}>
                     Anders, namelijk...
                   </button>
                   {answers[q.id] !== undefined && !q.options.includes(answers[q.id]) && (
                     <input type="text" autoFocus value={answers[q.id]}
                       onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                       placeholder="Typ je antwoord..."
-                      className="w-full bg-transparent border-t border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 outline-none" />
+                      className={`w-full bg-transparent border-t ${isLight ? 'border-gray-200 text-gray-900 placeholder-gray-300' : 'border-white/10 text-white placeholder-white/30'} px-4 py-3 text-sm outline-none`} />
                   )}
                 </div>
               )}
@@ -257,17 +281,17 @@ export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz;
             <textarea value={answers[q.id] || ''}
               onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
               placeholder={q.placeholder || 'Typ je antwoord...'} rows={4}
-              className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition resize-none" />
+              className={`w-full border rounded-xl px-4 py-3 outline-none transition resize-none ${c.input}`} />
           )}
         </div>
 
         <div className="grid grid-cols-3 items-center">
           {history.length > 1 ? (
-            <button onClick={() => setHistory(h => h.slice(0, -1))} className="text-white/40 hover:text-white text-sm transition justify-self-start">
+            <button onClick={() => setHistory(h => h.slice(0, -1))} className={`${c.back} text-sm transition justify-self-start`}>
               ← Vorige
             </button>
           ) : <div />}
-          {showPoweredBy && <PoweredBy />}
+          {showPoweredBy && <PoweredBy isLight={isLight} />}
           <button onClick={handleNext} disabled={!answers[q.id]}
             className="justify-self-end disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
             style={{ background: brand }}>
@@ -279,13 +303,13 @@ export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz;
   )
 }
 
-function PoweredBy() {
+function PoweredBy({ isLight = false }: { isLight?: boolean }) {
   return (
     <div className="flex items-center justify-center gap-2">
-      <span className="text-white/25 text-[11px] font-medium tracking-wide">Powered by</span>
+      <span className={`${isLight ? 'text-gray-300' : 'text-white/25'} text-[11px] font-medium tracking-wide`}>Powered by</span>
       <a href="https://vertero.nl" target="_blank" rel="noopener noreferrer">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="Vertero" className="h-[11px] opacity-40" />
+        <img src="/logo.png" alt="Vertero" className={`h-[11px] ${isLight ? 'opacity-25' : 'opacity-40'}`} />
       </a>
     </div>
   )

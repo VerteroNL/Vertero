@@ -29,16 +29,22 @@
       max-height: 90vh; overflow-y: auto; padding: 32px;
       font-family: sans-serif; color: white; position: relative;
     }
+    #vertero-modal.vt-light {
+      background: #ffffff; border-color: rgba(0,0,0,0.06); color: #111;
+    }
     #vertero-close {
       position: absolute; top: 16px; right: 20px;
       background: none; border: none; color: rgba(255,255,255,0.4);
       font-size: 20px; cursor: pointer;
     }
+    .vt-light #vertero-close { color: rgba(0,0,0,0.3); }
     .vertero-progress { display: flex; gap: 5px; margin-bottom: 24px; }
     .vertero-seg { flex: 1; height: 2px; border-radius: 1px; background: rgba(255,255,255,0.1); }
+    .vt-light .vertero-seg { background: rgba(0,0,0,0.08); }
     .vertero-seg.on { background: var(--vt-brand); }
     .vertero-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
     .vertero-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
+    .vt-light .vertero-sub { color: rgba(0,0,0,0.4); }
     .vertero-options { display: flex; flex-direction: column; gap: 8px; }
     .vertero-opt {
       padding: 12px 16px; border: 1.5px solid rgba(255,255,255,0.1);
@@ -46,16 +52,25 @@
       color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.03);
       transition: all 0.15s; text-align: left;
     }
+    .vt-light .vertero-opt {
+      border-color: rgba(0,0,0,0.1); color: rgba(0,0,0,0.6); background: rgba(0,0,0,0.02);
+    }
     .vertero-opt:hover { border-color: rgba(255,255,255,0.25); color: white; }
+    .vt-light .vertero-opt:hover { border-color: rgba(0,0,0,0.3); color: #111; }
     .vertero-opt.selected { border-color: var(--vt-brand); background: rgba(249,115,22,0.12); color: white; }
+    .vt-light .vertero-opt.selected { color: #111; }
     .vertero-input {
       width: 100%; padding: 12px 14px;
       background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
       border-radius: 10px; color: white; font-size: 14px;
       outline: none; margin-bottom: 10px; box-sizing: border-box;
     }
+    .vt-light .vertero-input {
+      background: #f5f5f7; border-color: rgba(0,0,0,0.1); color: #111;
+    }
     .vertero-input:focus { border-color: var(--vt-brand); }
     .vertero-input::placeholder { color: rgba(255,255,255,0.2); }
+    .vt-light .vertero-input::placeholder { color: rgba(0,0,0,0.25); }
     .vertero-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
     .vertero-next {
       background: var(--vt-brand); color: white; border: none;
@@ -68,15 +83,19 @@
       color: rgba(255,255,255,0.4); padding: 10px 18px;
       border-radius: 10px; font-size: 14px; cursor: pointer;
     }
+    .vt-light .vertero-back { border-color: rgba(0,0,0,0.1); color: rgba(0,0,0,0.4); }
     .vertero-back:hover { color: white; }
+    .vt-light .vertero-back:hover { color: #111; }
     .vertero-error { color: #ff6b6b; font-size: 12px; margin-top: 10px; text-align: center; display: none; }
     .vertero-error.visible { display: block; }
     .vertero-success { text-align: center; padding: 20px 0; }
     .vertero-success-icon { font-size: 48px; margin-bottom: 16px; }
     .vertero-success-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
     .vertero-success-text { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.6; }
+    .vt-light .vertero-success-text { color: rgba(0,0,0,0.4); }
     .vertero-powered { text-align: center; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .vertero-powered span { font-size: 11px; font-weight: 500; letter-spacing: 0.03em; color: rgba(255,255,255,0.25); }
+    .vt-light .vertero-powered span { color: rgba(0,0,0,0.25); }
     .vertero-powered img { height: 11px; opacity: 0.4; }
   `;
   document.head.appendChild(style);
@@ -254,6 +273,11 @@
   function applyBrandColor(data) {
     const color = data?.config?.brandColor || '#f97316';
     document.documentElement.style.setProperty('--vt-brand', color);
+    const modal = document.getElementById('vertero-modal');
+    if (modal) {
+      if (data?.config?.theme === 'light') modal.classList.add('vt-light');
+      else modal.classList.remove('vt-light');
+    }
   }
 
   function closeModal() {
