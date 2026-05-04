@@ -261,13 +261,30 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                           Optie toevoegen
                         </button>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <span className="text-[11px] text-white/30">Eigen antwoord</span>
-                          <button onClick={() => toggleAllowCustom(q.id)}
-                            className={`relative w-8 h-4 rounded-full transition-colors flex-shrink-0 ${q.allowCustom ? 'bg-[#f97316]' : 'bg-white/10'}`}>
-                            <span className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${q.allowCustom ? 'translate-x-4' : 'translate-x-0'}`} />
-                          </button>
-                        </label>
+                        <div className="flex items-center gap-2">
+                          {q.allowCustom && questions.length > 1 && (
+                            <select
+                              value={q.branches?.[-1] || ''}
+                              onChange={e => updateBranch(q.id, -1, e.target.value)}
+                              className="text-[10px] bg-[#07070f] border border-white/10 text-white/40 rounded px-1.5 py-1 outline-none cursor-pointer hover:border-white/20 transition max-w-[120px]"
+                            >
+                              <option value="">Volgende vraag</option>
+                              {questions.map((tq, ti) => tq.id !== q.id && (
+                                <option key={tq.id} value={tq.id}>
+                                  Vraag {ti + 1}{tq.question ? `: ${tq.question.slice(0, 18)}${tq.question.length > 18 ? '…' : ''}` : ''}
+                                </option>
+                              ))}
+                              <option value="__contact__">Contactformulier</option>
+                            </select>
+                          )}
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <span className="text-[11px] text-white/30">Eigen antwoord</span>
+                            <button onClick={() => toggleAllowCustom(q.id)}
+                              className={`relative w-8 h-4 rounded-full transition-colors flex-shrink-0 ${q.allowCustom ? 'bg-[#f97316]' : 'bg-white/10'}`}>
+                              <span className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${q.allowCustom ? 'translate-x-4' : 'translate-x-0'}`} />
+                            </button>
+                          </label>
+                        </div>
                       </div>
                     </div>
                   )}
