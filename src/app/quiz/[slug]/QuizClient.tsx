@@ -9,6 +9,7 @@ interface Question {
   options: string[]
   allowCustom?: boolean
   branches?: Record<number, string>
+  defaultBranch?: string
 }
 
 interface ContactFieldConfig {
@@ -49,8 +50,9 @@ const FIELD_TYPES: Record<string, string> = {
 }
 
 function resolveNext(q: Question, answer: string, questions: Question[]): number | 'contact' {
-  const optIndex = q.options.indexOf(answer)
-  const targetId = q.branches?.[optIndex]
+  const targetId = q.type === 'text'
+    ? q.defaultBranch
+    : q.branches?.[q.options.indexOf(answer)]
   if (targetId === '__contact__') return 'contact'
   if (targetId) {
     const idx = questions.findIndex(q2 => q2.id === targetId)

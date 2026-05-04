@@ -113,8 +113,9 @@
   function currentStep() { return history[history.length - 1]; }
 
   function resolveNext(q, answer, questions) {
-    const optIndex = q.options.indexOf(answer);
-    const targetId = q.branches && q.branches[optIndex];
+    const targetId = q.type === 'text'
+      ? q.defaultBranch
+      : (q.branches && q.branches[q.options.indexOf(answer)]);
     if (targetId === '__contact__') return 'contact';
     if (targetId) {
       const idx = questions.findIndex(q2 => q2.id === targetId);

@@ -9,6 +9,7 @@ interface Question {
   options: string[]
   allowCustom?: boolean
   branches?: Record<number, string>
+  defaultBranch?: string
 }
 
 interface ContactFieldConfig {
@@ -99,6 +100,24 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
       if (tmp !== undefined) newBranches[target] = tmp
       else delete newBranches[target]
       return { ...q, options: opts, branches: newBranches }
+    }))
+  }
+
+  function moveQuestion(index: number, direction: -1 | 1) {
+    setQuestions(prev => {
+      const next = [...prev]
+      const target = index + direction
+      if (target < 0 || target >= next.length) return prev
+      ;[next[index], next[target]] = [next[target], next[index]]
+      return next
+    })
+  }
+
+  function updateDefaultBranch(qId: string, targetId: string) {
+    setQuestions(prev => prev.map(q => {
+      if (q.id !== qId) return q
+      if (targetId === '') { const { defaultBranch: _, ...rest } = q; return rest as Question }
+      return { ...q, defaultBranch: targetId }
     }))
   }
 
@@ -212,7 +231,11 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                 <div key={q.id} className="bg-[#0d0d1c] border border-white/[0.08] rounded-2xl overflow-hidden">
 
                   <div className="flex items-center gap-3 px-5 pt-5 pb-3">
-                    <span className="w-6 h-6 rounded-md bg-white/5 text-white/30 text-[11px] font-bold flex items-center justify-center flex-shrink-0">{qi + 1}</span>
+                    <div className="flex flex-col gap-0.5 flex-shrink-0">
+                      <button onClick={() => moveQuestion(qi, -1)} disabled={qi === 0} className="text-white/20 hover:text-white disabled:opacity-0 text-[10px] leading-none transition">▲</button>
+                      <span className="w-6 h-6 rounded-md bg-white/5 text-white/30 text-[11px] font-bold flex items-center justify-center">{qi + 1}</span>
+                      <button onClick={() => moveQuestion(qi, 1)} disabled={qi === questions.length - 1} className="text-white/20 hover:text-white disabled:opacity-0 text-[10px] leading-none transition">▼</button>
+                    </div>
                     <input
                       type="text"
                       value={q.question}
@@ -313,9 +336,27 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
 
                   {q.type === 'text' && (
                     <div className="border-t border-white/[0.06] px-5 py-4">
-                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-white/20 text-sm italic">
+                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-white/20 text-sm italic mb-3">
                         Bezoeker typt hier vrij...
                       </div>
+                      {questions.length > 1 && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-white/30">Ga daarna naar</span>
+                          <select
+                            value={q.defaultBranch || ''}
+                            onChange={e => updateDefaultBranch(q.id, e.target.value)}
+                            className="text-[10px] bg-[#07070f] border border-white/10 text-white/40 rounded px-1.5 py-1 outline-none cursor-pointer hover:border-white/20 transition max-w-[160px]"
+                          >
+                            <option value="">Volgende vraag</option>
+                            {questions.map((tq, ti) => tq.id !== q.id && (
+                              <option key={tq.id} value={tq.id}>
+                                Vraag {ti + 1}{tq.question ? `: ${tq.question.slice(0, 18)}${tq.question.length > 18 ? '…' : ''}` : ''}
+                              </option>
+                            ))}
+                            <option value="__contact__">Contactformulier</option>
+                          </select>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
