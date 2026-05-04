@@ -11,12 +11,32 @@ interface Question {
   branches?: Record<number, string>
 }
 
+interface ContactFieldConfig {
+  key: 'name' | 'email' | 'phone' | 'street' | 'postcode' | 'city'
+  enabled: boolean
+  required: boolean
+}
+
 interface Quiz {
   id: string
   name: string
   slug: string
   active: boolean
-  config: { questions: Question[]; scoring?: boolean; brandColor?: string }
+  config: { questions: Question[]; scoring?: boolean; brandColor?: string; contactFields?: ContactFieldConfig[] }
+}
+
+const DEFAULT_CONTACT_FIELDS: ContactFieldConfig[] = [
+  { key: 'name',     enabled: true, required: true  },
+  { key: 'email',    enabled: true, required: true  },
+  { key: 'phone',    enabled: true, required: false },
+  { key: 'street',   enabled: true, required: true  },
+  { key: 'postcode', enabled: true, required: true  },
+  { key: 'city',     enabled: true, required: true  },
+]
+
+const FIELD_LABELS: Record<string, string> = {
+  name: 'Naam', email: 'E-mail', phone: 'Telefoon',
+  street: 'Straat en huisnummer', postcode: 'Postcode', city: 'Woonplaats',
 }
 
 export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 'free' | 'pro' }) {
@@ -25,6 +45,9 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
   const [questions, setQuestions] = useState<Question[]>(initial.config?.questions || [])
   const [scoring, setScoring] = useState(initial.config?.scoring ?? false)
   const [brandColor, setBrandColor] = useState(initial.config?.brandColor ?? '#f97316')
+  const [contactFields, setContactFields] = useState<ContactFieldConfig[]>(
+    initial.config?.contactFields ?? DEFAULT_CONTACT_FIELDS
+  )
   const [saving, setSaving] = useState(false)
   const [savedAt, setSavedAt] = useState<string | null>(null)
   const [copiedEmbed, setCopiedEmbed] = useState(false)
@@ -52,7 +75,6 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
     setQuestions(prev => prev.map(q => {
       if (q.id !== qId) return q
       const newOptions = q.options.filter((_, i) => i !== index)
-      // Shift branch keys that are above the removed index
       const newBranches: Record<number, string> = {}
       Object.entries(q.branches || {}).forEach(([k, v]) => {
         const ki = Number(k)
@@ -70,7 +92,6 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
       const target = index + direction
       if (target < 0 || target >= opts.length) return q
       ;[opts[index], opts[target]] = [opts[target], opts[index]]
-      // Swap branches too
       const newBranches = { ...(q.branches || {}) }
       const tmp = newBranches[index]
       if (newBranches[target] !== undefined) newBranches[index] = newBranches[target]
@@ -84,13 +105,10 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
   function removeQuestion(qId: string) {
     setQuestions(prev => {
       const next = prev.filter(q => q.id !== qId)
-      // Clean up branches pointing to the removed question
       return next.map(q => {
         if (!q.branches) return q
         const cleaned: Record<number, string> = {}
-        Object.entries(q.branches).forEach(([k, v]) => {
-          if (v !== qId) cleaned[Number(k)] = v
-        })
+        Object.entries(q.branches).forEach(([k, v]) => { if (v !== qId) cleaned[Number(k)] = v })
         return { ...q, branches: cleaned }
       })
     })
@@ -110,12 +128,20 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
     }))
   }
 
+  function updateContactField(key: string, prop: 'enabled' | 'required', value: boolean) {
+    setContactFields(prev => prev.map(f => {
+      if (f.key !== key) return f
+      if (prop === 'enabled' && !value) return { ...f, enabled: false, required: false }
+      return { ...f, [prop]: value }
+    }))
+  }
+
   async function saveQuiz() {
     setSaving(true)
     await fetch(`/api/quiz/${quiz.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: { questions, scoring, brandColor } }),
+      body: JSON.stringify({ config: { questions, scoring, brandColor, contactFields } }),
     })
     setSaving(false)
     setSavedAt(new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))
@@ -185,7 +211,6 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
               {questions.map((q, qi) => (
                 <div key={q.id} className="bg-[#0d0d1c] border border-white/[0.08] rounded-2xl overflow-hidden">
 
-                  {/* Question header */}
                   <div className="flex items-center gap-3 px-5 pt-5 pb-3">
                     <span className="w-6 h-6 rounded-md bg-white/5 text-white/30 text-[11px] font-bold flex items-center justify-center flex-shrink-0">{qi + 1}</span>
                     <input
@@ -200,7 +225,6 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                     </button>
                   </div>
 
-                  {/* Type tabs */}
                   <div className="flex items-center gap-1 px-5 pb-4">
                     {(['multiple', 'text'] as const).map(t => (
                       <button key={t} onClick={() => updateQuestion(q.id, 'type', t)}
@@ -210,7 +234,6 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                     ))}
                   </div>
 
-                  {/* Options */}
                   {q.type === 'multiple' && (
                     <div className="border-t border-white/[0.06] px-5 py-4">
                       <div className="flex flex-col gap-2">
@@ -231,7 +254,6 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                               className="flex-1 bg-transparent border-b border-white/[0.06] focus:border-white/20 py-1.5 text-sm text-white placeholder-white/20 outline-none transition"
                             />
                             {scoring && <span className="text-[10px] text-white/20 w-8 text-right flex-shrink-0">{q.options.length - oi}pt</span>}
-                            {/* Branch dropdown */}
                             {questions.length > 1 && (
                               <select
                                 value={q.branches?.[oi] || ''}
@@ -335,7 +357,7 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
             </div>
 
             {/* Lead scoring */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-5">
               <div>
                 <p className="text-sm font-medium">Lead scoring</p>
                 <p className="text-white/35 text-xs mt-0.5">Score op antwoordvolgorde</p>
@@ -344,6 +366,38 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                 className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${scoring ? 'bg-[#f97316]' : 'bg-white/10'}`}>
                 <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${scoring ? 'translate-x-4' : 'translate-x-0'}`} />
               </button>
+            </div>
+
+            {/* Contactformulier velden */}
+            <div>
+              <p className="text-xs font-semibold text-white/25 mb-3">Contactformulier</p>
+              <div className="flex flex-col gap-1">
+                <div className="flex text-[10px] text-white/25 font-semibold uppercase tracking-widest mb-1 px-1">
+                  <span className="flex-1">Veld</span>
+                  <span className="w-14 text-center">Tonen</span>
+                  <span className="w-14 text-center">Verplicht</span>
+                </div>
+                {contactFields.map(f => (
+                  <div key={f.key} className="flex items-center px-1 py-1">
+                    <span className="flex-1 text-xs text-white/50">{FIELD_LABELS[f.key]}</span>
+                    <div className="w-14 flex justify-center">
+                      <button
+                        onClick={() => updateContactField(f.key, 'enabled', !f.enabled)}
+                        className={`relative w-7 h-3.5 rounded-full transition-colors ${f.enabled ? 'bg-[#f97316]' : 'bg-white/10'}`}>
+                        <span className={`absolute top-0.5 left-0.5 w-2.5 h-2.5 rounded-full bg-white transition-transform ${f.enabled ? 'translate-x-3' : 'translate-x-0'}`} />
+                      </button>
+                    </div>
+                    <div className="w-14 flex justify-center">
+                      <button
+                        disabled={!f.enabled}
+                        onClick={() => updateContactField(f.key, 'required', !f.required)}
+                        className={`relative w-7 h-3.5 rounded-full transition-colors disabled:opacity-25 disabled:cursor-not-allowed ${f.required ? 'bg-[#f97316]' : 'bg-white/10'}`}>
+                        <span className={`absolute top-0.5 left-0.5 w-2.5 h-2.5 rounded-full bg-white transition-transform ${f.required ? 'translate-x-3' : 'translate-x-0'}`} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -394,8 +448,11 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                 <div className="p-4">
                   <p className="text-white text-sm font-semibold mb-1">Bijna klaar!</p>
                   <p className="text-white/30 text-[11px] mb-3">Contactgegevens invullen</p>
-                  {['Naam', 'E-mail', 'Adres'].map(f => (
-                    <div key={f} className="bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-white/20 text-[11px] mb-1.5">{f}</div>
+                  {contactFields.filter(f => f.enabled).map(f => (
+                    <div key={f.key} className="bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-white/20 text-[11px] mb-1.5 flex items-center justify-between">
+                      <span>{FIELD_LABELS[f.key]}</span>
+                      {!f.required && <span className="text-white/15 text-[9px]">optioneel</span>}
+                    </div>
                   ))}
                   <div className="flex items-center justify-between mt-3">
                     <button onClick={() => { setPreviewStage('quiz'); setPreviewQ(0) }} className="text-white/30 text-[11px]">← Terug</button>

@@ -11,15 +11,42 @@ interface Question {
   branches?: Record<number, string>
 }
 
+interface ContactFieldConfig {
+  key: string
+  enabled: boolean
+  required: boolean
+}
+
 interface Quiz {
   id: string
   name: string
   slug: string
-  config: { questions: Question[]; brandColor?: string }
+  config: { questions: Question[]; brandColor?: string; contactFields?: ContactFieldConfig[] }
 }
 
-const REQUIRED_FIELDS = ['name', 'email', 'street', 'postcode', 'city'] as const
-type ContactField = typeof REQUIRED_FIELDS[number] | 'phone'
+const DEFAULT_CONTACT_FIELDS: ContactFieldConfig[] = [
+  { key: 'name',     enabled: true, required: true  },
+  { key: 'email',    enabled: true, required: true  },
+  { key: 'phone',    enabled: true, required: false },
+  { key: 'street',   enabled: true, required: true  },
+  { key: 'postcode', enabled: true, required: true  },
+  { key: 'city',     enabled: true, required: true  },
+]
+
+const FIELD_LABELS: Record<string, string> = {
+  name: 'Naam', email: 'E-mailadres', phone: 'Telefoon',
+  street: 'Straat en huisnummer', postcode: 'Postcode', city: 'Woonplaats',
+}
+
+const FIELD_PLACEHOLDERS: Record<string, string> = {
+  name: 'Jan Jansen', email: 'naam@voorbeeld.com', phone: '+31 6 12345678',
+  street: 'Voorbeeldstraat 12', postcode: '1234 AB', city: 'Amsterdam',
+}
+
+const FIELD_TYPES: Record<string, string> = {
+  name: 'text', email: 'email', phone: 'tel',
+  street: 'text', postcode: 'text', city: 'text',
+}
 
 function resolveNext(q: Question, answer: string, questions: Question[]): number | 'contact' {
   const optIndex = q.options.indexOf(answer)
@@ -35,11 +62,14 @@ function resolveNext(q: Question, answer: string, questions: Question[]): number
 
 export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz; showPoweredBy?: boolean }) {
   const brand = quiz.config?.brandColor || '#f97316'
+  const activeFields = (quiz.config?.contactFields ?? DEFAULT_CONTACT_FIELDS).filter(f => f.enabled)
+  const requiredKeys = activeFields.filter(f => f.required).map(f => f.key)
+
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [history, setHistory] = useState<number[]>([0])
   const [stage, setStage] = useState<'quiz' | 'contact' | 'done'>('quiz')
-  const [contact, setContact] = useState({ name: '', email: '', phone: '', street: '', postcode: '', city: '' })
-  const [touched, setTouched] = useState<Partial<Record<ContactField, boolean>>>({})
+  const [contact, setContact] = useState<Record<string, string>>({})
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [contactError, setContactError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -47,17 +77,13 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
   const current = history[history.length - 1]
   const q = questions[current]
 
-  function touchField(field: ContactField) {
-    setTouched(p => ({ ...p, [field]: true }))
-  }
-
-  function fieldError(field: typeof REQUIRED_FIELDS[number]) {
-    return touched[field] && !contact[field].trim()
+  function fieldError(key: string) {
+    return touched[key] && requiredKeys.includes(key) && !contact[key]?.trim()
   }
 
   function emailError() {
     if (!touched.email) return null
-    if (!contact.email.trim()) return 'Vul je e-mailadres in'
+    if (!contact.email?.trim()) return requiredKeys.includes('email') ? 'Vul je e-mailadres in' : null
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) return 'Vul een geldig e-mailadres in'
     return null
   }
@@ -69,16 +95,19 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
   }
 
   async function submit() {
-    const allTouched = Object.fromEntries(REQUIRED_FIELDS.map(f => [f, true]))
+    const allTouched = Object.fromEntries(activeFields.map(f => [f.key, true]))
     setTouched(p => ({ ...p, ...allTouched }))
 
     const missing: string[] = []
-    if (!contact.name.trim()) missing.push('naam')
-    if (!contact.email.trim()) missing.push('e-mailadres')
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) missing.push('geldig e-mailadres')
-    if (!contact.street.trim()) missing.push('straat en huisnummer')
-    if (!contact.postcode.trim()) missing.push('postcode')
-    if (!contact.city.trim()) missing.push('woonplaats')
+    for (const f of activeFields) {
+      if (!f.required) continue
+      if (f.key === 'email') {
+        if (!contact.email?.trim()) missing.push('e-mailadres')
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) missing.push('geldig e-mailadres')
+      } else if (!contact[f.key]?.trim()) {
+        missing.push(FIELD_LABELS[f.key]?.toLowerCase() || f.key)
+      }
+    }
 
     if (missing.length > 0) {
       setContactError(`Vul alsjeblieft in: ${missing.join(', ')}.`)
@@ -90,7 +119,16 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
     await fetch('/api/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: quiz.slug, name: contact.name, email: contact.email, phone: contact.phone, street: contact.street, postcode: contact.postcode, city: contact.city, answers })
+      body: JSON.stringify({
+        slug: quiz.slug,
+        name: contact.name || '',
+        email: contact.email || '',
+        phone: contact.phone || '',
+        street: contact.street || '',
+        postcode: contact.postcode || '',
+        city: contact.city || '',
+        answers
+      })
     })
     setSubmitting(false)
     setStage('done')
@@ -116,103 +154,41 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
           <h2 className="text-white text-lg font-semibold mb-1">Bijna klaar!</h2>
           <p className="text-white/40 text-sm mb-6">Laat je gegevens achter zodat we contact kunnen opnemen.</p>
           <div className="flex flex-col gap-4 mb-6">
-            <div>
-              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
-                Naam <span className="text-[#f97316]">*</span>
-              </label>
-              <input
-                type="text"
-                value={contact.name}
-                onChange={e => setContact(p => ({ ...p, name: e.target.value }))}
-                onBlur={() => touchField('name')}
-                placeholder="Jan Jansen"
-                className={`w-full bg-[#0d0d1c] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition text-sm ${fieldError('name') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
-              />
-              {fieldError('name') && <p className="text-red-400 text-xs mt-1.5">Vul je naam in</p>}
-            </div>
-            <div>
-              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
-                Straat en huisnummer <span className="text-[#f97316]">*</span>
-              </label>
-              <input
-                type="text"
-                value={contact.street}
-                onChange={e => setContact(p => ({ ...p, street: e.target.value }))}
-                onBlur={() => touchField('street')}
-                placeholder="Voorbeeldstraat 12"
-                className={`w-full bg-[#0d0d1c] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition text-sm ${fieldError('street') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
-              />
-              {fieldError('street') && <p className="text-red-400 text-xs mt-1.5">Vul je straat en huisnummer in</p>}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
+            {activeFields.map(f => (
+              <div key={f.key}>
                 <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
-                  Postcode <span className="text-[#f97316]">*</span>
+                  {FIELD_LABELS[f.key] || f.key}
+                  {f.required
+                    ? <span className="text-[#f97316] ml-1">*</span>
+                    : <span className="text-white/20 normal-case font-normal ml-1">(optioneel)</span>
+                  }
                 </label>
                 <input
-                  type="text"
-                  value={contact.postcode}
-                  onChange={e => setContact(p => ({ ...p, postcode: e.target.value }))}
-                  onBlur={() => touchField('postcode')}
-                  placeholder="1234 AB"
-                  className={`w-full bg-[#0d0d1c] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition text-sm ${fieldError('postcode') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
+                  type={FIELD_TYPES[f.key] || 'text'}
+                  value={contact[f.key] || ''}
+                  onChange={e => setContact(p => ({ ...p, [f.key]: e.target.value }))}
+                  onBlur={() => setTouched(p => ({ ...p, [f.key]: true }))}
+                  placeholder={FIELD_PLACEHOLDERS[f.key] || ''}
+                  className={`w-full bg-[#0d0d1c] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition text-sm ${
+                    (f.key === 'email' ? emailError() : fieldError(f.key))
+                      ? 'border-red-500/60 focus:border-red-500'
+                      : 'border-white/10 focus:border-[#f97316]/50'
+                  }`}
                 />
-                {fieldError('postcode') && <p className="text-red-400 text-xs mt-1.5">Verplicht</p>}
+                {f.key === 'email' && emailError() && <p className="text-red-400 text-xs mt-1.5">{emailError()}</p>}
+                {f.key !== 'email' && fieldError(f.key) && <p className="text-red-400 text-xs mt-1.5">Vul dit veld in</p>}
               </div>
-              <div>
-                <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
-                  Woonplaats <span className="text-[#f97316]">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={contact.city}
-                  onChange={e => setContact(p => ({ ...p, city: e.target.value }))}
-                  onBlur={() => touchField('city')}
-                  placeholder="Amsterdam"
-                  className={`w-full bg-[#0d0d1c] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition text-sm ${fieldError('city') ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
-                />
-                {fieldError('city') && <p className="text-red-400 text-xs mt-1.5">Verplicht</p>}
-              </div>
-            </div>
-            <div>
-              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">
-                E-mail <span className="text-[#f97316]">*</span>
-              </label>
-              <input
-                type="email"
-                value={contact.email}
-                onChange={e => setContact(p => ({ ...p, email: e.target.value }))}
-                onBlur={() => touchField('email')}
-                placeholder="naam@voorbeeld.com"
-                className={`w-full bg-[#0d0d1c] border rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition text-sm ${emailError() ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-[#f97316]/50'}`}
-              />
-              {emailError() && <p className="text-red-400 text-xs mt-1.5">{emailError()}</p>}
-            </div>
-            <div>
-              <label className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-2 block">Telefoon <span className="text-white/20 normal-case font-normal">(optioneel)</span></label>
-              <input
-                type="tel"
-                value={contact.phone}
-                onChange={e => setContact(p => ({ ...p, phone: e.target.value }))}
-                placeholder="+31 6 12345678"
-                className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#f97316]/50 transition text-sm"
-              />
-            </div>
+            ))}
           </div>
-          {contactError && (
-            <p className="text-red-400 text-xs mb-4">{contactError}</p>
-          )}
+          {contactError && <p className="text-red-400 text-xs mb-4">{contactError}</p>}
           <div className="grid grid-cols-3 items-center">
             <button onClick={() => setStage('quiz')} className="text-white/40 hover:text-white text-sm transition justify-self-start">
               ← Terug
             </button>
             {showPoweredBy && <PoweredBy />}
-            <button
-              onClick={submit}
-              disabled={submitting}
+            <button onClick={submit} disabled={submitting}
               className="justify-self-end disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
-              style={{ background: brand }}
-            >
+              style={{ background: brand }}>
               {submitting ? 'Versturen...' : 'Versturen →'}
             </button>
           </div>
@@ -227,10 +203,8 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
         <div className="p-6 sm:p-8">
           <p className="text-white/30 text-xs font-mono mb-2">{history.length} / {questions.length}</p>
           <div className="w-full bg-white/5 rounded-full h-[3px] mb-6">
-            <div
-              className="h-[3px] rounded-full transition-all"
-              style={{ width: `${(history.length / questions.length) * 100}%`, background: brand }}
-            />
+            <div className="h-[3px] rounded-full transition-all"
+              style={{ width: `${(history.length / questions.length) * 100}%`, background: brand }} />
           </div>
 
           <h2 className="text-white text-lg font-semibold mb-5 leading-snug">{q.question}</h2>
@@ -239,49 +213,35 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
             {(q.type === 'multiple' || !q.type) && (
               <>
                 {q.options.map((opt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}
+                  <button key={i} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}
                     className="text-left px-4 py-3 rounded-xl border transition text-sm font-medium border-white/10 text-white/60 hover:border-white/20 hover:text-white"
-                    style={answers[q.id] === opt ? { borderColor: brand, background: `${brand}26`, color: '#fff' } : {}}
-                  >
+                    style={answers[q.id] === opt ? { borderColor: brand, background: `${brand}26`, color: '#fff' } : {}}>
                     {opt}
                   </button>
                 ))}
                 {q.allowCustom && (
-                  <div
-                    className="rounded-xl border transition border-white/10"
-                    style={answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? { borderColor: brand, background: `${brand}26` } : {}}
-                  >
+                  <div className="rounded-xl border transition border-white/10"
+                    style={answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? { borderColor: brand, background: `${brand}26` } : {}}>
                     <button
                       onClick={() => setAnswers(prev => ({ ...prev, [q.id]: prev[q.id] !== undefined && !q.options.includes(prev[q.id]) ? prev[q.id] : '' }))}
-                      className="w-full text-left px-4 py-3 text-sm font-medium text-white/60 hover:text-white transition"
-                    >
+                      className="w-full text-left px-4 py-3 text-sm font-medium text-white/60 hover:text-white transition">
                       Anders, namelijk...
                     </button>
                     {answers[q.id] !== undefined && !q.options.includes(answers[q.id]) && (
-                      <input
-                        type="text"
-                        autoFocus
-                        value={answers[q.id]}
+                      <input type="text" autoFocus value={answers[q.id]}
                         onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                         placeholder="Typ je antwoord..."
-                        className="w-full bg-transparent border-t border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 outline-none"
-                      />
+                        className="w-full bg-transparent border-t border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 outline-none" />
                     )}
                   </div>
                 )}
               </>
             )}
-
             {q.type === 'text' && (
-              <textarea
-                value={answers[q.id] || ''}
+              <textarea value={answers[q.id] || ''}
                 onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-                placeholder="Typ je antwoord..."
-                rows={3}
-                className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition resize-none text-sm"
-              />
+                placeholder="Typ je antwoord..." rows={3}
+                className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition resize-none text-sm" />
             )}
           </div>
 
@@ -291,15 +251,10 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
                 ← Vorige
               </button>
             ) : <div />}
-
             {showPoweredBy && <PoweredBy />}
-
-            <button
-              onClick={handleNext}
-              disabled={!answers[q.id]}
+            <button onClick={handleNext} disabled={!answers[q.id]}
               className="justify-self-end disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
-              style={{ background: brand }}
-            >
+              style={{ background: brand }}>
               Volgende →
             </button>
           </div>

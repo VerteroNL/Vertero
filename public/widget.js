@@ -92,6 +92,18 @@
     </div>
   `);
 
+  const DEFAULT_CONTACT_FIELDS = [
+    { key: 'name',     enabled: true, required: true  },
+    { key: 'email',    enabled: true, required: true  },
+    { key: 'phone',    enabled: true, required: false },
+    { key: 'street',   enabled: true, required: true  },
+    { key: 'postcode', enabled: true, required: true  },
+    { key: 'city',     enabled: true, required: true  },
+  ];
+  const FIELD_LABELS = { name: 'Naam', email: 'E-mailadres', phone: 'Telefoonnummer (optioneel)', street: 'Straat en huisnummer', postcode: 'Postcode', city: 'Woonplaats' };
+  const FIELD_PLACEHOLDERS = { name: 'Naam', email: 'E-mailadres', phone: 'Telefoonnummer (optioneel)', street: 'Straat en huisnummer', postcode: 'Postcode', city: 'Woonplaats' };
+  const FIELD_TYPES = { name: 'text', email: 'email', phone: 'tel', street: 'text', postcode: 'text', city: 'text' };
+
   const quizCache = {};
   let activeQuizId = null;
   let quiz = null;
@@ -150,22 +162,22 @@
   };
 
   window.verteroSubmit = async () => {
-    const name = document.getElementById('vertero-name')?.value || '';
-    const email = document.getElementById('vertero-email')?.value || '';
-    const phone = document.getElementById('vertero-phone')?.value || '';
-    const street = document.getElementById('vertero-street')?.value || '';
-    const postcode = document.getElementById('vertero-postcode')?.value || '';
-    const city = document.getElementById('vertero-city')?.value || '';
     const err = document.getElementById('vertero-error');
+    const activeFields = (quiz.config?.contactFields ?? DEFAULT_CONTACT_FIELDS).filter(f => f.enabled);
+    const contactData = {};
+    activeFields.forEach(f => {
+      contactData[f.key] = document.getElementById(`vertero-${f.key}`)?.value?.trim() || '';
+    });
 
-    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-    if (!name || !email || !street || !postcode || !city) {
-      if (err) { err.textContent = 'Vul alsjeblieft alle verplichte velden in.'; err.classList.add('visible'); }
-      return;
-    }
-    if (!emailValid) {
-      if (err) { err.textContent = 'Vul een geldig e-mailadres in.'; err.classList.add('visible'); }
-      return;
+    for (const f of activeFields) {
+      if (!f.required) continue;
+      if (f.key === 'email') {
+        if (!contactData.email) { if (err) { err.textContent = 'Vul je e-mailadres in.'; err.classList.add('visible'); } return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactData.email)) { if (err) { err.textContent = 'Vul een geldig e-mailadres in.'; err.classList.add('visible'); } return; }
+      } else if (!contactData[f.key]) {
+        if (err) { err.textContent = 'Vul alsjeblieft alle verplichte velden in.'; err.classList.add('visible'); }
+        return;
+      }
     }
     if (err) err.classList.remove('visible');
 
@@ -177,7 +189,13 @@
       const res = await fetch(`${apiBase}/api/leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug: activeQuizId, name, email, phone, street, postcode, city, answers: formattedAnswers })
+        body: JSON.stringify({
+          slug: activeQuizId,
+          name: contactData.name || '', email: contactData.email || '',
+          phone: contactData.phone || '', street: contactData.street || '',
+          postcode: contactData.postcode || '', city: contactData.city || '',
+          answers: formattedAnswers
+        })
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -287,6 +305,7 @@
   function renderContact() {
     if (!quiz) return;
     const questions = quiz.config?.questions || [];
+    const activeFields = (quiz.config?.contactFields ?? DEFAULT_CONTACT_FIELDS).filter(f => f.enabled);
     const content = document.getElementById('vertero-content');
 
     const progressHTML = `
@@ -296,18 +315,18 @@
       </div>
     `;
 
+    const fieldsHTML = activeFields.map(f => {
+      const label = FIELD_LABELS[f.key] || f.key;
+      const placeholder = f.required ? label : `${label} (optioneel)`;
+      const type = FIELD_TYPES[f.key] || 'text';
+      return `<input class="vertero-input" type="${type}" id="vertero-${f.key}" placeholder="${placeholder}" />`;
+    }).join('');
+
     content.innerHTML = `
       ${progressHTML}
       <div class="vertero-title">Jouw gegevens</div>
       <div class="vertero-sub">We sturen je binnen 24 uur een offerte op maat.</div>
-      <input class="vertero-input" type="text" id="vertero-name" placeholder="Naam" />
-      <input class="vertero-input" type="text" id="vertero-street" placeholder="Straat en huisnummer" />
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <input class="vertero-input" type="text" id="vertero-postcode" placeholder="Postcode" style="margin-bottom:0" />
-        <input class="vertero-input" type="text" id="vertero-city" placeholder="Woonplaats" style="margin-bottom:0" />
-      </div>
-      <input class="vertero-input" type="email" id="vertero-email" placeholder="E-mailadres" style="margin-top:8px" />
-      <input class="vertero-input" type="tel" id="vertero-phone" placeholder="Telefoonnummer (optioneel)" />
+      ${fieldsHTML}
       <div id="vertero-error" class="vertero-error"></div>
       <div class="vertero-nav">
         <button class="vertero-back" onclick="verteroBack()">← Terug</button>
