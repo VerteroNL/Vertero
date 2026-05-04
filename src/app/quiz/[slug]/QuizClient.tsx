@@ -10,6 +10,7 @@ interface Question {
   allowCustom?: boolean
   branches?: Record<number, string>
   defaultBranch?: string
+  placeholder?: string
 }
 
 interface ContactFieldConfig {
@@ -255,7 +256,7 @@ export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz;
           {q.type === 'text' && (
             <textarea value={answers[q.id] || ''}
               onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-              placeholder="Typ je antwoord..." rows={4}
+              placeholder={q.placeholder || 'Typ je antwoord...'} rows={4}
               className="w-full bg-[#07070f] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none transition resize-none" />
           )}
         </div>

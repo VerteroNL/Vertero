@@ -10,6 +10,7 @@ interface Question {
   allowCustom?: boolean
   branches?: Record<number, string>
   defaultBranch?: string
+  placeholder?: string
 }
 
 interface ContactFieldConfig {
@@ -336,9 +337,13 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
 
                   {q.type === 'text' && (
                     <div className="border-t border-white/[0.06] px-5 py-4">
-                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-white/20 text-sm italic mb-3">
-                        Bezoeker typt hier vrij...
-                      </div>
+                      <input
+                        type="text"
+                        value={q.placeholder || ''}
+                        onChange={e => updateQuestion(q.id, 'placeholder', e.target.value)}
+                        placeholder="Voorbeeldtekst (optioneel)..."
+                        className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-white/60 placeholder-white/20 text-sm outline-none focus:border-white/15 transition mb-3"
+                      />
                       {questions.length > 1 && (
                         <div className="flex items-center gap-2">
                           <span className="text-[11px] text-white/30">Ga daarna naar</span>

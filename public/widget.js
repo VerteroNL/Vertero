@@ -291,7 +291,7 @@
           `).join('')}
         </div>
       ` : `
-        <input class="vertero-input" type="text" placeholder="Jouw antwoord..."
+        <input class="vertero-input" type="text" placeholder="${q.placeholder || 'Jouw antwoord...'}"
           value="${answers[q.id] || ''}"
           oninput="verteroInput('${q.id}', this.value)" />
       `}
