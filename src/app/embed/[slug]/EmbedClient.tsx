@@ -67,16 +67,16 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
   const brand = quiz.config?.brandColor || '#f97316'
   const isLight = quiz.config?.theme === 'light'
   const c = isLight ? {
-    card: 'bg-white border-black/[0.06]',
+    card: 'bg-white border-black/[0.08]',
     title: 'text-gray-900',
-    sub: 'text-gray-400',
-    counter: 'text-gray-300',
-    opt: 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-900',
-    input: 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-300',
-    progress: 'bg-black/5',
-    back: 'text-gray-400 hover:text-gray-900',
-    label: 'text-gray-400',
-    border: 'border-gray-100',
+    sub: 'text-gray-500',
+    counter: 'text-gray-500',
+    opt: 'border-gray-300 text-gray-700 hover:border-gray-500 hover:text-gray-900',
+    input: 'bg-white border-gray-300 text-gray-900 placeholder-gray-400',
+    progress: 'bg-black/8',
+    back: 'text-gray-500 hover:text-gray-900',
+    label: 'text-gray-600',
+    border: 'border-gray-200',
   } : {
     card: 'bg-[#07070f] border-white/10',
     title: 'text-white',
@@ -187,7 +187,7 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
                   {FIELD_LABELS[f.key] || f.key}
                   {f.required
                     ? <span className="text-[#f97316] ml-1">*</span>
-                    : <span className={`${isLight ? 'text-gray-300' : 'text-white/20'} normal-case font-normal ml-1`}>(optioneel)</span>
+                    : <span className={`${isLight ? 'text-gray-400' : 'text-white/20'} normal-case font-normal ml-1`}>(optioneel)</span>
                   }
                 </label>
                 <input
@@ -301,11 +301,11 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
 
 function PoweredBy({ isLight = false, borderClass = '' }: { isLight?: boolean; borderClass?: string }) {
   return (
-    <div className={`flex items-center justify-center gap-2 py-3 border-t ${borderClass || (isLight ? 'border-gray-100' : 'border-white/5')}`}>
-      <span className={`${isLight ? 'text-gray-300' : 'text-white/25'} text-[11px] font-medium tracking-wide`}>Powered by</span>
+    <div className={`flex items-center justify-center gap-2 py-3 border-t ${borderClass || (isLight ? 'border-gray-200' : 'border-white/5')}`}>
+      <span className={`${isLight ? 'text-gray-400' : 'text-white/25'} text-[11px] font-medium tracking-wide`}>Powered by</span>
       <a href="https://vertero.nl" target="_blank" rel="noopener noreferrer">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="Vertero" className={`h-[11px] ${isLight ? 'opacity-25' : 'opacity-40'}`} />
+        <img src={isLight ? '/logoincolor.png' : '/logo.png'} alt="Vertero" className={`h-[11px] ${isLight ? '' : 'opacity-40'}`} />
       </a>
     </div>
   )
