@@ -8,6 +8,7 @@ interface Question {
   type: 'multiple' | 'text'
   options: string[]
   allowCustom?: boolean
+  branches?: Record<number, string>
 }
 
 interface Quiz {
@@ -48,7 +49,18 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
   }
 
   function removeOption(qId: string, index: number) {
-    setQuestions(prev => prev.map(q => q.id === qId ? { ...q, options: q.options.filter((_, i) => i !== index) } : q))
+    setQuestions(prev => prev.map(q => {
+      if (q.id !== qId) return q
+      const newOptions = q.options.filter((_, i) => i !== index)
+      // Shift branch keys that are above the removed index
+      const newBranches: Record<number, string> = {}
+      Object.entries(q.branches || {}).forEach(([k, v]) => {
+        const ki = Number(k)
+        if (ki < index) newBranches[ki] = v
+        else if (ki > index) newBranches[ki - 1] = v
+      })
+      return { ...q, options: newOptions, branches: newBranches }
+    }))
   }
 
   function moveOption(qId: string, index: number, direction: -1 | 1) {
@@ -58,16 +70,44 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
       const target = index + direction
       if (target < 0 || target >= opts.length) return q
       ;[opts[index], opts[target]] = [opts[target], opts[index]]
-      return { ...q, options: opts }
+      // Swap branches too
+      const newBranches = { ...(q.branches || {}) }
+      const tmp = newBranches[index]
+      if (newBranches[target] !== undefined) newBranches[index] = newBranches[target]
+      else delete newBranches[index]
+      if (tmp !== undefined) newBranches[target] = tmp
+      else delete newBranches[target]
+      return { ...q, options: opts, branches: newBranches }
     }))
   }
 
   function removeQuestion(qId: string) {
-    setQuestions(prev => prev.filter(q => q.id !== qId))
+    setQuestions(prev => {
+      const next = prev.filter(q => q.id !== qId)
+      // Clean up branches pointing to the removed question
+      return next.map(q => {
+        if (!q.branches) return q
+        const cleaned: Record<number, string> = {}
+        Object.entries(q.branches).forEach(([k, v]) => {
+          if (v !== qId) cleaned[Number(k)] = v
+        })
+        return { ...q, branches: cleaned }
+      })
+    })
   }
 
   function toggleAllowCustom(qId: string) {
     setQuestions(prev => prev.map(q => q.id === qId ? { ...q, allowCustom: !q.allowCustom } : q))
+  }
+
+  function updateBranch(qId: string, optionIndex: number, targetId: string) {
+    setQuestions(prev => prev.map(q => {
+      if (q.id !== qId) return q
+      const branches = { ...(q.branches || {}) }
+      if (targetId === '') delete branches[optionIndex]
+      else branches[optionIndex] = targetId
+      return { ...q, branches }
+    }))
   }
 
   async function saveQuiz() {
@@ -191,6 +231,22 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                               className="flex-1 bg-transparent border-b border-white/[0.06] focus:border-white/20 py-1.5 text-sm text-white placeholder-white/20 outline-none transition"
                             />
                             {scoring && <span className="text-[10px] text-white/20 w-8 text-right flex-shrink-0">{q.options.length - oi}pt</span>}
+                            {/* Branch dropdown */}
+                            {questions.length > 1 && (
+                              <select
+                                value={q.branches?.[oi] || ''}
+                                onChange={e => updateBranch(q.id, oi, e.target.value)}
+                                className="text-[10px] bg-[#07070f] border border-white/10 text-white/40 rounded px-1.5 py-1 outline-none cursor-pointer hover:border-white/20 transition flex-shrink-0 max-w-[120px]"
+                              >
+                                <option value="">Volgende vraag</option>
+                                {questions.map((tq, ti) => tq.id !== q.id && (
+                                  <option key={tq.id} value={tq.id}>
+                                    Vraag {ti + 1}{tq.question ? `: ${tq.question.slice(0, 18)}${tq.question.length > 18 ? '…' : ''}` : ''}
+                                  </option>
+                                ))}
+                                <option value="__contact__">Contactformulier</option>
+                              </select>
+                            )}
                             {q.options.length > 2 && (
                               <button onClick={() => removeOption(q.id, oi)} className="text-white/10 hover:text-red-400 transition opacity-0 group-hover:opacity-100 flex-shrink-0">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -285,7 +341,6 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                 </div>
               ) : previewStage === 'quiz' && currentQ ? (
                 <div className="p-4">
-                  {/* Progress */}
                   <div className="flex gap-1 mb-4">
                     {questions.map((_, i) => (
                       <div key={i} className="h-[2px] flex-1 rounded-full transition-all"
@@ -333,7 +388,6 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
               )}
             </div>
 
-            {/* Statistieken */}
             <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="bg-[#0d0d1c] border border-white/[0.08] rounded-xl p-3 text-center">
                 <p className="text-xl font-bold">{questions.length}</p>

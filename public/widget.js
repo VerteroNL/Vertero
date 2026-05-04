@@ -95,33 +95,60 @@
   const quizCache = {};
   let activeQuizId = null;
   let quiz = null;
-  let currentStep = 0;
+  let history = [0];
   let answers = {};
 
-  window.verteroSetContact = (field, value) => { answers[field] = value; };
-  window.verteroSelect = (step, value, el) => {
-    answers[step] = value;
+  function currentStep() { return history[history.length - 1]; }
+
+  function resolveNext(q, answer, questions) {
+    const optIndex = q.options.indexOf(answer);
+    const targetId = q.branches && q.branches[optIndex];
+    if (targetId === '__contact__') return 'contact';
+    if (targetId) {
+      const idx = questions.findIndex(q2 => q2.id === targetId);
+      if (idx !== -1) return idx;
+    }
+    const cur = questions.findIndex(q2 => q2.id === q.id);
+    return cur < questions.length - 1 ? cur + 1 : 'contact';
+  }
+
+  window.verteroSelect = (qId, value, el) => {
+    answers[qId] = value;
     document.querySelectorAll('.vertero-opt').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
   };
-  window.verteroInput = (step, value) => { answers[step] = value; };
+  window.verteroInput = (qId, value) => { answers[qId] = value; };
+
   window.verteroNext = () => {
     if (!quiz) return;
     const questions = quiz.config?.questions || [];
-    if (currentStep < questions.length) {
-      const q = questions[currentStep];
-      if (!q.optional && !answers[currentStep]) {
-        const err = document.getElementById('vertero-error');
-        if (err) err.classList.add('visible');
-        return;
-      }
-      currentStep++;
+    const step = currentStep();
+    const q = questions[step];
+    if (!q) return;
+
+    const isOptional = q.optional === true;
+    if (!isOptional && !answers[q.id]) {
+      const err = document.getElementById('vertero-error');
+      if (err) err.classList.add('visible');
+      return;
+    }
+
+    const next = resolveNext(q, answers[q.id] || '', questions);
+    if (next === 'contact') {
+      renderContact();
+    } else {
+      history.push(next);
       renderStep();
     }
   };
+
   window.verteroBack = () => {
-    if (currentStep > 0) { currentStep--; renderStep(); }
+    if (history.length > 1) {
+      history.pop();
+      renderStep();
+    }
   };
+
   window.verteroSubmit = async () => {
     const name = document.getElementById('vertero-name')?.value || '';
     const email = document.getElementById('vertero-email')?.value || '';
@@ -144,7 +171,7 @@
 
     const questions = quiz.config?.questions || [];
     const formattedAnswers = {};
-    questions.forEach((q, i) => { formattedAnswers[q.question] = answers[i] || ''; });
+    questions.forEach(q => { formattedAnswers[q.question] = answers[q.id] || ''; });
 
     try {
       const res = await fetch(`${apiBase}/api/leads`, {
@@ -173,7 +200,7 @@
 
   function openQuiz(id) {
     activeQuizId = id;
-    currentStep = 0;
+    history = [0];
     answers = {};
     quiz = null;
 
@@ -212,70 +239,93 @@
 
   function closeModal() {
     document.getElementById('vertero-overlay').classList.remove('open');
-    currentStep = 0;
+    history = [0];
     answers = {};
   }
 
   function renderStep() {
     if (!quiz) return;
     const questions = quiz.config?.questions || [];
+    const step = currentStep();
+    const q = questions[step];
+    if (!q) return;
     const content = document.getElementById('vertero-content');
 
     const progressHTML = `
       <div class="vertero-progress">
-        ${questions.map((_, i) => `<div class="vertero-seg ${i <= currentStep ? 'on' : ''}"></div>`).join('')}
-        <div class="vertero-seg"></div>
+        ${questions.map((_, i) => `<div class="vertero-seg ${i < history.length ? 'on' : ''}"></div>`).join('')}
       </div>
     `;
 
-    if (currentStep < questions.length) {
-      const q = questions[currentStep];
-      const isOptional = q.optional === true;
-      content.innerHTML = `
-        ${progressHTML}
-        <div class="vertero-title">${q.question}</div>
-        ${isOptional ? `<div class="vertero-sub">Optioneel</div>` : ''}
-        ${(q.type === 'multiple' || !q.type) ? `
-          <div class="vertero-options">
-            ${q.options.map(opt => `
-              <button class="vertero-opt ${answers[currentStep] === opt ? 'selected' : ''}"
-                onclick="verteroSelect(${currentStep}, '${opt.replace(/'/g, "\\'")}', this)">
-                ${opt}
-              </button>
-            `).join('')}
-          </div>
-        ` : `
-          <input class="vertero-input" type="text" placeholder="Jouw antwoord..."
-            value="${answers[currentStep] || ''}"
-            oninput="verteroInput(${currentStep}, this.value)" />
-        `}
-        <div id="vertero-error" class="vertero-error">Geef alsjeblieft een antwoord om verder te gaan.</div>
-        <div class="vertero-nav">
-          ${currentStep > 0 ? `<button class="vertero-back" onclick="verteroBack()">← Terug</button>` : '<div></div>'}
-          <button class="vertero-next" onclick="verteroNext()">Volgende →</button>
+    const isOptional = q.optional === true;
+    content.innerHTML = `
+      ${progressHTML}
+      <div class="vertero-title">${q.question}</div>
+      ${isOptional ? `<div class="vertero-sub">Optioneel</div>` : ''}
+      ${(q.type === 'multiple' || !q.type) ? `
+        <div class="vertero-options">
+          ${q.options.map(opt => `
+            <button class="vertero-opt ${answers[q.id] === opt ? 'selected' : ''}"
+              onclick="verteroSelect('${q.id}', '${opt.replace(/'/g, "\\'")}', this)">
+              ${opt}
+            </button>
+          `).join('')}
         </div>
-      `;
-    } else {
-      content.innerHTML = `
-        ${progressHTML}
-        <div class="vertero-title">Jouw gegevens</div>
-        <div class="vertero-sub">We sturen je binnen 24 uur een offerte op maat.</div>
-        <input class="vertero-input" type="text" id="vertero-name" placeholder="Naam" />
-        <input class="vertero-input" type="text" id="vertero-street" placeholder="Straat en huisnummer" />
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <input class="vertero-input" type="text" id="vertero-postcode" placeholder="Postcode" style="margin-bottom:0" />
-          <input class="vertero-input" type="text" id="vertero-city" placeholder="Woonplaats" style="margin-bottom:0" />
-        </div>
-        <input class="vertero-input" type="email" id="vertero-email" placeholder="E-mailadres" style="margin-top:8px" />
-        <input class="vertero-input" type="tel" id="vertero-phone" placeholder="Telefoonnummer (optioneel)" />
-        <div id="vertero-error" class="vertero-error"></div>
-        <div class="vertero-nav">
-          <button class="vertero-back" onclick="verteroBack()">← Terug</button>
-          <button class="vertero-next" onclick="verteroSubmit()">Versturen 🚀</button>
-        </div>
-      `;
-    }
+      ` : `
+        <input class="vertero-input" type="text" placeholder="Jouw antwoord..."
+          value="${answers[q.id] || ''}"
+          oninput="verteroInput('${q.id}', this.value)" />
+      `}
+      <div id="vertero-error" class="vertero-error">Geef alsjeblieft een antwoord om verder te gaan.</div>
+      <div class="vertero-nav">
+        ${history.length > 1 ? `<button class="vertero-back" onclick="verteroBack()">← Terug</button>` : '<div></div>'}
+        <button class="vertero-next" onclick="verteroNext()">Volgende →</button>
+      </div>
+    `;
   }
+
+  function renderContact() {
+    if (!quiz) return;
+    const questions = quiz.config?.questions || [];
+    const content = document.getElementById('vertero-content');
+
+    const progressHTML = `
+      <div class="vertero-progress">
+        ${questions.map(() => `<div class="vertero-seg on"></div>`).join('')}
+        <div class="vertero-seg on"></div>
+      </div>
+    `;
+
+    content.innerHTML = `
+      ${progressHTML}
+      <div class="vertero-title">Jouw gegevens</div>
+      <div class="vertero-sub">We sturen je binnen 24 uur een offerte op maat.</div>
+      <input class="vertero-input" type="text" id="vertero-name" placeholder="Naam" />
+      <input class="vertero-input" type="text" id="vertero-street" placeholder="Straat en huisnummer" />
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <input class="vertero-input" type="text" id="vertero-postcode" placeholder="Postcode" style="margin-bottom:0" />
+        <input class="vertero-input" type="text" id="vertero-city" placeholder="Woonplaats" style="margin-bottom:0" />
+      </div>
+      <input class="vertero-input" type="email" id="vertero-email" placeholder="E-mailadres" style="margin-top:8px" />
+      <input class="vertero-input" type="tel" id="vertero-phone" placeholder="Telefoonnummer (optioneel)" />
+      <div id="vertero-error" class="vertero-error"></div>
+      <div class="vertero-nav">
+        <button class="vertero-back" onclick="verteroBack()">← Terug</button>
+        <button class="vertero-next" onclick="verteroSubmit()">Versturen 🚀</button>
+      </div>
+    `;
+  }
+
+  // Override verteroBack to handle going back from contact form
+  const origBack = window.verteroBack;
+  window.verteroBack = () => {
+    const content = document.getElementById('vertero-content');
+    if (content && content.querySelector('#vertero-name')) {
+      renderStep();
+    } else {
+      origBack();
+    }
+  };
 
   if (defaultQuizId) {
     document.getElementById('vertero-btn').onclick = () => openQuiz(defaultQuizId);

@@ -8,6 +8,7 @@ interface Question {
   type: 'multiple' | 'text'
   options: string[]
   allowCustom?: boolean
+  branches?: Record<number, string>
 }
 
 interface Quiz {
@@ -20,15 +21,31 @@ interface Quiz {
 const REQUIRED_FIELDS = ['name', 'email', 'street', 'postcode', 'city'] as const
 type ContactField = typeof REQUIRED_FIELDS[number] | 'phone'
 
+function resolveNext(q: Question, answer: string, questions: Question[]): number | 'contact' {
+  const optIndex = q.options.indexOf(answer)
+  const targetId = q.branches?.[optIndex]
+  if (targetId === '__contact__') return 'contact'
+  if (targetId) {
+    const idx = questions.findIndex(q2 => q2.id === targetId)
+    if (idx !== -1) return idx
+  }
+  const cur = questions.findIndex(q2 => q2.id === q.id)
+  return cur < questions.length - 1 ? cur + 1 : 'contact'
+}
+
 export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz; showPoweredBy?: boolean }) {
   const brand = quiz.config?.brandColor || '#f97316'
   const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [current, setCurrent] = useState(0)
+  const [history, setHistory] = useState<number[]>([0])
   const [stage, setStage] = useState<'quiz' | 'contact' | 'done'>('quiz')
   const [contact, setContact] = useState({ name: '', email: '', phone: '', street: '', postcode: '', city: '' })
   const [touched, setTouched] = useState<Partial<Record<ContactField, boolean>>>({})
   const [contactError, setContactError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  const questions = quiz.config?.questions || []
+  const current = history[history.length - 1]
+  const q = questions[current]
 
   function touchField(field: ContactField) {
     setTouched(p => ({ ...p, [field]: true }))
@@ -43,6 +60,12 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
     if (!contact.email.trim()) return 'Vul je e-mailadres in'
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) return 'Vul een geldig e-mailadres in'
     return null
+  }
+
+  function handleNext() {
+    const next = resolveNext(q, answers[q.id] || '', questions)
+    if (next === 'contact') setStage('contact')
+    else setHistory(h => [...h, next])
   }
 
   async function submit() {
@@ -72,9 +95,6 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
     setSubmitting(false)
     setStage('done')
   }
-
-  const questions = quiz.config?.questions || []
-  const q = questions[current]
 
   if (stage === 'done') return (
     <div className="min-h-screen bg-transparent flex items-center justify-center p-6">
@@ -205,11 +225,11 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
     <div className="min-h-screen bg-transparent flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-[480px] bg-[#07070f] rounded-[20px] border border-white/10 overflow-hidden">
         <div className="p-6 sm:p-8">
-          <p className="text-white/30 text-xs font-mono mb-2">{current + 1} / {questions.length}</p>
+          <p className="text-white/30 text-xs font-mono mb-2">{history.length} / {questions.length}</p>
           <div className="w-full bg-white/5 rounded-full h-[3px] mb-6">
             <div
               className="h-[3px] rounded-full transition-all"
-              style={{ width: `${((current + 1) / questions.length) * 100}%`, background: brand }}
+              style={{ width: `${(history.length / questions.length) * 100}%`, background: brand }}
             />
           </div>
 
@@ -266,8 +286,8 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
           </div>
 
           <div className="grid grid-cols-3 items-center">
-            {current > 0 ? (
-              <button onClick={() => setCurrent(c => c - 1)} className="text-white/40 hover:text-white text-sm transition justify-self-start">
+            {history.length > 1 ? (
+              <button onClick={() => setHistory(h => h.slice(0, -1))} className="text-white/40 hover:text-white text-sm transition justify-self-start">
                 ← Vorige
               </button>
             ) : <div />}
@@ -275,13 +295,7 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
             {showPoweredBy && <PoweredBy />}
 
             <button
-              onClick={() => {
-                if (current < questions.length - 1) {
-                  setCurrent(c => c + 1)
-                } else {
-                  setStage('contact')
-                }
-              }}
+              onClick={handleNext}
               disabled={!answers[q.id]}
               className="justify-self-end disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
               style={{ background: brand }}
