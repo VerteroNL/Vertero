@@ -57,7 +57,7 @@
     }
     .vertero-opt:hover { border-color: rgba(255,255,255,0.25); color: white; }
     .vt-light .vertero-opt:hover { border-color: rgba(0,0,0,0.3); color: #111; }
-    .vertero-opt.selected { border-color: var(--vt-brand); background: rgba(249,115,22,0.12); color: white; }
+    .vertero-opt.selected { border-color: var(--vt-brand); opacity: 1; }
     .vt-light .vertero-opt.selected { color: #111; }
     .vertero-input {
       width: 100%; padding: 12px 14px;
@@ -166,22 +166,35 @@
 
   window.verteroSelect = (qId, value, el) => {
     answers[qId] = value;
-    document.querySelectorAll('.vertero-opt').forEach(o => o.classList.remove('selected'));
+    const brand = getComputedStyle(document.documentElement).getPropertyValue('--vt-brand').trim() || '#f97316';
+    document.querySelectorAll('.vertero-opt').forEach(o => {
+      o.classList.remove('selected');
+      o.style.borderColor = '';
+      o.style.background = '';
+    });
     el.classList.add('selected');
+    el.style.borderColor = brand + '99';
+    el.style.background = brand + '18';
     const wrap = document.getElementById('vertero-custom-wrap-' + qId);
-    if (wrap) wrap.classList.remove('active');
+    if (wrap) { wrap.classList.remove('active'); wrap.style.borderColor = ''; }
   };
   window.verteroInput = (qId, value) => { answers[qId] = value; };
   window.verteroToggleCustom = (qId) => {
     const wrap = document.getElementById('vertero-custom-wrap-' + qId);
     if (!wrap) return;
-    const isActive = wrap.classList.contains('active');
-    if (isActive) return;
-    document.querySelectorAll('.vertero-opt').forEach(o => o.classList.remove('selected'));
+    if (wrap.classList.contains('active')) return;
+    const brand = getComputedStyle(document.documentElement).getPropertyValue('--vt-brand').trim() || '#f97316';
+    document.querySelectorAll('.vertero-opt').forEach(o => {
+      o.classList.remove('selected');
+      o.style.borderColor = '';
+      o.style.background = '';
+    });
     wrap.classList.add('active');
+    wrap.style.borderColor = brand + '99';
+    wrap.style.background = brand + '18';
     answers[qId] = '';
     const inp = wrap.querySelector('.vertero-custom-input');
-    if (inp) { inp.focus(); }
+    if (inp) inp.focus();
   };
   window.verteroCustomInput = (qId, value) => { answers[qId] = value; };
 

@@ -242,13 +242,13 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
                 {q.options.map((opt, i) => (
                   <button key={i} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}
                     className={`text-left px-4 py-3 rounded-xl border transition text-sm font-medium ${c.opt}`}
-                    style={answers[q.id] === opt ? { borderColor: brand, background: `${brand}26`, color: isLight ? '#111' : '#fff' } : {}}>
+                    style={answers[q.id] === opt ? { borderColor: `${brand}99`, background: `${brand}18`, color: isLight ? '#111' : '#fff' } : {}}>
                     {opt}
                   </button>
                 ))}
                 {q.allowCustom && (
                   <div className={`rounded-xl border transition ${answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? '' : isLight ? 'border-gray-200' : 'border-white/10'}`}
-                    style={answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? { borderColor: brand, background: `${brand}26` } : {}}>
+                    style={answers[q.id] !== undefined && !q.options.includes(answers[q.id]) ? { borderColor: `${brand}99`, background: `${brand}18` } : {}}>
                     <button
                       onClick={() => setAnswers(prev => ({ ...prev, [q.id]: prev[q.id] !== undefined && !q.options.includes(prev[q.id]) ? prev[q.id] : '' }))}
                       className={`w-full text-left px-4 py-3 text-sm font-medium ${c.back} transition`}>
