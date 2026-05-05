@@ -118,6 +118,20 @@
     }
     .vertero-radio.active .vertero-radio-dot { border-color: var(--vt-brand); }
     .vertero-radio.active .vertero-radio-inner { display: block; }
+    .vertero-photo-thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .vertero-photo-thumb { position: relative; }
+    .vertero-photo-thumb img { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: block; }
+    .vt-light .vertero-photo-thumb img { border-color: rgba(0,0,0,0.1); }
+    .vertero-photo-thumb button { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: #ef4444; color: white; border: none; cursor: pointer; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+    .vertero-photo-upload { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 2px dashed rgba(255,255,255,0.12); border-radius: 12px; padding: 24px; cursor: pointer; transition: border-color 0.15s; }
+    .vertero-photo-upload:hover { border-color: rgba(255,255,255,0.28); }
+    .vt-light .vertero-photo-upload { border-color: rgba(0,0,0,0.15); }
+    .vt-light .vertero-photo-upload:hover { border-color: rgba(0,0,0,0.35); }
+    .vertero-photo-upload-icon { font-size: 24px; }
+    .vertero-photo-upload-label { font-size: 13px; color: rgba(255,255,255,0.4); }
+    .vt-light .vertero-photo-upload-label { color: rgba(0,0,0,0.5); }
+    .vertero-photo-uploading { opacity: 0.5; pointer-events: none; }
+    .vertero-photo-file { display: none; }
   `;
   document.head.appendChild(style);
 
@@ -149,11 +163,58 @@
   let quiz = null;
   let history = [0];
   let answers = {};
+  let photoUrls = {};
+  let uploading = false;
 
   function currentStep() { return history[history.length - 1]; }
 
+  async function compressAndUpload(file) {
+    const MAX = 1200;
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height));
+    const w = Math.round(bitmap.width * scale);
+    const h = Math.round(bitmap.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+    const blob = await new Promise(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.75));
+    const form = new FormData();
+    form.append('file', blob, 'photo.jpg');
+    const res = await fetch(`${apiBase}/api/upload`, { method: 'POST', body: form });
+    const data = await res.json();
+    if (!data.url) throw new Error('Upload mislukt');
+    return data.url;
+  }
+
+  window.verteroPhotoChange = async (qId, input) => {
+    const q = quiz?.config?.questions?.find(q => q.id === qId);
+    const files = Array.from(input.files || []);
+    const maxPhotos = q?.maxPhotos || 5;
+    const existing = photoUrls[qId] || [];
+    const toUpload = files.slice(0, maxPhotos - existing.length);
+    if (!toUpload.length) return;
+    uploading = true;
+    renderStep();
+    const urls = [];
+    for (const f of toUpload) {
+      try { urls.push(await compressAndUpload(f)); } catch { /* skip */ }
+    }
+    const next = [...existing, ...urls];
+    photoUrls[qId] = next;
+    answers[qId] = next.join(',');
+    uploading = false;
+    renderStep();
+  };
+
+  window.verteroRemovePhoto = (qId, idx) => {
+    const next = (photoUrls[qId] || []).filter((_, i) => i !== idx);
+    photoUrls[qId] = next;
+    answers[qId] = next.length ? next.join(',') : undefined;
+    renderStep();
+  };
+
   function resolveNext(q, answer, questions) {
-    const targetId = q.type === 'text'
+    const targetId = (q.type === 'text' || q.type === 'photo')
       ? q.defaultBranch
       : (q.branches && q.branches[q.options.indexOf(answer)]);
     if (targetId === '__contact__') return 'contact';
@@ -277,6 +338,8 @@
     activeQuizId = id;
     history = [0];
     answers = {};
+    photoUrls = {};
+    uploading = false;
     quiz = null;
 
     const overlay = document.getElementById('vertero-overlay');
@@ -376,7 +439,32 @@
             `;
           })() : ''}
         </div>
-      ` : `
+      ` : q.type === 'photo' ? (() => {
+        const photos = photoUrls[q.id] || [];
+        const maxPhotos = q.maxPhotos || 5;
+        return `
+          <div>
+            ${photos.length > 0 ? `
+              <div class="vertero-photo-thumbs">
+                ${photos.map((url, i) => `
+                  <div class="vertero-photo-thumb">
+                    <img src="${url}" alt="" />
+                    <button onclick="verteroRemovePhoto('${q.id}', ${i})">×</button>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+            ${photos.length < maxPhotos ? `
+              <label class="vertero-photo-upload${uploading ? ' vertero-photo-uploading' : ''}" for="vertero-photo-input-${q.id}">
+                <span class="vertero-photo-upload-icon">📷</span>
+                <span class="vertero-photo-upload-label">${uploading ? 'Uploaden...' : `Foto toevoegen (${photos.length}/${maxPhotos})`}</span>
+              </label>
+              <input type="file" accept="image/*" multiple id="vertero-photo-input-${q.id}"
+                class="vertero-photo-file" onchange="verteroPhotoChange('${q.id}', this)" />
+            ` : ''}
+          </div>
+        `;
+      })() : `
         <input class="vertero-input" type="text" placeholder="${q.placeholder || 'Jouw antwoord...'}"
           value="${answers[q.id] || ''}"
           oninput="verteroInput('${q.id}', this.value)" />
