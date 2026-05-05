@@ -345,7 +345,7 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                       <div className="flex items-center gap-2">
                         {[1,2,3,4,5].map(n => (
                           <button key={n} onClick={() => updateQuestion(q.id, 'maxPhotos', String(n))}
-                            className={`w-8 h-8 rounded-lg text-xs font-bold transition ${(q.maxPhotos || 3) === n ? 'bg-[#f97316] text-white' : 'bg-white/5 text-white/30 hover:text-white'}`}>
+                            className={`w-8 h-8 rounded-lg text-xs font-bold transition ${Number(q.maxPhotos || 3) === n ? 'bg-[#f97316] text-white' : 'bg-white/5 text-white/30 hover:text-white'}`}>
                             {n}
                           </button>
                         ))}

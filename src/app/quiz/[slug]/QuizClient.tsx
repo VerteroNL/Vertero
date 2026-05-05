@@ -487,7 +487,7 @@ export default function QuizClient({ quiz, showPoweredBy = true }: { quiz: Quiz;
                     {uploading ? 'Uploaden...' : `Foto toevoegen (${photos.length}/${maxPhotos})`}
                   </span>
                   <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
-                    onChange={handlePhotoChange} capture="environment" />
+                    onChange={handlePhotoChange} />
                 </label>
               )}
             </div>
