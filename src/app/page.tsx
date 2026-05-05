@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { BETA_HIDE_PRO } from '@/lib/flags'
 
 export default function HomePage() {
   const [annual, setAnnual] = useState(false)
@@ -135,7 +136,7 @@ export default function HomePage() {
       </section>
 
       {/* PRICING */}
-      <section id="prijzen" className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-white/7">
+      {!BETA_HIDE_PRO && <section id="prijzen" className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-white/7">
         <div className="max-w-xl mb-10 md:mb-14">
           <h2 className="text-3xl md:text-4xl font-extrabold mb-3">Geen verrassingen</h2>
           <p className="text-white/40 text-base">Vaste prijs, geen contract, op elk moment op te zeggen.</p>
@@ -207,7 +208,7 @@ export default function HomePage() {
             </div>
           ))}
         </div>
-      </section>
+      </section>}
 
       {/* FOOTER */}
       <footer className="border-t border-white/7 py-10">

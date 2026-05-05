@@ -3,6 +3,7 @@ import { unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
 import EmbedClient from './EmbedClient'
 import { getUserPlan } from '@/lib/subscription'
+import { BETA_HIDE_PRO } from '@/lib/flags'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,7 +29,7 @@ export default async function EmbedQuizPage({ params }: { params: Promise<{ slug
 
   if (!quiz) notFound()
 
-  const plan = quiz.user_id ? await getUserPlan(quiz.user_id) : 'free'
+  const plan = BETA_HIDE_PRO ? 'pro' : (quiz.user_id ? await getUserPlan(quiz.user_id) : 'free')
   const showPoweredBy = !(plan === 'pro' && quiz.config?.hidePoweredBy === true)
 
   return <EmbedClient quiz={quiz} showPoweredBy={showPoweredBy} />

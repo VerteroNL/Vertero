@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { BETA_HIDE_PRO } from '@/lib/flags'
 
 interface Question {
   id: string
@@ -42,7 +43,7 @@ const FIELD_LABELS: Record<string, string> = {
 }
 
 export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 'free' | 'pro' }) {
-  const isPro = plan === 'pro'
+  const isPro = BETA_HIDE_PRO || plan === 'pro'
   const [quiz] = useState<Quiz>(initial)
   const [questions, setQuestions] = useState<Question[]>(initial.config?.questions || [])
   const [scoring, setScoring] = useState(initial.config?.scoring ?? false)
@@ -386,18 +387,15 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
             <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-4">Instellingen</p>
 
             {/* Merkkleur */}
-            <div className={`flex items-center justify-between mb-5 ${!isPro ? 'opacity-50' : ''}`}>
+            <div className="flex items-center justify-between mb-5">
               <div>
-                <p className="text-sm font-medium flex items-center gap-2">
-                  Merkkleur
-                  {!isPro && <span className="text-[9px] font-bold uppercase tracking-widest bg-[#f97316]/20 text-[#f97316] px-1.5 py-0.5 rounded-full">Pro</span>}
-                </p>
-                <p className="text-white/35 text-xs mt-0.5">{isPro ? 'Knoppen en accenten' : 'Upgrade naar Pro om eigen kleuren te gebruiken'}</p>
+                <p className="text-sm font-medium">Merkkleur</p>
+                <p className="text-white/35 text-xs mt-0.5">Knoppen en accenten</p>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-7 h-7 rounded-lg border border-white/10 overflow-hidden relative flex-shrink-0 ${isPro ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-                  {isPro && <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />}
+                <div className="w-7 h-7 rounded-lg border border-white/10 overflow-hidden relative flex-shrink-0 cursor-pointer">
+                  <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   <div className="w-full h-full" style={{ background: brandColor }} />
                 </div>
                 <span className="text-white/30 text-[11px] font-mono">{brandColor.toUpperCase()}</span>
@@ -405,21 +403,15 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
             </div>
 
             {/* Thema */}
-            <div className={`flex items-center justify-between mb-5 ${!isPro ? 'opacity-50' : ''}`}>
+            <div className="flex items-center justify-between mb-5">
               <div>
-                <p className="text-sm font-medium flex items-center gap-2">
-                  Thema
-                  {!isPro && <span className="text-[9px] font-bold uppercase tracking-widest bg-[#f97316]/20 text-[#f97316] px-1.5 py-0.5 rounded-full">Pro</span>}
-                </p>
-                <p className="text-white/35 text-xs mt-0.5">{isPro ? 'Donker of licht kleurenschema' : 'Upgrade naar Pro voor lichte modus'}</p>
+                <p className="text-sm font-medium">Thema</p>
+                <p className="text-white/35 text-xs mt-0.5">Donker of licht kleurenschema</p>
               </div>
               <div className="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
                 {(['dark', 'light'] as const).map(t => (
-                  <button
-                    key={t}
-                    onClick={() => isPro && setTheme(t)}
-                    className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition ${theme === t ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/60'} ${!isPro ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                  >
+                  <button key={t} onClick={() => setTheme(t)}
+                    className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition cursor-pointer ${theme === t ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/60'}`}>
                     {t === 'dark' ? 'Donker' : 'Licht'}
                   </button>
                 ))}
@@ -427,20 +419,19 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
             </div>
 
             {/* Powered by verbergen */}
-            <div className={`flex items-center justify-between mb-5 ${!isPro ? 'opacity-50' : ''}`}>
-              <div>
-                <p className="text-sm font-medium flex items-center gap-2">
-                  "Powered by Vertero"
-                  {!isPro && <span className="text-[9px] font-bold uppercase tracking-widest bg-[#f97316]/20 text-[#f97316] px-1.5 py-0.5 rounded-full">Pro</span>}
-                </p>
-                <p className="text-white/35 text-xs mt-0.5">{isPro ? 'Verberg de Vertero-vermelding' : 'Upgrade naar Pro om de vermelding te verbergen'}</p>
+            {!BETA_HIDE_PRO && (
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <p className="text-sm font-medium">"Powered by Vertero"</p>
+                  <p className="text-white/35 text-xs mt-0.5">Verberg de Vertero-vermelding</p>
+                </div>
+                <button
+                  onClick={() => setHidePoweredBy(h => !h)}
+                  className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 cursor-pointer ${hidePoweredBy ? 'bg-[#f97316]' : 'bg-white/10'}`}>
+                  <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${hidePoweredBy ? 'translate-x-4' : 'translate-x-0'}`} />
+                </button>
               </div>
-              <button
-                onClick={() => isPro && setHidePoweredBy(h => !h)}
-                className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${!isPro ? 'cursor-not-allowed' : 'cursor-pointer'} ${hidePoweredBy ? 'bg-[#f97316]' : 'bg-white/10'}`}>
-                <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${hidePoweredBy ? 'translate-x-4' : 'translate-x-0'}`} />
-              </button>
-            </div>
+            )}
 
             {/* Lead scoring */}
             <div className="flex items-center justify-between mb-5">
