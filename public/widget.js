@@ -98,8 +98,8 @@
     .vertero-powered { text-align: center; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .vertero-powered span { font-size: 11px; font-weight: 500; letter-spacing: 0.03em; color: rgba(255,255,255,0.25); }
     .vt-light .vertero-powered span { color: rgba(0,0,0,0.4); }
-    .vertero-powered img { height: 18px !important; width: auto !important; opacity: 0.4; }
-    .vt-light .vertero-powered img { opacity: 1; }
+    .vertero-powered .vertero-logo { opacity: 0.4; }
+    .vt-light .vertero-powered .vertero-logo { opacity: 1; }
     .vertero-radio {
       display: flex; align-items: center; gap: 12px;
       padding: 4px; cursor: pointer; background: none; border: none;
@@ -127,7 +127,7 @@
       <div id="vertero-modal">
         <button id="vertero-close">✕</button>
         <div id="vertero-content"></div>
-        <div class="vertero-powered"><span>Powered by</span><a href="https://vertero.nl" target="_blank" rel="noopener noreferrer"><img src="${apiBase}/logo.png" alt="Vertero" style="height:18px!important;width:auto!important;display:inline!important;max-width:none!important;" /></a></div>
+        <div class="vertero-powered"><span>Powered by</span><a href="https://vertero.nl" target="_blank" rel="noopener noreferrer"><span class="vertero-logo" style="display:inline-block;height:18px;width:72px;background:url('${apiBase}/logo.png') no-repeat left center/contain;vertical-align:middle;"></span></a></div>
       </div>
     </div>
   `);
@@ -319,13 +319,11 @@
       else modal.classList.remove('vt-light');
       modal.classList.remove('vt-hidden');
     }
-    const poweredImg = document.querySelector('.vertero-powered img');
-    if (poweredImg) {
-      poweredImg.src = isLight ? `${apiBase}/LogoInColor.png` : `${apiBase}/logo.png`;
-      poweredImg.style.setProperty('height', '18px', 'important');
-      poweredImg.style.setProperty('width', 'auto', 'important');
-      poweredImg.style.setProperty('max-width', 'none', 'important');
-      poweredImg.style.setProperty('display', 'inline', 'important');
+    const poweredLogo = document.querySelector('.vertero-logo');
+    if (poweredLogo) {
+      const logoSrc = isLight ? `${apiBase}/LogoInColor.png` : `${apiBase}/logo.png`;
+      poweredLogo.style.backgroundImage = `url('${logoSrc}')`;
+      poweredLogo.style.opacity = isLight ? '1' : '0.4';
     }
     const powered = document.querySelector('.vertero-powered');
     if (powered) powered.style.display = data?.config?.hidePoweredBy ? 'none' : '';
