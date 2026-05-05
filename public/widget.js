@@ -320,7 +320,13 @@
       modal.classList.remove('vt-hidden');
     }
     const poweredImg = document.querySelector('.vertero-powered img');
-    if (poweredImg) poweredImg.src = isLight ? `${apiBase}/LogoInColor.png` : `${apiBase}/logo.png`;
+    if (poweredImg) {
+      poweredImg.src = isLight ? `${apiBase}/LogoInColor.png` : `${apiBase}/logo.png`;
+      poweredImg.style.setProperty('height', '18px', 'important');
+      poweredImg.style.setProperty('width', 'auto', 'important');
+      poweredImg.style.setProperty('max-width', 'none', 'important');
+      poweredImg.style.setProperty('display', 'inline', 'important');
+    }
     const powered = document.querySelector('.vertero-powered');
     if (powered) powered.style.display = data?.config?.hidePoweredBy ? 'none' : '';
   }
