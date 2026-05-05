@@ -127,7 +127,7 @@
       <div id="vertero-modal">
         <button id="vertero-close">✕</button>
         <div id="vertero-content"></div>
-        <div class="vertero-powered"><span>Powered by</span><a href="https://vertero.nl" target="_blank" rel="noopener noreferrer"><span class="vertero-logo" style="display:inline-block;height:18px;width:72px;background:url('${apiBase}/logo.png') no-repeat left center/contain;vertical-align:middle;"></span></a></div>
+        <div class="vertero-powered"><span>Powered by</span><a href="https://vertero.nl" target="_blank" rel="noopener noreferrer"><span class="vertero-logo" style="display:inline-block;height:18px;width:68px;background:url('${apiBase}/logo.png') no-repeat left center/contain;vertical-align:middle;"></span></a></div>
       </div>
     </div>
   `);
