@@ -301,12 +301,10 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
 
 function PoweredBy({ isLight = false, borderClass = '' }: { isLight?: boolean; borderClass?: string }) {
   return (
-    <div className={`flex items-center justify-center gap-2 py-3 border-t ${borderClass || (isLight ? 'border-gray-200' : 'border-white/5')}`}>
+    <a href="https://vertero.nl" target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center gap-2 py-3 border-t ${borderClass || (isLight ? 'border-gray-200' : 'border-white/5')}`}>
       <span className={`${isLight ? 'text-gray-400' : 'text-white/25'} text-[11px] font-medium tracking-wide`}>Powered by</span>
-      <a href="https://vertero.nl" target="_blank" rel="noopener noreferrer">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={isLight ? 'https://vertero.nl/LogoInColor.png' : 'https://vertero.nl/logo.png'} alt="Vertero" className={`h-[11px] ${isLight ? '' : 'opacity-40'}`} />
-      </a>
-    </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={isLight ? 'https://vertero.nl/LogoInColor.png' : 'https://vertero.nl/logo.png'} alt="Vertero" className={`h-[11px] ${isLight ? '' : 'opacity-40'}`} />
+    </a>
   )
 }
