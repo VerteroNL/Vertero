@@ -51,52 +51,24 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
-        <div>
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6">
-            Meer aanvragen,<br />betere klanten,<br />
-            <span className="text-[#f97316]">minder rommel</span>
-          </h1>
-          <p className="text-white/60 text-lg md:text-xl mb-4 leading-relaxed">
-            Zet een quiz op je website. Bezoekers vullen een paar vragen in, jij ziet direct wie het waard is om terug te bellen.
-          </p>
-          <p className="text-white/35 text-sm mb-10">
-            Werkt ingebouwd op je website of gewoon als link via WhatsApp of mail
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-8 py-3.5 rounded-xl font-semibold text-base transition">
-              Maak je eerste quiz
-            </Link>
-            <Link href="/sign-in" className="text-white/40 hover:text-white text-sm transition">
-              Al een account? Inloggen
-            </Link>
-          </div>
-        </div>
-
-        {/* PREVIEW */}
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 md:p-10">
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-white/30 text-xs font-medium">Voorbeeld quiz</p>
-            <p className="text-white/25 text-xs">Stap 1 van 3</p>
-          </div>
-          <div className="w-full bg-white/5 rounded-full h-0.5 mb-8">
-            <div className="bg-[#f97316] h-0.5 rounded-full w-1/3"></div>
-          </div>
-          <h3 className="text-xl font-bold mb-6">Wat wil je laten doen?</h3>
-          <div className="flex flex-col gap-3 mb-8">
-            {['Badkamer verbouwen', 'Uitbouw plaatsen', 'Dakrenovatie', 'Weet ik nog niet'].map((item, i) => (
-              <div key={i} className={`border p-4 rounded-xl text-sm cursor-pointer transition ${
-                i === 0
-                  ? 'border-[#f97316] bg-[#f97316]/10 text-white'
-                  : 'border-white/10 text-white/50 hover:border-white/25'
-              }`}>
-                {item}
-              </div>
-            ))}
-          </div>
-          <button className="w-full bg-[#f97316] hover:bg-[#ea6c0a] py-3.5 rounded-xl font-semibold text-sm transition">
-            Volgende
-          </button>
+      <section className="max-w-4xl mx-auto px-5 md:px-10 py-20 md:py-36 text-center">
+        <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6">
+          Meer aanvragen,<br />betere klanten,<br />
+          <span className="text-[#f97316]">minder rommel</span>
+        </h1>
+        <p className="text-white/60 text-lg md:text-xl mb-4 leading-relaxed max-w-2xl mx-auto">
+          Zet een quiz op je website. Bezoekers vullen een paar vragen in, jij ziet direct wie het waard is om terug te bellen.
+        </p>
+        <p className="text-white/35 text-sm mb-10">
+          Werkt ingebouwd op je website of gewoon als link via WhatsApp of mail
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+          <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-8 py-3.5 rounded-xl font-semibold text-base transition">
+            Maak je eerste quiz
+          </Link>
+          <Link href="/sign-in" className="text-white/40 hover:text-white text-sm transition">
+            Al een account? Inloggen
+          </Link>
         </div>
       </section>
 
@@ -172,8 +144,9 @@ export default function HomePage() {
           <EmbedCard
             title="Widget op je site"
             badge="Aanbevolen"
-            desc="Bezoekers openen de quiz via een knop op jouw site. Geen pagina-overgang."
+            desc="Werkt op elke knop op je site — bestaande buttons, links of afbeeldingen. Geen pagina-overgang."
             code={`<script src="https://vertero.nl/widget.js"></script>\n<button data-vertero="jouw-slug">\n  Vraag offerte aan\n</button>`}
+            note="Voeg data-vertero toe aan élke bestaande knop op je site."
           />
           <EmbedCard
             title="Directe link"
@@ -287,7 +260,7 @@ export default function HomePage() {
   )
 }
 
-function EmbedCard({ title, badge, desc, code }: { title: string; badge?: string; desc: string; code: string }) {
+function EmbedCard({ title, badge, desc, code, note }: { title: string; badge?: string; desc: string; code: string; note?: string }) {
   const [copied, setCopied] = useState(false)
 
   function copy() {
@@ -304,6 +277,7 @@ function EmbedCard({ title, badge, desc, code }: { title: string; badge?: string
       </div>
       <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
       <div className="bg-[#07070f] border border-white/7 rounded-xl p-4 font-mono text-xs text-white/50 leading-relaxed whitespace-pre-wrap break-all">{code}</div>
+      {note && <p className="text-white/25 text-xs">{note}</p>}
       <button onClick={copy}
         className="text-sm font-semibold text-white/40 hover:text-white transition text-left">
         {copied ? '✓ Gekopieerd' : 'Kopieer code'}
