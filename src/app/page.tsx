@@ -51,25 +51,29 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section className="max-w-4xl mx-auto px-5 md:px-10 py-20 md:py-36 text-center">
-        <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6">
-          Meer aanvragen,<br />betere klanten,<br />
-          <span className="text-[#f97316]">minder rommel</span>
-        </h1>
-        <p className="text-white/60 text-lg md:text-xl mb-4 leading-relaxed max-w-2xl mx-auto">
-          Zet een quiz op je website. Bezoekers vullen een paar vragen in, jij ziet direct wie het waard is om terug te bellen.
-        </p>
-        <p className="text-white/35 text-sm mb-10">
-          Werkt ingebouwd op je website of gewoon als link via WhatsApp of mail
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-          <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-8 py-3.5 rounded-xl font-semibold text-base transition">
-            Maak je eerste quiz
-          </Link>
-          <Link href="/sign-in" className="text-white/40 hover:text-white text-sm transition">
-            Al een account? Inloggen
-          </Link>
+      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
+        <div>
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6">
+            Meer aanvragen,<br />betere klanten,<br />
+            <span className="text-[#f97316]">minder rommel</span>
+          </h1>
+          <p className="text-white/60 text-lg md:text-xl mb-4 leading-relaxed">
+            Zet een quiz op je website. Bezoekers vullen een paar vragen in, jij ziet direct wie het waard is om terug te bellen.
+          </p>
+          <p className="text-white/35 text-sm mb-10">
+            Werkt ingebouwd op je website of als link via WhatsApp of mail
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-8 py-3.5 rounded-xl font-semibold text-base transition">
+              Probeer gratis →
+            </Link>
+            <Link href="/sign-in" className="text-white/40 hover:text-white text-sm transition">
+              Al een account? Inloggen
+            </Link>
+          </div>
+          <p className="text-white/20 text-xs mt-4">Geen creditcard nodig</p>
         </div>
+        <DemoQuiz />
       </section>
 
       {/* BENEFITS */}
@@ -105,31 +109,6 @@ export default function HomePage() {
               <p className="text-white/45 text-sm leading-relaxed">{item.desc}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* DEMO */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-white/7">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
-          <div>
-            <p className="text-[#f97316] text-sm font-semibold mb-4">Probeer het zelf</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Zo ziet het er uit voor jouw klant</h2>
-            <p className="text-white/40 text-base leading-relaxed mb-6">
-              Klik door de vragen hiernaast. Zo ervaart een bezoeker het op jouw website — snel, duidelijk, zonder gedoe.
-            </p>
-            <ul className="flex flex-col gap-3 text-sm text-white/50">
-              {[
-                'Jij bepaalt welke vragen gesteld worden',
-                'Eigen merkkleur en stijl',
-                'Leads komen direct in je dashboard',
-              ].map(t => (
-                <li key={t} className="flex items-start gap-2">
-                  <span className="text-[#f97316] mt-0.5 flex-shrink-0">✓</span> {t}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <DemoQuiz />
         </div>
       </section>
 
@@ -236,8 +215,9 @@ export default function HomePage() {
         <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Klaar om meer leads te ontvangen?</h2>
         <p className="text-white/40 text-base mb-8">Gratis beginnen, geen creditcard nodig.</p>
         <Link href="/probeer" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] px-10 py-4 rounded-xl font-semibold text-base transition">
-          Maak je eerste quiz gratis
+          Probeer gratis →
         </Link>
+        <p className="text-white/20 text-xs mt-4">Geen creditcard nodig</p>
       </section>
 
       {/* FOOTER */}
