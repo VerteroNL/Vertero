@@ -317,7 +317,7 @@ function PoweredBy({ isLight = false }: { isLight?: boolean }) {
       <span className={`${isLight ? 'text-gray-400' : 'text-white/25'} text-[11px] font-medium tracking-wide`}>Powered by</span>
       <a href="https://vertero.nl" target="_blank" rel="noopener noreferrer">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={isLight ? '/LogoInColor.png' : '/logo.png'} alt="Vertero" className={`h-[11px] ${isLight ? '' : 'opacity-40'}`} />
+        <img src={isLight ? '/LogoInColor.png' : '/logo.png'} alt="Vertero" className={`h-[18px] ${isLight ? '' : 'opacity-40'}`} />
       </a>
     </div>
   )
