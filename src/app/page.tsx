@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { BETA_HIDE_PRO } from '@/lib/flags'
+import DemoQuiz from './_components/DemoQuiz'
 
 export default function HomePage() {
   const [annual, setAnnual] = useState(false)
@@ -135,6 +136,53 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* DEMO */}
+      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-white/7">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
+          <div>
+            <p className="text-[#f97316] text-sm font-semibold mb-4">Probeer het zelf</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Zo ziet het er uit voor jouw klant</h2>
+            <p className="text-white/40 text-base leading-relaxed mb-6">
+              Klik door de vragen hiernaast. Zo ervaart een bezoeker het op jouw website — snel, duidelijk, zonder gedoe.
+            </p>
+            <ul className="flex flex-col gap-3 text-sm text-white/50">
+              {[
+                'Jij bepaalt welke vragen gesteld worden',
+                'Eigen merkkleur en stijl',
+                'Leads komen direct in je dashboard',
+              ].map(t => (
+                <li key={t} className="flex items-start gap-2">
+                  <span className="text-[#f97316] mt-0.5 flex-shrink-0">✓</span> {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <DemoQuiz />
+        </div>
+      </section>
+
+      {/* EMBED */}
+      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-white/7">
+        <div className="max-w-xl mb-10 md:mb-14">
+          <p className="text-[#f97316] text-sm font-semibold mb-4">Zo zet je het op je site</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Twee manieren, beide gratis</h2>
+          <p className="text-white/40 text-base leading-relaxed">Jouw slug en code verschijnen automatisch nadat je een quiz hebt aangemaakt.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
+          <EmbedCard
+            title="Widget op je site"
+            badge="Aanbevolen"
+            desc="Bezoekers openen de quiz via een knop op jouw site. Geen pagina-overgang."
+            code={`<script src="https://vertero.nl/widget.js"></script>\n<button data-vertero="jouw-slug">\n  Vraag offerte aan\n</button>`}
+          />
+          <EmbedCard
+            title="Directe link"
+            desc="Deel via WhatsApp, mail of social. Geen code nodig."
+            code="https://vertero.nl/quiz/jouw-slug"
+          />
+        </div>
+      </section>
+
       {/* PRICING */}
       {!BETA_HIDE_PRO && <section id="prijzen" className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-white/7">
         <div className="max-w-xl mb-10 md:mb-14">
@@ -210,8 +258,17 @@ export default function HomePage() {
         </div>
       </section>}
 
+      {/* CTA BANNER */}
+      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-24 border-t border-white/7 text-center">
+        <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Klaar om meer leads te ontvangen?</h2>
+        <p className="text-white/40 text-base mb-8">Gratis beginnen, geen creditcard nodig.</p>
+        <Link href="/probeer" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] px-10 py-4 rounded-xl font-semibold text-base transition">
+          Maak je eerste quiz gratis
+        </Link>
+      </section>
+
       {/* FOOTER */}
-      <footer className="border-t border-white/7 py-10">
+      <footer className="border-t border-white/7 py-10" id="footer">
         <div className="max-w-7xl mx-auto px-5 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <Link href="/" className="hover:opacity-80 transition">
              <img src="/logo.png" alt="Vertero" className="h-7" />
@@ -226,6 +283,31 @@ export default function HomePage() {
         </div>
       </footer>
 
+    </div>
+  )
+}
+
+function EmbedCard({ title, badge, desc, code }: { title: string; badge?: string; desc: string; code: string }) {
+  const [copied, setCopied] = useState(false)
+
+  function copy() {
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 flex flex-col gap-4 hover:border-white/20 transition">
+      <div className="flex items-center gap-2">
+        <h3 className="font-bold text-base">{title}</h3>
+        {badge && <span className="bg-[#f97316]/20 text-[#f97316] text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">{badge}</span>}
+      </div>
+      <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
+      <div className="bg-[#07070f] border border-white/7 rounded-xl p-4 font-mono text-xs text-white/50 leading-relaxed whitespace-pre-wrap break-all">{code}</div>
+      <button onClick={copy}
+        className="text-sm font-semibold text-white/40 hover:text-white transition text-left">
+        {copied ? '✓ Gekopieerd' : 'Kopieer code'}
+      </button>
     </div>
   )
 }
