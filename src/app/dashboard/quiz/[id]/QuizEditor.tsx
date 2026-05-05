@@ -6,12 +6,13 @@ import { BETA_HIDE_PRO } from '@/lib/flags'
 interface Question {
   id: string
   question: string
-  type: 'multiple' | 'text'
+  type: 'multiple' | 'text' | 'photo'
   options: string[]
   allowCustom?: boolean
   branches?: Record<number, string>
   defaultBranch?: string
   placeholder?: string
+  maxPhotos?: number
 }
 
 interface ContactFieldConfig {
@@ -253,10 +254,10 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                   </div>
 
                   <div className="flex items-center gap-1 px-5 pb-4">
-                    {(['multiple', 'text'] as const).map(t => (
+                    {(['multiple', 'text', 'photo'] as const).map(t => (
                       <button key={t} onClick={() => updateQuestion(q.id, 'type', t)}
                         className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition ${q.type === t ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/60'}`}>
-                        {t === 'multiple' ? 'Meerkeuze' : 'Open tekst'}
+                        {t === 'multiple' ? 'Meerkeuze' : t === 'text' ? 'Open tekst' : 'Foto upload'}
                       </button>
                     ))}
                   </div>
@@ -334,6 +335,20 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
                             </button>
                           </label>
                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {q.type === 'photo' && (
+                    <div className="border-t border-white/[0.06] px-5 py-4">
+                      <p className="text-white/40 text-xs mb-3">Bezoekers kunnen foto&apos;s uploaden. Maximaal aantal:</p>
+                      <div className="flex items-center gap-2">
+                        {[1,2,3,4,5].map(n => (
+                          <button key={n} onClick={() => updateQuestion(q.id, 'maxPhotos', String(n))}
+                            className={`w-8 h-8 rounded-lg text-xs font-bold transition ${(q.maxPhotos || 3) === n ? 'bg-[#f97316] text-white' : 'bg-white/5 text-white/30 hover:text-white'}`}>
+                            {n}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}

@@ -1,16 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 interface Question {
   id: string
   question: string
-  type: 'multiple' | 'text'
+  type: 'multiple' | 'text' | 'photo'
   options: string[]
   allowCustom?: boolean
   branches?: Record<number, string>
   defaultBranch?: string
   placeholder?: string
+  maxPhotos?: number
 }
 
 interface ContactFieldConfig {
@@ -37,12 +38,12 @@ const DEFAULT_CONTACT_FIELDS: ContactFieldConfig[] = [
 
 const FIELD_LABELS: Record<string, string> = {
   name: 'Naam', email: 'E-mailadres', phone: 'Telefoon',
-  street: 'Straat en huisnummer', postcode: 'Postcode', city: 'Woonplaats',
+  street: 'Straat', postcode: 'Postcode', city: 'Woonplaats',
 }
 
 const FIELD_PLACEHOLDERS: Record<string, string> = {
   name: 'Jan Jansen', email: 'naam@voorbeeld.com', phone: '+31 6 12345678',
-  street: 'Voorbeeldstraat 12', postcode: '1234 AB', city: 'Amsterdam',
+  street: 'Voorbeeldstraat', postcode: '1234 AB', city: 'Amsterdam',
 }
 
 const FIELD_TYPES: Record<string, string> = {
@@ -50,8 +51,37 @@ const FIELD_TYPES: Record<string, string> = {
   street: 'text', postcode: 'text', city: 'text',
 }
 
+async function compressAndUpload(file: File): Promise<string> {
+  const MAX = 1200
+  const bitmap = await createImageBitmap(file)
+  const scale = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height))
+  const w = Math.round(bitmap.width * scale)
+  const h = Math.round(bitmap.height * scale)
+  const canvas = document.createElement('canvas')
+  canvas.width = w; canvas.height = h
+  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, w, h)
+  const blob = await new Promise<Blob>(res => canvas.toBlob(b => res(b!), 'image/jpeg', 0.75))
+  const form = new FormData()
+  form.append('file', blob, 'photo.jpg')
+  const res = await fetch('/api/upload', { method: 'POST', body: form })
+  const data = await res.json()
+  if (!data.url) throw new Error('Upload mislukt')
+  return data.url
+}
+
+async function pdokLookup(postcode: string, huisnummer: string): Promise<{ straat: string; stad: string } | null> {
+  try {
+    const q = encodeURIComponent(`${postcode} ${huisnummer}`)
+    const res = await fetch(`https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?q=${q}&fq=type:adres&rows=1`)
+    const data = await res.json()
+    const doc = data?.response?.docs?.[0]
+    if (!doc?.straatnaam) return null
+    return { straat: doc.straatnaam, stad: doc.woonplaatsnaam }
+  } catch { return null }
+}
+
 function resolveNext(q: Question, answer: string, questions: Question[]): number | 'contact' {
-  const targetId = q.type === 'text'
+  const targetId = (q.type === 'text' || q.type === 'photo')
     ? q.defaultBranch
     : q.branches?.[q.options.indexOf(answer)]
   if (targetId === '__contact__') return 'contact'
@@ -77,6 +107,7 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
     back: 'text-gray-500 hover:text-gray-900',
     label: 'text-gray-600',
     border: 'border-gray-200',
+    readonly: 'bg-gray-50 border-gray-200 text-gray-500',
   } : {
     card: 'bg-[#07070f] border-white/10',
     title: 'text-white',
@@ -88,7 +119,9 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
     back: 'text-white/40 hover:text-white',
     label: 'text-white/40',
     border: 'border-white/5',
+    readonly: 'bg-[#050508] border-white/5 text-white/30',
   }
+
   const activeFields = (quiz.config?.contactFields ?? DEFAULT_CONTACT_FIELDS).filter(f => f.enabled)
   const requiredKeys = activeFields.filter(f => f.required).map(f => f.key)
 
@@ -100,11 +133,54 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
   const [contactError, setContactError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
+  // Photo upload state
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string[]>>({})
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Postcode lookup state
+  const [housenumber, setHousenumber] = useState('')
+  const [lookupStreet, setLookupStreet] = useState('')
+  const [lookupCity, setLookupCity] = useState('')
+  const [lookupFound, setLookupFound] = useState(false)
+  const [lookupManual, setLookupManual] = useState(false)
+  const [lookupLoading, setLookupLoading] = useState(false)
+
   const questions = quiz.config?.questions || []
   const current = history[history.length - 1]
   const q = questions[current]
 
+  const hasPostcode = activeFields.some(f => f.key === 'postcode')
+  const hasStreet = activeFields.some(f => f.key === 'street')
+  const hasCity = activeFields.some(f => f.key === 'city')
+
+  async function triggerLookup() {
+    const pc = contact.postcode?.trim()
+    if (!pc || !housenumber.trim()) return
+    setLookupLoading(true)
+    const result = await pdokLookup(pc, housenumber.trim())
+    setLookupLoading(false)
+    if (result) {
+      setLookupStreet(result.straat)
+      setLookupCity(result.stad)
+      setLookupFound(true)
+      setLookupManual(false)
+    }
+  }
+
   function fieldError(key: string) {
+    if (key === 'street') {
+      if (!touched.street) return false
+      if (!requiredKeys.includes('street')) return false
+      const val = lookupFound && !lookupManual ? lookupStreet : contact.street
+      return !val?.trim()
+    }
+    if (key === 'city') {
+      if (!touched.city) return false
+      if (!requiredKeys.includes('city')) return false
+      const val = lookupFound && !lookupManual ? lookupCity : contact.city
+      return !val?.trim()
+    }
     return touched[key] && requiredKeys.includes(key) && !contact[key]?.trim()
   }
 
@@ -121,9 +197,38 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
     else setHistory(h => [...h, next])
   }
 
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || [])
+    const maxPhotos = q.maxPhotos || 5
+    const existing = photoUrls[q.id] || []
+    const toUpload = files.slice(0, maxPhotos - existing.length)
+    if (!toUpload.length) return
+    setUploading(true)
+    const urls: string[] = []
+    for (const f of toUpload) {
+      try { urls.push(await compressAndUpload(f)) } catch { /* skip failed */ }
+    }
+    const next = [...existing, ...urls]
+    setPhotoUrls(p => ({ ...p, [q.id]: next }))
+    setAnswers(p => ({ ...p, [q.id]: next.join(',') }))
+    setUploading(false)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  function removePhoto(qId: string, idx: number) {
+    const next = (photoUrls[qId] || []).filter((_, i) => i !== idx)
+    setPhotoUrls(p => ({ ...p, [qId]: next }))
+    setAnswers(p => ({ ...p, [qId]: next.join(',') }))
+  }
+
   async function submit() {
     const allTouched = Object.fromEntries(activeFields.map(f => [f.key, true]))
     setTouched(p => ({ ...p, ...allTouched }))
+
+    const streetVal = (lookupFound && !lookupManual)
+      ? `${lookupStreet} ${housenumber}`.trim()
+      : contact.street || ''
+    const cityVal = (lookupFound && !lookupManual) ? lookupCity : contact.city || ''
 
     const missing: string[] = []
     for (const f of activeFields) {
@@ -131,6 +236,10 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
       if (f.key === 'email') {
         if (!contact.email?.trim()) missing.push('e-mailadres')
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) missing.push('geldig e-mailadres')
+      } else if (f.key === 'street') {
+        if (!streetVal.trim()) missing.push('straat')
+      } else if (f.key === 'city') {
+        if (!cityVal.trim()) missing.push('woonplaats')
       } else if (!contact[f.key]?.trim()) {
         missing.push(FIELD_LABELS[f.key]?.toLowerCase() || f.key)
       }
@@ -151,9 +260,9 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
         name: contact.name || '',
         email: contact.email || '',
         phone: contact.phone || '',
-        street: contact.street || '',
+        street: streetVal,
         postcode: contact.postcode || '',
-        city: contact.city || '',
+        city: cityVal,
         answers
       })
     })
@@ -181,31 +290,101 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
           <h2 className={`${c.title} text-lg font-semibold mb-1`}>Bijna klaar!</h2>
           <p className={`${c.sub} text-sm mb-6`}>Laat je gegevens achter zodat we contact kunnen opnemen.</p>
           <div className="flex flex-col gap-4 mb-6">
-            {activeFields.map(f => (
-              <div key={f.key}>
-                <label className={`${c.label} text-xs font-semibold uppercase tracking-widest mb-2 block`}>
-                  {FIELD_LABELS[f.key] || f.key}
-                  {f.required
-                    ? <span className="text-[#f97316] ml-1">*</span>
-                    : <span className={`${isLight ? 'text-gray-400' : 'text-white/20'} normal-case font-normal ml-1`}>(optioneel)</span>
-                  }
-                </label>
-                <input
-                  type={FIELD_TYPES[f.key] || 'text'}
-                  value={contact[f.key] || ''}
-                  onChange={e => setContact(p => ({ ...p, [f.key]: e.target.value }))}
-                  onBlur={() => setTouched(p => ({ ...p, [f.key]: true }))}
-                  placeholder={FIELD_PLACEHOLDERS[f.key] || ''}
-                  className={`w-full border rounded-xl px-4 py-3 outline-none transition text-sm ${c.input} ${
-                    (f.key === 'email' ? emailError() : fieldError(f.key))
-                      ? 'border-red-400 focus:border-red-500'
-                      : ''
-                  }`}
-                />
-                {f.key === 'email' && emailError() && <p className="text-red-400 text-xs mt-1.5">{emailError()}</p>}
-                {f.key !== 'email' && fieldError(f.key) && <p className="text-red-400 text-xs mt-1.5">Vul dit veld in</p>}
-              </div>
-            ))}
+            {activeFields.map(f => {
+              // Postcode + huisnummer side by side
+              if (f.key === 'postcode' && hasPostcode) return (
+                <div key="postcode-row">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={`${c.label} text-xs font-semibold uppercase tracking-widest mb-2 block`}>
+                        Postcode{f.required && <span className="text-[#f97316] ml-1">*</span>}
+                      </label>
+                      <input type="text" value={contact.postcode || ''}
+                        onChange={e => { setContact(p => ({ ...p, postcode: e.target.value })); setLookupFound(false) }}
+                        onBlur={() => { setTouched(p => ({ ...p, postcode: true })); triggerLookup() }}
+                        placeholder="1234 AB"
+                        className={`w-full border rounded-xl px-4 py-3 outline-none transition text-sm ${c.input} ${fieldError('postcode') ? 'border-red-400' : ''}`} />
+                    </div>
+                    <div>
+                      <label className={`${c.label} text-xs font-semibold uppercase tracking-widest mb-2 block`}>
+                        Huisnr.{f.required && <span className="text-[#f97316] ml-1">*</span>}
+                      </label>
+                      <input type="text" value={housenumber}
+                        onChange={e => { setHousenumber(e.target.value); setLookupFound(false) }}
+                        onBlur={() => triggerLookup()}
+                        placeholder="12"
+                        className={`w-full border rounded-xl px-4 py-3 outline-none transition text-sm ${c.input}`} />
+                    </div>
+                  </div>
+                  {lookupLoading && <p className={`${c.sub} text-xs mt-1.5`}>Adres opzoeken…</p>}
+                </div>
+              )
+
+              // Street — read-only when lookup found
+              if (f.key === 'street' && hasStreet) return (
+                <div key="street">
+                  <label className={`${c.label} text-xs font-semibold uppercase tracking-widest mb-2 block`}>
+                    Straat{f.required && <span className="text-[#f97316] ml-1">*</span>}
+                    {lookupFound && !lookupManual && (
+                      <button onClick={() => setLookupManual(true)}
+                        className={`ml-2 normal-case font-normal ${isLight ? 'text-gray-400' : 'text-white/25'} hover:underline`}>
+                        Klopt niet?
+                      </button>
+                    )}
+                  </label>
+                  <input type="text"
+                    value={lookupFound && !lookupManual ? lookupStreet : contact.street || ''}
+                    readOnly={lookupFound && !lookupManual}
+                    onChange={e => setContact(p => ({ ...p, street: e.target.value }))}
+                    onBlur={() => setTouched(p => ({ ...p, street: true }))}
+                    placeholder={FIELD_PLACEHOLDERS.street}
+                    className={`w-full border rounded-xl px-4 py-3 outline-none transition text-sm ${lookupFound && !lookupManual ? c.readonly : c.input} ${fieldError('street') ? 'border-red-400' : ''}`} />
+                  {fieldError('street') && <p className="text-red-400 text-xs mt-1.5">Vul dit veld in</p>}
+                </div>
+              )
+
+              // City — read-only when lookup found
+              if (f.key === 'city' && hasCity) return (
+                <div key="city">
+                  <label className={`${c.label} text-xs font-semibold uppercase tracking-widest mb-2 block`}>
+                    Woonplaats{f.required && <span className="text-[#f97316] ml-1">*</span>}
+                  </label>
+                  <input type="text"
+                    value={lookupFound && !lookupManual ? lookupCity : contact.city || ''}
+                    readOnly={lookupFound && !lookupManual}
+                    onChange={e => setContact(p => ({ ...p, city: e.target.value }))}
+                    onBlur={() => setTouched(p => ({ ...p, city: true }))}
+                    placeholder={FIELD_PLACEHOLDERS.city}
+                    className={`w-full border rounded-xl px-4 py-3 outline-none transition text-sm ${lookupFound && !lookupManual ? c.readonly : c.input} ${fieldError('city') ? 'border-red-400' : ''}`} />
+                  {fieldError('city') && <p className="text-red-400 text-xs mt-1.5">Vul dit veld in</p>}
+                </div>
+              )
+
+              // Default field
+              return (
+                <div key={f.key}>
+                  <label className={`${c.label} text-xs font-semibold uppercase tracking-widest mb-2 block`}>
+                    {FIELD_LABELS[f.key] || f.key}
+                    {f.required
+                      ? <span className="text-[#f97316] ml-1">*</span>
+                      : <span className={`${isLight ? 'text-gray-400' : 'text-white/20'} normal-case font-normal ml-1`}>(optioneel)</span>
+                    }
+                  </label>
+                  <input
+                    type={FIELD_TYPES[f.key] || 'text'}
+                    value={contact[f.key] || ''}
+                    onChange={e => setContact(p => ({ ...p, [f.key]: e.target.value }))}
+                    onBlur={() => setTouched(p => ({ ...p, [f.key]: true }))}
+                    placeholder={FIELD_PLACEHOLDERS[f.key] || ''}
+                    className={`w-full border rounded-xl px-4 py-3 outline-none transition text-sm ${c.input} ${
+                      (f.key === 'email' ? emailError() : fieldError(f.key)) ? 'border-red-400 focus:border-red-500' : ''
+                    }`}
+                  />
+                  {f.key === 'email' && emailError() && <p className="text-red-400 text-xs mt-1.5">{emailError()}</p>}
+                  {f.key !== 'email' && fieldError(f.key) && <p className="text-red-400 text-xs mt-1.5">Vul dit veld in</p>}
+                </div>
+              )
+            })}
           </div>
           {contactError && <p className="text-red-400 text-xs mb-4">{contactError}</p>}
           <div className="grid grid-cols-3 items-center">
@@ -223,6 +402,9 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
       </div>
     </div>
   )
+
+  const photos = photoUrls[q?.id] || []
+  const maxPhotos = q?.maxPhotos || 5
 
   return (
     <div className="min-h-screen bg-transparent flex items-center justify-center p-4 sm:p-6">
@@ -278,6 +460,35 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
                 placeholder={q.placeholder || 'Typ je antwoord...'} rows={3}
                 className={`w-full border rounded-xl px-4 py-3 outline-none transition resize-none text-sm ${c.input}`} />
             )}
+            {q.type === 'photo' && (
+              <div className="flex flex-col gap-3">
+                {photos.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {photos.map((url, i) => (
+                      <div key={i} className="relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt="" className="w-20 h-20 object-cover rounded-xl border border-white/10" />
+                        <button onClick={() => removePhoto(q.id, i)}
+                          className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center leading-none">
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {photos.length < maxPhotos && (
+                  <label className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl py-6 cursor-pointer transition ${isLight ? 'border-gray-200 hover:border-gray-400' : 'border-white/10 hover:border-white/25'}`}
+                    style={uploading ? { opacity: 0.5, pointerEvents: 'none' } : {}}>
+                    <span className="text-2xl">📷</span>
+                    <span className={`text-sm ${isLight ? 'text-gray-500' : 'text-white/40'}`}>
+                      {uploading ? 'Uploaden...' : `Foto toevoegen (${photos.length}/${maxPhotos})`}
+                    </span>
+                    <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
+                      onChange={handlePhotoChange} capture="environment" />
+                  </label>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-3 items-center">
@@ -287,7 +498,7 @@ export default function EmbedClient({ quiz, showPoweredBy = true }: { quiz: Quiz
               </button>
             ) : <div />}
             {showPoweredBy && <PoweredBy isLight={isLight} />}
-            <button onClick={handleNext} disabled={!answers[q.id]}
+            <button onClick={handleNext} disabled={!answers[q.id] || uploading}
               className="justify-self-end disabled:opacity-30 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
               style={{ background: brand }}>
               Volgende →

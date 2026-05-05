@@ -1,6 +1,6 @@
 interface Question {
   id: string
-  type: 'multiple' | 'text'
+  type: 'multiple' | 'text' | 'photo'
   options: string[]
 }
 

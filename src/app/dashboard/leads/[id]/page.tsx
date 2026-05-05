@@ -33,7 +33,7 @@ function ScoreRing({ score }: { score: number }) {
   )
 }
 
-type Question = { id: string; question: string; type: 'multiple' | 'text'; options: string[] }
+type Question = { id: string; question: string; type: 'multiple' | 'text' | 'photo'; options: string[] }
 
 type Lead = {
   id: string
@@ -152,9 +152,20 @@ export default function LeadDetailPage() {
                 <div key={q.id} className="px-5 py-4 flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <p className="text-white/30 text-xs mb-1.5">{i + 1}. {q.question}</p>
-                    <p className="text-white text-sm font-medium">
-                      {answer || <span className="text-white/20 italic font-normal">Geen antwoord</span>}
-                    </p>
+                    {q.type === 'photo' && answer ? (
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {answer.split(',').filter(Boolean).map((url: string, pi: number) => (
+                          <a key={pi} href={url} target="_blank" rel="noopener noreferrer">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={url} alt={`Foto ${pi + 1}`} className="w-20 h-20 object-cover rounded-xl border border-white/10 hover:opacity-80 transition" />
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-white text-sm font-medium">
+                        {answer || <span className="text-white/20 italic font-normal">Geen antwoord</span>}
+                      </p>
+                    )}
                   </div>
                   {pts !== null && (
                     <span className="text-xs font-bold text-white/30 flex-shrink-0 mt-1">+{pts}pt</span>
