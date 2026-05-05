@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 import { getUserPlan } from '@/lib/subscription'
 
 const supabase = createClient(
@@ -53,7 +53,7 @@ export async function PATCH(
     .maybeSingle()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  if (data?.slug) revalidateTag(`quiz-${data.slug}`)
+  if (data?.slug) revalidatePath(`/embed/${data.slug}`)
   return NextResponse.json(data)
 }
 
