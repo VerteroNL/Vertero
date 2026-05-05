@@ -47,23 +47,25 @@ export default function SettingsForm({ initialEmailOnNewLead, plan }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Notificaties */}
-      <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6">
-        <h2 className="text-sm font-bold mb-4">Notificaties</h2>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium">E-mail bij nieuwe lead</p>
-            <p className="text-white/40 text-xs mt-0.5">Ontvang een e-mail zodra er een nieuwe lead binnenkomt</p>
+      {/* Notificaties — tijdelijk verborgen tijdens beta */}
+      {!BETA_HIDE_PRO && (
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6">
+          <h2 className="text-sm font-bold mb-4">Notificaties</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">E-mail bij nieuwe lead</p>
+              <p className="text-white/40 text-xs mt-0.5">Ontvang een e-mail zodra er een nieuwe lead binnenkomt</p>
+            </div>
+            <button
+              onClick={toggleEmailOnNewLead}
+              disabled={savingNotif}
+              className={`relative w-11 h-6 rounded-full transition-colors ${emailOnNewLead ? 'bg-[#f97316]' : 'bg-white/10'}`}
+            >
+              <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${emailOnNewLead ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
           </div>
-          <button
-            onClick={toggleEmailOnNewLead}
-            disabled={savingNotif || (!BETA_HIDE_PRO && !isPro)}
-            className={`relative w-11 h-6 rounded-full transition-colors ${emailOnNewLead ? 'bg-[#f97316]' : 'bg-white/10'}`}
-          >
-            <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${emailOnNewLead ? 'translate-x-5' : 'translate-x-0'}`} />
-          </button>
         </div>
-      </div>
+      )}
 
       {/* Gevaarzone */}
       <div className="bg-[#0d0d1c] border border-red-500/20 rounded-2xl p-6">
