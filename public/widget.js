@@ -28,7 +28,9 @@
       border-radius: 20px; width: 480px; max-width: 95vw;
       max-height: 90vh; overflow-y: auto; padding: 32px;
       font-family: sans-serif; color: white; position: relative;
+      transition: opacity 0.15s;
     }
+    #vertero-modal.vt-hidden { opacity: 0; pointer-events: none; }
     #vertero-modal.vt-light {
       background: #ffffff; border-color: rgba(0,0,0,0.06); color: #111;
     }
@@ -278,7 +280,9 @@
     quiz = null;
 
     const overlay = document.getElementById('vertero-overlay');
+    const modal = document.getElementById('vertero-modal');
     const content = document.getElementById('vertero-content');
+    modal.classList.add('vt-hidden');
     overlay.classList.add('open');
 
     if (quizCache[id]) {
@@ -288,7 +292,7 @@
       return;
     }
 
-    content.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);font-size:14px">Laden...</div>';
+    content.innerHTML = '';
 
     fetch(`${apiBase}/api/quiz-public/${id}`)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
@@ -313,6 +317,7 @@
     if (modal) {
       if (isLight) modal.classList.add('vt-light');
       else modal.classList.remove('vt-light');
+      modal.classList.remove('vt-hidden');
     }
     const poweredImg = document.querySelector('.vertero-powered img');
     if (poweredImg) poweredImg.src = isLight ? `${apiBase}/logoincolor.png` : `${apiBase}/logo.png`;
