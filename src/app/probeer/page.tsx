@@ -47,13 +47,14 @@ interface Question {
   question: string
   type: 'multiple' | 'text'
   options: string[]
+  branches?: Record<number, string>
 }
 
 type Step = 1 | 2 | 'published'
 
 export default function ProbeerPage() {
   const [step, setStep] = useState<Step>(1)
-  const [quizName, setQuizName] = useState('')
+  const [quizName, setQuizName] = useState('Mijn quiz')
   const [selectedTemplate, setSelectedTemplate] = useState('leeg')
   const [questions, setQuestions] = useState<Question[]>([])
   const [publishing, setPublishing] = useState(false)
@@ -72,11 +73,14 @@ export default function ProbeerPage() {
     return () => { clearTimeout(t1); clearInterval(t2) }
   }, [step])
 
-  // Reset preview when questions change
+  function selectTemplate(t: typeof TEMPLATES[number]) {
+    setSelectedTemplate(t.id)
+    setQuizName(t.id === 'leeg' ? 'Mijn quiz' : t.name)
+  }
 
   function goToStep2() {
-    if (!quizName.trim()) return
     const template = TEMPLATES.find(t => t.id === selectedTemplate)
+    if (!quizName.trim()) setQuizName(template?.name || 'Mijn quiz')
     setQuestions((template?.questions || []).map(q => ({
       id: Math.random().toString(36).slice(2),
       question: q.question,
@@ -111,6 +115,16 @@ export default function ProbeerPage() {
 
   function removeOption(qid: string, idx: number) {
     setQuestions(prev => prev.map(q => q.id === qid && q.options.length > 2 ? { ...q, options: q.options.filter((_, i) => i !== idx) } : q))
+  }
+
+  function updateBranch(qId: string, optionIndex: number, target: string) {
+    setQuestions(qs => qs.map(q => {
+      if (q.id !== qId) return q
+      const branches = { ...(q.branches || {}) }
+      if (target === '') delete branches[optionIndex]
+      else branches[optionIndex] = target
+      return { ...q, branches }
+    }))
   }
 
   async function publish() {
@@ -148,7 +162,7 @@ export default function ProbeerPage() {
       <Nav />
       <div className="max-w-lg mx-auto px-5 pt-14 pb-24">
         <div className="inline-flex items-center gap-2 bg-[#f97316]/10 border border-[#f97316]/20 text-[#f97316] text-xs font-semibold px-3.5 py-1.5 rounded-full mb-10">
-          Gratis · Klaar in 2 minuten
+          Gratis · Klaar in ~10 minuten
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3 leading-tight">
@@ -158,19 +172,13 @@ export default function ProbeerPage() {
           Bouw een quiz, deel hem en ontvang serieuze aanvragen. Zonder account.
         </p>
 
-        <div className="mb-7">
-          <label className="block text-[11px] font-bold uppercase tracking-widest text-white/35 mb-2">
-            Hoe heet je quiz?
-          </label>
-          <input
-            type="text"
-            autoFocus
-            value={quizName}
-            onChange={e => setQuizName(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && goToStep2()}
-            placeholder='bijv. "Offerte zonnepanelen"'
-            className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-white/25 outline-none focus:border-[#f97316]/50 transition text-base"
-          />
+        {/* Social proof */}
+        <div className="flex items-start gap-3 bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-3 mb-6 text-sm">
+          <span className="text-lg mt-0.5">⭐</span>
+          <p className="text-white/60 leading-snug">
+            <span className="text-white font-semibold">Marco uit Rotterdam</span> kwalificeert nu
+            3× meer aanvragen — zijn quiz stond live in minder dan een kwartier.
+          </p>
         </div>
 
         <div className="mb-8">
@@ -181,12 +189,19 @@ export default function ProbeerPage() {
             {TEMPLATES.map(t => (
               <button
                 key={t.id}
-                onClick={() => setSelectedTemplate(t.id)}
+                onClick={() => selectTemplate(t)}
                 className={`border rounded-xl p-4 text-left transition ${selectedTemplate === t.id ? 'border-[#f97316] bg-[#f97316]/5' : 'border-white/10 hover:border-white/20 bg-[#0d0d1c]'}`}
               >
                 <div className="text-2xl mb-2">{t.icon}</div>
-                <div className="font-semibold text-sm leading-tight mb-0.5">{t.name}</div>
-                <div className="text-white/35 text-xs">{t.questions.length > 0 ? `${t.questions.length} vragen meegeleverd` : 'Zelf bouwen'}</div>
+                <div className="font-semibold text-sm leading-tight mb-1">{t.name}</div>
+                <ul className="space-y-0.5">
+                  {t.questions.slice(0, 4).map((q, i) => (
+                    <li key={i} className="text-white/35 text-xs truncate">· {q.question}</li>
+                  ))}
+                  {t.questions.length === 0 && (
+                    <li className="text-white/35 text-xs italic">Bouw je eigen vragen</li>
+                  )}
+                </ul>
               </button>
             ))}
           </div>
@@ -194,10 +209,9 @@ export default function ProbeerPage() {
 
         <button
           onClick={goToStep2}
-          disabled={!quizName.trim()}
-          className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition text-base"
+          className="w-full bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold py-4 rounded-xl transition text-base"
         >
-          Doorgaan →
+          Start met template →
         </button>
 
         <div className="flex items-center justify-center gap-5 mt-6 text-white/25 text-xs">
@@ -264,6 +278,21 @@ export default function ProbeerPage() {
                         placeholder={`Optie ${oi + 1}`}
                         className="flex-1 bg-[#07070f] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 outline-none focus:border-white/20 transition"
                       />
+                      {questions.length > 1 && (
+                        <select
+                          value={q.branches?.[oi] ?? ''}
+                          onChange={e => updateBranch(q.id, oi, e.target.value)}
+                          className="text-[10px] bg-[#07070f] border border-white/10 text-white/40 rounded px-1.5 py-1 outline-none cursor-pointer hover:border-white/20 transition flex-shrink-0 max-w-[130px]"
+                        >
+                          <option value="">Volgende vraag</option>
+                          {questions.map((tq, ti) => tq.id !== q.id && (
+                            <option key={tq.id} value={tq.id}>
+                              Vraag {ti + 1}{tq.question ? `: ${tq.question.slice(0, 16)}${tq.question.length > 16 ? '…' : ''}` : ''}
+                            </option>
+                          ))}
+                          <option value="__contact__">Contactformulier</option>
+                        </select>
+                      )}
                       {q.options.length > 2 && (
                         <button onClick={() => removeOption(q.id, oi)} className="text-white/20 hover:text-red-400 transition flex-shrink-0 text-xs">✕</button>
                       )}
@@ -475,7 +504,7 @@ export default function ProbeerPage() {
             </Link>
 
             <div className="flex items-center justify-center gap-5 mt-4">
-              {['Gratis starten', '2 minuten'].map(t => (
+              {['Gratis starten', '~10 minuten'].map(t => (
                 <span key={t} className="text-[10px] text-white/30 flex items-center gap-1">
                   <span className="text-green-500 text-[10px]">✓</span> {t}
                 </span>
@@ -492,7 +521,7 @@ export default function ProbeerPage() {
         </div>
 
         <button
-          onClick={() => { setStep(1); setQuizName(''); setQuestions([]); setPublishedSlug(''); setShowNotification(false) }}
+          onClick={() => { setStep(1); setQuizName('Mijn quiz'); setSelectedTemplate('leeg'); setQuestions([]); setPublishedSlug(''); setShowNotification(false) }}
           className="w-full text-center text-white/25 hover:text-white/50 text-sm transition py-2"
         >
           Nieuwe quiz bouwen
