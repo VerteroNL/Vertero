@@ -11,22 +11,27 @@ export default function LeadRowActions({ leadId, deleteOnly }: { leadId: string;
   async function handleDone(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    await fetch(`/api/leads/${leadId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'done' }),
-    })
-    router.refresh()
+    try {
+      await fetch(`/api/leads/${leadId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'done' }),
+      })
+      router.refresh()
+    } catch {}
   }
 
   async function handleDelete(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
     setLoading(true)
-    await fetch(`/api/leads/${leadId}`, { method: 'DELETE' })
-    router.refresh()
-    setLoading(false)
-    setShowConfirm(false)
+    try {
+      await fetch(`/api/leads/${leadId}`, { method: 'DELETE' })
+      router.refresh()
+      setShowConfirm(false)
+    } catch {} finally {
+      setLoading(false)
+    }
   }
 
   return (

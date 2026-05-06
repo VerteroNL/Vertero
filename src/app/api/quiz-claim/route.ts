@@ -25,17 +25,19 @@ export async function POST(req: Request) {
   if (!quiz) return NextResponse.json({ alreadyClaimed: true })
 
   // Claim the quiz
-  await supabase
+  const { error: quizError } = await supabase
     .from('quizzes')
     .update({ user_id: userId, is_temp: false, temp_token: null })
     .eq('id', quiz.id)
+  if (quizError) return NextResponse.json({ error: quizError.message }, { status: 500 })
 
   // Claim any leads that came in before sign-up
-  await supabase
+  const { error: leadsError } = await supabase
     .from('leads')
     .update({ user_id: userId })
     .eq('quiz_id', quiz.id)
     .is('user_id', null)
+  if (leadsError) return NextResponse.json({ error: leadsError.message }, { status: 500 })
 
   return NextResponse.json({ success: true })
 }

@@ -11,9 +11,9 @@ export default function ClaimHandler() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
-    }).then(() => {
-      localStorage.removeItem('vertero_claim_token')
-    })
+    }).then(res => {
+      if (res.ok) localStorage.removeItem('vertero_claim_token')
+    }).catch(() => {})
   }, [])
 
   return null
