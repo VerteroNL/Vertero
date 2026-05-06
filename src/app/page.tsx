@@ -101,7 +101,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-5 md:px-10 py-14 md:py-20">
           <div className="max-w-2xl mx-auto bg-[#f97316]/[0.07] border border-[#f97316]/25 rounded-2xl p-8 md:p-12 text-center">
             <span className="inline-flex items-center gap-2 bg-[#f97316]/15 border border-[#f97316]/30 text-[#f97316] text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
-              🚀 Net gelanceerd · Nog {remaining} van de 50 plekken vrij
+              🚀 Net gelanceerd · Nog {remaining} plekken beschikbaar
             </span>
             <h2 className="text-2xl md:text-3xl font-extrabold mb-4">Word een founding member</h2>
             <p className="text-white/55 text-base leading-relaxed mb-8 max-w-lg mx-auto">
