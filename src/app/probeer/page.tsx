@@ -485,7 +485,7 @@ const canPublish = questions.length > 0 && questions.every(q => q.question.trim(
         <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden mb-6">
           {[
             { q: 'Hoe zet ik dit op mijn website?', a: 'Je krijgt een stukje code dat je 1× plakt. Werkt op elke website — ook WordPress, Squarespace en Wix.' },
-            { q: 'Wat kost het later?', a: 'Gratis starten. Je betaalt alleen als je tevreden bent en meer wilt. Geen verrassingen.' },
+            { q: 'Is het gratis?', a: 'Gratis starten. Geen creditcard nodig.' },
             { q: 'Kan ik stoppen wanneer ik wil?', a: 'Altijd. Geen contract, geen opzegtermijn.' },
           ].map((faq, i, arr) => (
             <div key={i} className={`px-5 py-4 ${i < arr.length - 1 ? 'border-b border-white/[0.07]' : ''}`}>
