@@ -9,7 +9,7 @@ export default function HomePage() {
     <div className="bg-[#07070f] text-white min-h-screen">
 
       {/* NAV */}
-      <nav className="sticky top-0 z-50 bg-[#07070f]/90 backdrop-blur-md border-b border-white/7">
+      <nav className="sticky top-0 z-50 bg-[#07070f]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-5 md:px-10 py-4">
           <Link href="/" className="hover:opacity-80 transition">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -58,7 +58,7 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIAL STRIP */}
-      <section className="border-t border-b border-white/7 bg-white/[0.015]">
+      <section className="bg-white/[0.015]">
         <div className="max-w-7xl mx-auto px-5 md:px-10 py-10 md:py-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-start">
           {[
             {
@@ -96,7 +96,7 @@ export default function HomePage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="hoe-het-werkt" className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-b border-white/7">
+      <section id="hoe-het-werkt" className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28">
         <div className="max-w-xl mb-12 md:mb-16">
           <p className="text-[#f97316] text-sm font-semibold mb-3">Hoe het werkt</p>
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Binnen een kwartier live</h2>
@@ -130,7 +130,7 @@ export default function HomePage() {
       </section>
 
       {/* EMBED */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-b border-white/7">
+      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28">
         <div className="max-w-xl mb-10 md:mb-14">
           <p className="text-[#f97316] text-sm font-semibold mb-4">Zo zet je het op je site</p>
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Twee manieren, beide gratis</h2>
@@ -153,7 +153,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-b border-white/7">
+      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28">
         <div className="max-w-xl mb-12">
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Veelgestelde vragen</h2>
           <p className="text-white/40 text-base">Vragen die aannemers altijd stellen voor ze beginnen.</p>
@@ -194,7 +194,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA BANNER */}
-      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-24 border-b border-white/7 text-center">
+      <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-24 text-center">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Klaar om meer aanvragen te ontvangen?</h2>
         <p className="text-white/40 text-base mb-8">Direct beginnen — geen creditcard, geen account nodig.</p>
         <Link href="/probeer" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] px-10 py-4 rounded-xl font-semibold text-base transition">
