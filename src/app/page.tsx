@@ -105,7 +105,7 @@ export default function HomePage() {
               Vertero is nieuw. We zoeken aannemers die als eerste meebouwen — en die ons vertellen wat écht werkt.
               In ruil krijg je <strong className="text-white/80">3 maanden</strong> ons hoogste abonnement gratis zodra we officieel lanceren, inclusief persoonlijke hulp bij het instellen.
             </p>
-            <ul className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <ul className="flex flex-row flex-wrap gap-x-6 gap-y-2 justify-center mb-8">
               {['3 maanden gratis bij lancering', 'Persoonlijke onboarding', 'Directe invloed op het product'].map(f => (
                 <li key={f} className="flex items-center justify-center gap-2 text-sm text-white/70">
                   <span className="text-[#f97316]">✓</span> {f}
