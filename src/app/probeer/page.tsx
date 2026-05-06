@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 
 const TEMPLATES = [
@@ -35,12 +35,6 @@ const TEMPLATES = [
   },
 ]
 
-const FAKE_LEADS = [
-  { name: 'Pieter de Vries', tag: 'Verbouwing' },
-  { name: 'Sandra Bakker', tag: 'Offerte aangevraagd' },
-  { name: 'Mark Janssen', tag: 'Airco installatie' },
-  { name: 'Lisa van den Berg', tag: 'Schilderwerk' },
-]
 
 interface Question {
   id: string
@@ -59,19 +53,9 @@ export default function ProbeerPage() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [publishing, setPublishing] = useState(false)
   const [publishedSlug, setPublishedSlug] = useState('')
-  const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<'bouwen' | 'preview'>('bouwen')
   const [previewQ, setPreviewQ] = useState(0)
   const [previewStage, setPreviewStage] = useState<'quiz' | 'contact'>('quiz')
-  const [showNotification, setShowNotification] = useState(false)
-  const [notifIdx, setNotifIdx] = useState(0)
-
-  useEffect(() => {
-    if (step !== 'published') return
-    const t1 = setTimeout(() => setShowNotification(true), 1800)
-    const t2 = setInterval(() => setNotifIdx(i => (i + 1) % FAKE_LEADS.length), 3200)
-    return () => { clearTimeout(t1); clearInterval(t2) }
-  }, [step])
 
   function selectTemplate(t: typeof TEMPLATES[number]) {
     setSelectedTemplate(t.id)
@@ -145,14 +129,7 @@ export default function ProbeerPage() {
     setPublishing(false)
   }
 
-  function copyLink() {
-    const url = `${window.location.origin}/quiz/${publishedSlug}`
-    navigator.clipboard.writeText(url)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2500)
-  }
-
-  const canPublish = questions.length > 0 && questions.every(q => q.question.trim() && q.options.filter(Boolean).length >= 2)
+const canPublish = questions.length > 0 && questions.every(q => q.question.trim() && q.options.filter(Boolean).length >= 2)
   const currentQ = questions[previewQ]
   const quizUrl = typeof window !== 'undefined' ? `${window.location.origin}/quiz/${publishedSlug}` : `https://vertero.nl/quiz/${publishedSlug}`
 
@@ -406,123 +383,128 @@ export default function ProbeerPage() {
       <Nav />
       <div className="max-w-[520px] mx-auto px-5 pt-12 pb-24">
 
-        {/* Success badge */}
-        <div className="text-center mb-10">
-          <div className="w-14 h-14 rounded-2xl bg-green-500/10 border border-green-500/25 flex items-center justify-center mx-auto mb-5">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        {/* Hero */}
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-[#f97316]/10 border border-[#f97316]/25 flex items-center justify-center mx-auto mb-5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <h1 className="text-2xl font-extrabold mb-2">Je quiz staat live!</h1>
-          <p className="text-white/40 text-sm">Deel de link en ontvang je eerste leads</p>
+          <h1 className="text-2xl font-extrabold mb-2">Je quiz is klaar. Nog 1 stap.</h1>
+          <p className="text-white/40 text-sm leading-relaxed max-w-xs mx-auto">
+            Maak je gratis account om hem op je site te zetten en leads te ontvangen.
+          </p>
         </div>
 
-        {/* Share link card */}
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-5 mb-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-3">Jouw quizlink</p>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="flex-1 bg-[#07070f] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white/50 font-mono truncate">
+        {/* CTA card */}
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 mb-5">
+          <Link
+            href="/sign-up?strategy=oauth_google"
+            className="flex items-center justify-center gap-2.5 w-full bg-white hover:bg-gray-100 text-gray-900 font-bold py-3.5 rounded-xl transition text-sm mb-3"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Doorgaan met Google
+          </Link>
+          <Link
+            href="/sign-up"
+            className="flex items-center justify-center w-full bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold py-3.5 rounded-xl transition text-sm mb-5"
+          >
+            Doorgaan met e-mail →
+          </Link>
+          <p className="text-center text-white/25 text-xs leading-relaxed">
+            Geen wachtwoord nodig · Klaar in 30 seconden · Geen creditcard
+          </p>
+        </div>
+
+        {/* 3 benefits */}
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          {[
+            { icon: '🔗', label: 'Deelbare link' },
+            { icon: '💻', label: 'Embed op je site' },
+            { icon: '📧', label: 'Leads in je mail' },
+          ].map(({ icon, label }) => (
+            <div key={label} className="bg-[#0d0d1c] border border-white/[0.08] rounded-xl p-4 text-center">
+              <div className="text-2xl mb-1.5">{icon}</div>
+              <p className="text-white/55 text-xs font-medium leading-tight">{label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Email callout */}
+        <div className="flex items-start gap-3 bg-white/[0.03] border border-white/[0.07] rounded-xl px-4 py-3.5 mb-5">
+          <span className="text-xl flex-shrink-0 mt-0.5">📧</span>
+          <p className="text-sm text-white/55 leading-snug">
+            Elke lead krijg je <span className="text-white font-semibold">direct in je mail</span> — ook als je op de bouw zit of bij klanten.
+          </p>
+        </div>
+
+        {/* Locked preview */}
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden mb-5">
+          <div className="px-5 py-3 border-b border-white/[0.07] flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Staat klaar voor je</p>
+            <span className="text-white/20 text-xs">🔒</span>
+          </div>
+          {/* Locked quiz link */}
+          <div className="px-5 py-4 border-b border-white/[0.07] flex items-center gap-2 select-none pointer-events-none opacity-40">
+            <div className="flex-1 bg-[#07070f] border border-white/10 rounded-lg px-3 py-2 text-xs text-white/50 font-mono truncate blur-[3px]">
               {quizUrl}
             </div>
-            <button
-              onClick={copyLink}
-              className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold transition ${copied ? 'bg-green-500/15 text-green-400 border border-green-500/25' : 'bg-[#f97316] hover:bg-[#ea6c0a] text-white'}`}
-            >
-              {copied ? '✓' : 'Kopieer'}
-            </button>
+            <div className="flex-shrink-0 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white/30">Kopieer</div>
           </div>
-          <a href={`/quiz/${publishedSlug}`} target="_blank" rel="noopener noreferrer"
-            className="text-[11px] text-white/25 hover:text-[#f97316] transition inline-flex items-center gap-1">
-            Quiz bekijken ↗
-          </a>
-        </div>
-
-        {/* Fake lead notification */}
-        <div className={`transition-all duration-700 ${showNotification ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} mb-4`}>
-          <div className="mb-1.5 flex items-center gap-1.5">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#f97316] animate-pulse" />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#f97316]">Voorbeeld — zo ziet een echte lead eruit</p>
-          </div>
-          <div className="bg-[#0d0d1c] border border-[#f97316]/30 rounded-2xl p-4 flex items-center gap-3">
+          {/* Locked lead example */}
+          <div className="px-5 py-4 flex items-center gap-3 select-none pointer-events-none opacity-40">
             <div className="w-9 h-9 rounded-xl bg-[#f97316]/10 border border-[#f97316]/20 flex items-center justify-center flex-shrink-0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate">{FAKE_LEADS[notifIdx].name}</p>
-              <p className="text-xs text-white/40 truncate">Nieuwe lead · {FAKE_LEADS[notifIdx].tag}</p>
+              <p className="text-sm font-semibold blur-[5px] text-white">Pieter de Vries</p>
+              <p className="text-xs text-white/40">Nieuwe lead · Verbouwing</p>
             </div>
-            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              <span className="text-[10px] text-white/20">nu</span>
-              <span className="text-[9px] bg-white/5 text-white/30 px-1.5 py-0.5 rounded font-medium">TEST</span>
-            </div>
+            <span className="text-[9px] bg-white/5 text-white/30 px-1.5 py-0.5 rounded font-medium flex-shrink-0">🔒 NIEUW</span>
           </div>
         </div>
 
-        {/* Main CTA card */}
-        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden mb-4">
-          <div className="px-6 pt-7 pb-6">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#f97316] mb-3">Volgende stap</p>
-            <h2 className="text-[22px] font-extrabold leading-tight mb-3">
-              Meld je aan om<br />je leads te bekijken
-            </h2>
-            <p className="text-white/45 text-sm leading-relaxed mb-6">
-              Zodra iemand je quiz invult, sla je de lead op in jouw persoonlijk dashboard. Geen lead gaat verloren.
-            </p>
-
-            {/* Progress steps */}
-            <div className="flex items-center gap-0 mb-7">
-              {[
-                { label: 'Quiz gebouwd', state: 'done' },
-                { label: 'Leads ontvangen', state: 'current' },
-                { label: 'Leads bekijken', state: 'todo' },
-              ].map((s, i) => (
-                <div key={i} className="flex items-center flex-1 min-w-0">
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${
-                      s.state === 'done' ? 'bg-green-500/15 border-green-500/30 text-green-400'
-                      : s.state === 'current' ? 'bg-[#f97316]/15 border-[#f97316]/30 text-[#f97316]'
-                      : 'bg-white/[0.04] border-white/10 text-white/25'
-                    }`}>
-                      {s.state === 'done' ? '✓' : i + 1}
-                    </div>
-                    <span className={`text-[9px] font-semibold mt-1 text-center leading-tight ${
-                      s.state === 'done' ? 'text-green-400' : s.state === 'current' ? 'text-white/70' : 'text-white/25'
-                    }`}>{s.label}</span>
-                  </div>
-                  {i < 2 && <div className="flex-1 h-px bg-white/10 mx-2 mb-3" />}
-                </div>
-              ))}
+        {/* Social proof */}
+        <p className="text-center text-white/20 text-xs mb-4">Al gebruikt door 1.200+ MKB-bedrijven</p>
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {[
+            { name: 'Marco V.', role: 'Aannemer · Rotterdam', quote: 'Binnen een dag mijn eerste offerte-aanvraag. Dit werkt echt.' },
+            { name: 'Lisa B.', role: 'Schildersbedrijf · Utrecht', quote: 'Eindelijk geen telefoontjes meer van mensen die toch niks doen.' },
+          ].map(t => (
+            <div key={t.name} className="bg-[#0d0d1c] border border-white/[0.08] rounded-xl p-4">
+              <p className="text-white/55 text-xs leading-relaxed mb-3">"{t.quote}"</p>
+              <p className="text-white/80 text-xs font-semibold">{t.name}</p>
+              <p className="text-white/30 text-[10px]">{t.role}</p>
             </div>
-
-            <Link
-              href={`/sign-up`}
-              className="block w-full text-center bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold py-4 rounded-xl transition text-base"
-            >
-              Maak gratis account →
-            </Link>
-
-            <div className="flex items-center justify-center gap-5 mt-4">
-              {['Gratis starten', '~10 minuten'].map(t => (
-                <span key={t} className="text-[10px] text-white/30 flex items-center gap-1">
-                  <span className="text-green-500 text-[10px]">✓</span> {t}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-t border-white/[0.07] px-6 py-3.5 flex items-center justify-center gap-1.5 text-xs text-white/30">
-            Al een account?
-            <Link href="/sign-in" className="text-[#f97316] hover:text-[#ea6c0a] transition font-semibold ml-1">
-              Inloggen →
-            </Link>
-          </div>
+          ))}
         </div>
 
+        {/* FAQ */}
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden mb-6">
+          {[
+            { q: 'Hoe zet ik dit op mijn website?', a: 'Je krijgt een stukje code dat je 1× plakt. Werkt op elke website — ook WordPress, Squarespace en Wix.' },
+            { q: 'Wat kost het later?', a: 'Gratis starten. Je betaalt alleen als je tevreden bent en meer wilt. Geen verrassingen.' },
+            { q: 'Kan ik stoppen wanneer ik wil?', a: 'Altijd. Geen contract, geen opzegtermijn.' },
+          ].map((faq, i, arr) => (
+            <div key={i} className={`px-5 py-4 ${i < arr.length - 1 ? 'border-b border-white/[0.07]' : ''}`}>
+              <p className="text-white/80 text-sm font-semibold mb-1">{faq.q}</p>
+              <p className="text-white/40 text-xs leading-relaxed">{faq.a}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer links */}
+        <p className="text-center text-white/25 text-xs mb-3">
+          Al een account?{' '}
+          <Link href="/sign-in" className="text-[#f97316] hover:text-[#ea6c0a] transition font-semibold">
+            Inloggen →
+          </Link>
+        </p>
         <button
-          onClick={() => { setStep(1); setQuizName('Mijn quiz'); setSelectedTemplate('leeg'); setQuestions([]); setPublishedSlug(''); setShowNotification(false) }}
-          className="w-full text-center text-white/25 hover:text-white/50 text-sm transition py-2"
+          onClick={() => { setStep(1); setQuizName('Mijn quiz'); setSelectedTemplate('leeg'); setQuestions([]); setPublishedSlug('') }}
+          className="w-full text-center text-white/20 hover:text-white/40 text-xs transition py-2"
         >
           Nieuwe quiz bouwen
         </button>
