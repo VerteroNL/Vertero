@@ -467,7 +467,7 @@ const canPublish = questions.length > 0 && questions.every(q => q.question.trim(
         </div>
 
         {/* Social proof */}
-        <p className="text-center text-white/20 text-xs mb-4">Al gebruikt door 1.200+ MKB-bedrijven</p>
+        <p className="text-center text-white/20 text-xs mb-4">Al gebruikt door 1.200+ aannemers en vakmensen</p>
         <div className="grid grid-cols-2 gap-3 mb-6">
           {[
             { name: 'Marco V.', role: 'Aannemer · Rotterdam', quote: 'Binnen een dag mijn eerste offerte-aanvraag. Dit werkt echt.' },
