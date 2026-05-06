@@ -2,10 +2,14 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import DemoQuiz from './_components/DemoQuiz'
 
 export default function HomePage() {
+  const router = useRouter()
   const [remaining, setRemaining] = useState(50)
+  const [email, setEmail] = useState('')
+  const [signupState, setSignupState] = useState<'idle' | 'loading' | 'done' | 'full' | 'duplicate' | 'error'>('idle')
 
   useEffect(() => {
     fetch('/api/founding')
@@ -14,12 +18,32 @@ export default function HomePage() {
       .catch(() => {})
   }, [])
 
+  async function submitFounding(e: React.FormEvent) {
+    e.preventDefault()
+    setSignupState('loading')
+    try {
+      const res = await fetch('/api/founding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await res.json()
+      if (data.full) { setSignupState('full'); return }
+      if (res.status === 409) { setSignupState('duplicate'); return }
+      if (!res.ok) { setSignupState('error'); return }
+      setRemaining(data.remaining)
+      router.push('/sign-up')
+    } catch {
+      setSignupState('error')
+    }
+  }
+
   return (
     <div className="bg-[#07070f] text-white min-h-screen">
 
       {/* LAUNCH BANNER */}
       <div className="bg-[#f97316] text-white text-center text-xs sm:text-sm font-semibold py-2.5 px-4">
-        🚀 Net gelanceerd — word een van de eerste 50 founding members en krijg volledig gratis toegang.{' '}
+        🚀 Net gelanceerd — word een van de eerste 50 founding members en krijg 3 maanden gratis het hoogste abonnement.{' '}
         <a href="#founding" className="underline underline-offset-2 hover:opacity-80 transition">Meer info →</a>
       </div>
 
@@ -82,26 +106,46 @@ export default function HomePage() {
             <h2 className="text-2xl md:text-3xl font-extrabold mb-4">Word een founding member</h2>
             <p className="text-white/55 text-base leading-relaxed mb-8 max-w-lg mx-auto">
               Vertero is nieuw. We zoeken aannemers die als eerste meebouwen — en die ons vertellen wat écht werkt.
-              In ruil krijg je ons hoogste abonnement volledig gratis, inclusief persoonlijke hulp bij het instellen.
+              In ruil krijg je <strong className="text-white/80">3 maanden</strong> ons hoogste abonnement gratis, inclusief persoonlijke hulp bij het instellen.
             </p>
             <ul className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              {['Hoogste abonnement gratis', 'Persoonlijke onboarding', 'Directe invloed op het product'].map(f => (
+              {['3 mnd hoogste abonnement gratis', 'Persoonlijke onboarding', 'Directe invloed op het product'].map(f => (
                 <li key={f} className="flex items-center justify-center gap-2 text-sm text-white/70">
                   <span className="text-[#f97316]">✓</span> {f}
                 </li>
               ))}
             </ul>
 
-            {remaining === 0 ? (
+            {signupState === 'done' ? null : signupState === 'full' || remaining === 0 ? (
               <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-4">
                 <p className="text-white/50 text-sm">Alle plekken zijn vergeven. Stuur ons een mail als je toch wil meedoen.</p>
               </div>
             ) : (
-              <Link href="/probeer" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-10 py-4 rounded-xl transition text-base">
-                Meld je gratis aan →
-              </Link>
+              <form onSubmit={submitFounding} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="jouw@email.nl"
+                  required
+                  className="flex-1 bg-[#07070f] border border-white/15 rounded-xl px-4 py-3 text-white placeholder-white/25 outline-none focus:border-[#f97316]/50 transition text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={signupState === 'loading'}
+                  className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-50 text-white font-bold px-6 py-3 rounded-xl transition text-sm whitespace-nowrap"
+                >
+                  {signupState === 'loading' ? 'Bezig…' : 'Aanmelden →'}
+                </button>
+              </form>
             )}
-            <p className="text-white/25 text-xs mt-4">Gewoon aanmelden · Geen creditcard nodig</p>
+            {signupState === 'duplicate' && (
+              <p className="text-white/40 text-xs mt-3">Dit e-mailadres is al aangemeld — <Link href="/sign-up" className="underline">maak een account aan →</Link></p>
+            )}
+            {signupState === 'error' && (
+              <p className="text-red-400 text-xs mt-3">Er ging iets mis. Probeer het opnieuw.</p>
+            )}
+            <p className="text-white/25 text-xs mt-4">Je e-mailadres reserveert je plek · Daarna maak je een account aan</p>
           </div>
         </div>
       </section>

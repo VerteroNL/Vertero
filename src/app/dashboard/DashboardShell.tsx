@@ -1,18 +1,43 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { UserButton } from '@clerk/nextjs'
 import { BETA_HIDE_PRO } from '@/lib/flags'
 
 function FounderBanner() {
+  const [status, setStatus] = useState<'loading' | 'founder' | 'not-founder'>('loading')
+  const [claiming, setClaiming] = useState(false)
+  const [claimError, setClaimError] = useState('')
   const [expanded, setExpanded] = useState(false)
   const [message, setMessage] = useState('')
-  const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle')
+  const [feedbackState, setFeedbackState] = useState<'idle' | 'loading' | 'done'>('idle')
 
-  async function submit() {
+  useEffect(() => {
+    fetch('/api/founding/me')
+      .then(r => r.json())
+      .then(d => setStatus(d.isFounder ? 'founder' : 'not-founder'))
+      .catch(() => setStatus('not-founder'))
+  }, [])
+
+  async function claimFounder() {
+    setClaiming(true)
+    setClaimError('')
+    try {
+      const res = await fetch('/api/founding/me', { method: 'POST' })
+      const data = await res.json()
+      if (data.full) { setClaimError('Alle plekken zijn helaas vergeven.'); setClaiming(false); return }
+      if (!res.ok) throw new Error()
+      setStatus('founder')
+    } catch {
+      setClaimError('Er ging iets mis. Probeer het opnieuw.')
+      setClaiming(false)
+    }
+  }
+
+  async function submitFeedback() {
     if (!message.trim()) return
-    setState('loading')
+    setFeedbackState('loading')
     try {
       const res = await fetch('/api/feedback', {
         method: 'POST',
@@ -20,13 +45,40 @@ function FounderBanner() {
         body: JSON.stringify({ type: 'algemeen', message }),
       })
       if (!res.ok) throw new Error()
-      setState('done')
+      setFeedbackState('done')
     } catch {
-      setState('idle')
+      setFeedbackState('idle')
     }
   }
 
-  if (state === 'done') {
+  if (status === 'loading') return null
+
+  if (status === 'not-founder') {
+    return (
+      <div className="bg-[#f97316]/[0.07] border-b border-[#f97316]/20">
+        <div className="px-4 sm:px-6 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="bg-white/10 text-white/60 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex-shrink-0">
+            Founding member
+          </span>
+          <span className="text-white/50 text-xs flex-1 min-w-0">
+            Word founding member en krijg <strong className="text-white/70">3 maanden</strong> ons hoogste abonnement gratis.
+          </span>
+          <button
+            onClick={claimFounder}
+            disabled={claiming}
+            className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-50 text-white text-[10px] font-bold px-3 py-1 rounded-full transition flex-shrink-0"
+          >
+            {claiming ? 'Bezig…' : 'Claim je plek →'}
+          </button>
+        </div>
+        {claimError && (
+          <p className="px-4 sm:px-6 pb-2 text-red-400 text-xs">{claimError}</p>
+        )}
+      </div>
+    )
+  }
+
+  if (feedbackState === 'done') {
     return (
       <div className="bg-[#f97316]/10 border-b border-[#f97316]/20 px-4 sm:px-6 py-2.5 text-center">
         <span className="text-[#f97316] text-xs font-semibold">Bedankt voor je feedback!</span>
@@ -60,11 +112,11 @@ function FounderBanner() {
             className="flex-1 bg-[#07070f] border border-white/10 rounded-lg px-3 py-2 text-white placeholder-white/20 outline-none focus:border-[#f97316]/40 transition text-xs resize-none"
           />
           <button
-            onClick={submit}
-            disabled={state === 'loading' || !message.trim()}
+            onClick={submitFeedback}
+            disabled={feedbackState === 'loading' || !message.trim()}
             className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 text-white font-bold px-5 py-2 rounded-lg transition text-xs self-end sm:self-auto"
           >
-            {state === 'loading' ? 'Bezig…' : 'Versturen →'}
+            {feedbackState === 'loading' ? 'Bezig…' : 'Versturen →'}
           </button>
         </div>
       )}
