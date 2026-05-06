@@ -46,6 +46,8 @@ function FounderBanner() {
       })
       if (!res.ok) throw new Error()
       setFeedbackState('done')
+      setMessage('')
+      setTimeout(() => setFeedbackState('idle'), 2000)
     } catch {
       setFeedbackState('idle')
     }
@@ -78,13 +80,6 @@ function FounderBanner() {
     )
   }
 
-  if (feedbackState === 'done') {
-    return (
-      <div className="bg-[#f97316]/10 border-b border-[#f97316]/20 px-4 sm:px-6 py-2.5 text-center">
-        <span className="text-[#f97316] text-xs font-semibold">Bedankt voor je feedback!</span>
-      </div>
-    )
-  }
 
   return (
     <div className="bg-[#f97316]/[0.07] border-b border-[#f97316]/20">
@@ -116,7 +111,7 @@ function FounderBanner() {
             disabled={feedbackState === 'loading' || !message.trim()}
             className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 text-white font-bold px-5 py-2 rounded-lg transition text-xs self-end sm:self-auto"
           >
-            {feedbackState === 'loading' ? 'Bezig…' : 'Versturen →'}
+            {feedbackState === 'loading' ? 'Bezig…' : feedbackState === 'done' ? '✓ Verstuurd!' : 'Versturen →'}
           </button>
         </div>
       )}

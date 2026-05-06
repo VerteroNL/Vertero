@@ -109,7 +109,7 @@ export default function HomePage() {
               In ruil krijg je <strong className="text-white/80">3 maanden</strong> ons hoogste abonnement gratis zodra we officieel lanceren, inclusief persoonlijke hulp bij het instellen.
             </p>
             <ul className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              {['3 mnd hoogste abonnement gratis', 'Persoonlijke onboarding', 'Directe invloed op het product'].map(f => (
+              {['3 maanden gratis bij lancering', 'Persoonlijke onboarding', 'Directe invloed op het product'].map(f => (
                 <li key={f} className="flex items-center justify-center gap-2 text-sm text-white/70">
                   <span className="text-[#f97316]">✓</span> {f}
                 </li>
