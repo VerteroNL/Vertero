@@ -5,6 +5,73 @@ import Link from 'next/link'
 import { UserButton } from '@clerk/nextjs'
 import { BETA_HIDE_PRO } from '@/lib/flags'
 
+function FounderBanner() {
+  const [expanded, setExpanded] = useState(false)
+  const [message, setMessage] = useState('')
+  const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle')
+
+  async function submit() {
+    if (!message.trim()) return
+    setState('loading')
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'algemeen', message }),
+      })
+      if (!res.ok) throw new Error()
+      setState('done')
+    } catch {
+      setState('idle')
+    }
+  }
+
+  if (state === 'done') {
+    return (
+      <div className="bg-[#f97316]/10 border-b border-[#f97316]/20 px-4 sm:px-6 py-2.5 text-center">
+        <span className="text-[#f97316] text-xs font-semibold">Bedankt voor je feedback!</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-[#f97316]/[0.07] border-b border-[#f97316]/20">
+      <div className="px-4 sm:px-6 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="bg-[#f97316] text-white text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex-shrink-0">
+          Founding member
+        </span>
+        <span className="text-white/50 text-xs flex-1 min-w-0">
+          Je bent een van onze eerste gebruikers — we stellen je feedback enorm op prijs.
+        </span>
+        <button
+          onClick={() => setExpanded(v => !v)}
+          className="text-[#f97316] text-xs font-semibold hover:opacity-80 transition flex-shrink-0"
+        >
+          {expanded ? 'Sluiten ↑' : 'Feedback sturen ↓'}
+        </button>
+      </div>
+      {expanded && (
+        <div className="px-4 sm:px-6 pb-3 flex flex-col sm:flex-row gap-2">
+          <textarea
+            value={message}
+            onChange={e => setMessage(e.target.value)}
+            placeholder="Wat vind je er tot nu toe van? Wat mis je?"
+            rows={2}
+            className="flex-1 bg-[#07070f] border border-white/10 rounded-lg px-3 py-2 text-white placeholder-white/20 outline-none focus:border-[#f97316]/40 transition text-xs resize-none"
+          />
+          <button
+            onClick={submit}
+            disabled={state === 'loading' || !message.trim()}
+            className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 text-white font-bold px-5 py-2 rounded-lg transition text-xs self-end sm:self-auto"
+          >
+            {state === 'loading' ? 'Bezig…' : 'Versturen →'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
 
@@ -31,9 +98,6 @@ export default function DashboardShell({ children }: { children: React.ReactNode
       <div className="px-3 py-3 border-t border-white/7 flex flex-col gap-0.5">
         <Link onClick={() => setOpen(false)} href="/dashboard/installeren" className="px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
           Installeren
-        </Link>
-        <Link onClick={() => setOpen(false)} href="/dashboard/feedback" className="px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
-          Feedback
         </Link>
         {!BETA_HIDE_PRO && (
           <Link onClick={() => setOpen(false)} href="/dashboard/billing" className="px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
@@ -113,6 +177,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
 
       {/* Main content — add top padding on mobile for fixed header */}
       <main className="flex-1 min-h-0 overflow-y-auto pt-[57px] md:pt-0 flex flex-col">
+        <FounderBanner />
         <div className="flex-1 flex flex-col">
           {children}
         </div>

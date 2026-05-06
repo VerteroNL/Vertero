@@ -466,21 +466,6 @@ const canPublish = questions.length > 0 && questions.every(q => q.question.trim(
           </div>
         </div>
 
-        {/* Social proof */}
-        <p className="text-center text-white/20 text-xs mb-4">Al gebruikt door 1.200+ aannemers en vakmensen</p>
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          {[
-            { name: 'Marco V.', role: 'Aannemer · Rotterdam', quote: 'Binnen een dag mijn eerste offerte-aanvraag. Dit werkt echt.' },
-            { name: 'Lisa B.', role: 'Schildersbedrijf · Utrecht', quote: 'Eindelijk geen telefoontjes meer van mensen die toch niks doen.' },
-          ].map(t => (
-            <div key={t.name} className="bg-[#0d0d1c] border border-white/[0.08] rounded-xl p-4">
-              <p className="text-white/55 text-xs leading-relaxed mb-3">"{t.quote}"</p>
-              <p className="text-white/80 text-xs font-semibold">{t.name}</p>
-              <p className="text-white/30 text-[10px]">{t.role}</p>
-            </div>
-          ))}
-        </div>
-
         {/* FAQ */}
         <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden mb-6">
           {[
