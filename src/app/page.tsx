@@ -7,7 +7,7 @@ import DemoQuiz from './_components/DemoQuiz'
 export default function HomePage() {
   const [remaining, setRemaining] = useState(50)
   const [email, setEmail] = useState('')
-  const [signupState, setSignupState] = useState<'idle' | 'loading' | 'done' | 'full' | 'duplicate'>('idle')
+  const [signupState, setSignupState] = useState<'idle' | 'loading' | 'done' | 'full' | 'duplicate' | 'error'>('idle')
 
   useEffect(() => {
     fetch('/api/founding')
@@ -19,17 +19,21 @@ export default function HomePage() {
   async function submitFounding(e: React.FormEvent) {
     e.preventDefault()
     setSignupState('loading')
-    const res = await fetch('/api/founding', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    })
-    const data = await res.json()
-    if (data.full) { setSignupState('full'); return }
-    if (res.status === 409) { setSignupState('duplicate'); return }
-    if (!res.ok) { setSignupState('idle'); return }
-    setSignupState('done')
-    setRemaining(data.remaining)
+    try {
+      const res = await fetch('/api/founding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await res.json()
+      if (data.full) { setSignupState('full'); return }
+      if (res.status === 409) { setSignupState('duplicate'); return }
+      if (!res.ok) { setSignupState('error'); return }
+      setSignupState('done')
+      setRemaining(data.remaining)
+    } catch {
+      setSignupState('error')
+    }
   }
 
   return (
@@ -139,6 +143,9 @@ export default function HomePage() {
             )}
             {signupState === 'duplicate' && (
               <p className="text-white/40 text-xs mt-3">Dit e-mailadres is al aangemeld.</p>
+            )}
+            {signupState === 'error' && (
+              <p className="text-red-400 text-xs mt-3">Er ging iets mis. Probeer het opnieuw.</p>
             )}
             <p className="text-white/25 text-xs mt-4">Geen spam · Je kunt je altijd afmelden</p>
           </div>
