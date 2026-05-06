@@ -8,6 +8,12 @@ export default function HomePage() {
   return (
     <div className="bg-[#07070f] text-white min-h-screen">
 
+      {/* LAUNCH BANNER */}
+      <div className="bg-[#f97316] text-white text-center text-xs sm:text-sm font-semibold py-2.5 px-4">
+        🚀 Net gelanceerd — word een van onze eerste 50 aannemers en krijg 3 maanden Pro gratis.{' '}
+        <a href="#founding" className="underline underline-offset-2 hover:opacity-80 transition">Meer info →</a>
+      </div>
+
       {/* NAV */}
       <nav className="sticky top-0 z-50 bg-[#07070f]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-5 md:px-10 py-4">
@@ -57,41 +63,30 @@ export default function HomePage() {
         <DemoQuiz />
       </section>
 
-      {/* TESTIMONIAL STRIP */}
-      <section className="border-t border-b border-white/7 bg-white/[0.015]">
-        <div className="max-w-7xl mx-auto px-5 md:px-10 py-10 md:py-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-start">
-          {[
-            {
-              quote: 'Van 4 naar 12 aanvragen per week. En eindelijk weet ik van tevoren wat ze willen.',
-              name: 'Marco Jansen',
-              role: 'Aannemer · Rotterdam',
-              since: 'Gebruikt Vertero sinds maart',
-            },
-            {
-              quote: 'Vroeger belde ik mensen terug die toch niks deden. Nu zie ik meteen wie serieus is.',
-              name: 'Stefan de Bruin',
-              role: 'Schildersbedrijf · Utrecht',
-              since: 'Gebruikt Vertero sinds januari',
-            },
-            {
-              quote: 'Mijn quiz staat op mijn site én in mijn WhatsApp bio. Werkt geweldig.',
-              name: 'Kim Visser',
-              role: 'Hoveniersbedrijf · Eindhoven',
-              since: 'Gebruikt Vertero sinds mei',
-            },
-          ].map(t => (
-            <div key={t.name}>
-              <div className="flex gap-0.5 mb-3">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                ))}
-              </div>
-              <p className="text-white/70 text-sm leading-relaxed mb-4">"{t.quote}"</p>
-              <p className="text-white font-semibold text-sm">{t.name}</p>
-              <p className="text-white/35 text-xs">{t.role}</p>
-              <p className="text-white/20 text-xs mt-0.5">{t.since}</p>
-            </div>
-          ))}
+      {/* FOUNDING MEMBER */}
+      <section id="founding" className="border-t border-b border-white/7 bg-white/[0.015]">
+        <div className="max-w-7xl mx-auto px-5 md:px-10 py-14 md:py-20">
+          <div className="max-w-2xl mx-auto bg-[#f97316]/[0.07] border border-[#f97316]/25 rounded-2xl p-8 md:p-12 text-center">
+            <span className="inline-flex items-center gap-2 bg-[#f97316]/15 border border-[#f97316]/30 text-[#f97316] text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
+              🚀 Net gelanceerd · Nog 50 plekken
+            </span>
+            <h2 className="text-2xl md:text-3xl font-extrabold mb-4">Word een founding member</h2>
+            <p className="text-white/55 text-base leading-relaxed mb-8 max-w-lg mx-auto">
+              Vertero is nieuw. We zoeken aannemers die als eerste meebouwen — en die ons vertellen wat écht werkt.
+              In ruil: 3 maanden Pro gratis en persoonlijke hulp bij het instellen.
+            </p>
+            <ul className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              {['3 maanden Pro gratis', 'Persoonlijke onboarding', 'Directe invloed op het product'].map(f => (
+                <li key={f} className="flex items-center justify-center gap-2 text-sm text-white/70">
+                  <span className="text-[#f97316]">✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            <Link href="/probeer" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-10 py-4 rounded-xl transition text-base">
+              Word founding member →
+            </Link>
+            <p className="text-white/25 text-xs mt-4">Slechts 50 plekken · Daarna vervalt dit aanbod</p>
+          </div>
         </div>
       </section>
 
