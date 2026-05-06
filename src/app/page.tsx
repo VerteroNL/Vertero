@@ -68,9 +68,6 @@ export default function HomePage() {
       {/* HERO */}
       <section className="max-w-7xl mx-auto px-5 md:px-10 py-14 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
         <div>
-          <div className="inline-flex items-center gap-2 bg-[#f97316]/10 border border-[#f97316]/20 text-[#f97316] text-xs font-semibold px-3.5 py-1.5 rounded-full mb-8">
-            🔥 1.200+ aannemers gingen je voor
-          </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight mb-5">
             Meer aanvragen<br />via je website —<br />
             <span className="text-[#f97316]">beter gekwalificeerd</span>
