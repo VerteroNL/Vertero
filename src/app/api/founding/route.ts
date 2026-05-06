@@ -36,7 +36,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Al aangemeld' }, { status: 409 })
   }
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('founding insert error:', error)
+    return NextResponse.json({ error: error.message, code: error.code }, { status: 500 })
   }
 
   return NextResponse.json({ success: true, remaining: Math.max(0, TOTAL - (count ?? 0) - 1) })
