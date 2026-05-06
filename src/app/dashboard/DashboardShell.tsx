@@ -61,7 +61,7 @@ function FounderBanner() {
             Founding member
           </span>
           <span className="text-white/50 text-xs flex-1 min-w-0">
-            Word founding member en krijg <strong className="text-white/70">3 maanden</strong> ons hoogste abonnement gratis.
+            Word founding member en krijg <strong className="text-white/70">3 maanden</strong> ons hoogste abonnement gratis zodra we officieel lanceren.
           </span>
           <button
             onClick={claimFounder}

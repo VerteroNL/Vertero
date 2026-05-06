@@ -43,7 +43,7 @@ export default function HomePage() {
 
       {/* LAUNCH BANNER */}
       <div className="bg-[#f97316] text-white text-center text-xs sm:text-sm font-semibold py-2.5 px-4">
-        🚀 Net gelanceerd — word een van de eerste 50 founding members en krijg 3 maanden gratis het hoogste abonnement.{' '}
+        🚀 Net gelanceerd — word een van de eerste 50 founding members en krijg 3 maanden gratis het hoogste abonnement zodra we live gaan.{' '}
         <a href="#founding" className="underline underline-offset-2 hover:opacity-80 transition">Meer info →</a>
       </div>
 
@@ -106,7 +106,7 @@ export default function HomePage() {
             <h2 className="text-2xl md:text-3xl font-extrabold mb-4">Word een founding member</h2>
             <p className="text-white/55 text-base leading-relaxed mb-8 max-w-lg mx-auto">
               Vertero is nieuw. We zoeken aannemers die als eerste meebouwen — en die ons vertellen wat écht werkt.
-              In ruil krijg je <strong className="text-white/80">3 maanden</strong> ons hoogste abonnement gratis, inclusief persoonlijke hulp bij het instellen.
+              In ruil krijg je <strong className="text-white/80">3 maanden</strong> ons hoogste abonnement gratis zodra we officieel lanceren, inclusief persoonlijke hulp bij het instellen.
             </p>
             <ul className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               {['3 mnd hoogste abonnement gratis', 'Persoonlijke onboarding', 'Directe invloed op het product'].map(f => (
