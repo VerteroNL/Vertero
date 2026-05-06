@@ -1,10 +1,37 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import DemoQuiz from './_components/DemoQuiz'
 
 export default function HomePage() {
+  const [remaining, setRemaining] = useState<number | null>(null)
+  const [email, setEmail] = useState('')
+  const [signupState, setSignupState] = useState<'idle' | 'loading' | 'done' | 'full' | 'duplicate'>('idle')
+
+  useEffect(() => {
+    fetch('/api/founding')
+      .then(r => r.json())
+      .then(d => setRemaining(d.remaining))
+      .catch(() => {})
+  }, [])
+
+  async function submitFounding(e: React.FormEvent) {
+    e.preventDefault()
+    setSignupState('loading')
+    const res = await fetch('/api/founding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+    const data = await res.json()
+    if (data.full) { setSignupState('full'); return }
+    if (res.status === 409) { setSignupState('duplicate'); return }
+    if (!res.ok) { setSignupState('idle'); return }
+    setSignupState('done')
+    setRemaining(data.remaining)
+  }
+
   return (
     <div className="bg-[#07070f] text-white min-h-screen">
 
@@ -68,7 +95,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-5 md:px-10 py-14 md:py-20">
           <div className="max-w-2xl mx-auto bg-[#f97316]/[0.07] border border-[#f97316]/25 rounded-2xl p-8 md:p-12 text-center">
             <span className="inline-flex items-center gap-2 bg-[#f97316]/15 border border-[#f97316]/30 text-[#f97316] text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
-              🚀 Net gelanceerd · Nog 50 plekken
+              🚀 Net gelanceerd · Nog {remaining === null ? '…' : remaining} van de 50 plekken vrij
             </span>
             <h2 className="text-2xl md:text-3xl font-extrabold mb-4">Word een founding member</h2>
             <p className="text-white/55 text-base leading-relaxed mb-8 max-w-lg mx-auto">
@@ -82,10 +109,38 @@ export default function HomePage() {
                 </li>
               ))}
             </ul>
-            <Link href="/probeer" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-10 py-4 rounded-xl transition text-base">
-              Word founding member →
-            </Link>
-            <p className="text-white/25 text-xs mt-4">Slechts 50 plekken · Daarna vervalt dit aanbod</p>
+
+            {signupState === 'done' ? (
+              <div className="bg-green-500/10 border border-green-500/25 rounded-xl px-6 py-4">
+                <p className="text-green-400 font-semibold text-sm">✓ Aangemeld! We nemen snel contact op.</p>
+              </div>
+            ) : signupState === 'full' || remaining === 0 ? (
+              <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-4">
+                <p className="text-white/50 text-sm">Alle plekken zijn vergeven. Stuur ons een mail als je toch wil meedoen.</p>
+              </div>
+            ) : (
+              <form onSubmit={submitFounding} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="jouw@email.nl"
+                  required
+                  className="flex-1 bg-[#07070f] border border-white/15 rounded-xl px-4 py-3 text-white placeholder-white/25 outline-none focus:border-[#f97316]/50 transition text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={signupState === 'loading'}
+                  className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-50 text-white font-bold px-6 py-3 rounded-xl transition text-sm whitespace-nowrap"
+                >
+                  {signupState === 'loading' ? 'Bezig…' : 'Aanmelden →'}
+                </button>
+              </form>
+            )}
+            {signupState === 'duplicate' && (
+              <p className="text-white/40 text-xs mt-3">Dit e-mailadres is al aangemeld.</p>
+            )}
+            <p className="text-white/25 text-xs mt-4">Geen spam · Je kunt je altijd afmelden</p>
           </div>
         </div>
       </section>
