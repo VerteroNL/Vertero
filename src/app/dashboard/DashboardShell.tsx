@@ -125,20 +125,17 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   const navLinks = (
     <>
       <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
-        <p className="text-white/25 text-[10px] font-bold uppercase tracking-widest px-3 mb-1.5 mt-2">Overzicht</p>
         <Link onClick={() => setOpen(false)} href="/dashboard" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
           Dashboard
         </Link>
         <Link onClick={() => setOpen(false)} href="/dashboard/leads" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
           Leads
         </Link>
-
-        <p className="text-white/25 text-[10px] font-bold uppercase tracking-widest px-3 mb-1.5 mt-4">Quiz</p>
         <Link onClick={() => setOpen(false)} href="/dashboard/quiz" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
           Mijn quizzes
         </Link>
         <Link onClick={() => setOpen(false)} href="/dashboard/quiz/new" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
-          + Nieuwe quiz
+          Nieuwe quiz
         </Link>
       </nav>
 
