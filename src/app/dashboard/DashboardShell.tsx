@@ -6,6 +6,7 @@ import { UserButton } from '@clerk/nextjs'
 import { BETA_HIDE_PRO } from '@/lib/flags'
 
 function FounderBanner() {
+  const [dismissed, setDismissed] = useState(false)
   const [status, setStatus] = useState<'loading' | 'founder' | 'not-founder'>('loading')
   const [claiming, setClaiming] = useState(false)
   const [claimError, setClaimError] = useState('')
@@ -14,11 +15,17 @@ function FounderBanner() {
   const [feedbackState, setFeedbackState] = useState<'idle' | 'loading' | 'done'>('idle')
 
   useEffect(() => {
+    if (localStorage.getItem('founder_banner_dismissed')) { setDismissed(true); return }
     fetch('/api/founding/me')
       .then(r => r.json())
       .then(d => setStatus(d.isFounder ? 'founder' : 'not-founder'))
       .catch(() => setStatus('not-founder'))
   }, [])
+
+  function dismiss() {
+    localStorage.setItem('founder_banner_dismissed', '1')
+    setDismissed(true)
+  }
 
   async function claimFounder() {
     setClaiming(true)
@@ -53,7 +60,7 @@ function FounderBanner() {
     }
   }
 
-  if (status === 'loading') return null
+  if (dismissed || status === 'loading') return null
 
   if (status === 'not-founder') {
     return (
@@ -72,6 +79,7 @@ function FounderBanner() {
           >
             {claiming ? 'Bezig…' : 'Claim je plek →'}
           </button>
+          <button onClick={dismiss} className="text-white/20 hover:text-white/50 transition text-xs flex-shrink-0 ml-1">✕</button>
         </div>
         {claimError && (
           <p className="px-4 sm:px-6 pb-2 text-red-400 text-xs">{claimError}</p>
@@ -96,6 +104,7 @@ function FounderBanner() {
         >
           {expanded ? 'Sluiten ↑' : 'Feedback sturen ↓'}
         </button>
+        <button onClick={dismiss} className="text-white/20 hover:text-white/50 transition text-xs flex-shrink-0">✕</button>
       </div>
       {expanded && (
         <div className="px-4 sm:px-6 pb-3 flex flex-col sm:flex-row gap-2">
@@ -124,7 +133,14 @@ export default function DashboardShell({ children }: { children: React.ReactNode
 
   const navLinks = (
     <>
-      <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
+      <div className="px-3 pt-4 pb-2">
+        <Link onClick={() => setOpen(false)} href="/dashboard/quiz/new"
+          className="flex items-center justify-center gap-2 w-full bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold text-sm py-2.5 rounded-xl transition">
+          + Nieuwe quiz
+        </Link>
+      </div>
+
+      <nav className="flex-1 px-3 py-2 flex flex-col gap-0.5">
         <Link onClick={() => setOpen(false)} href="/dashboard" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
           Dashboard
         </Link>
@@ -133,9 +149,6 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         </Link>
         <Link onClick={() => setOpen(false)} href="/dashboard/quiz" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
           Mijn quizzes
-        </Link>
-        <Link onClick={() => setOpen(false)} href="/dashboard/quiz/new" className="px-3 py-2 rounded-lg text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition">
-          Nieuwe quiz
         </Link>
       </nav>
 
