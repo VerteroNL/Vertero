@@ -5,6 +5,55 @@ import { useRouter } from 'next/navigation'
 
 const TEMPLATES = [
   {
+    id: 'aannemer',
+    icon: '🏗️',
+    name: 'Aannemer — met logica',
+    desc: 'Vertakt per type werk, eindigt met registratie',
+    questions: [
+      {
+        id: '1',
+        question: 'Wat voor werk zoek je?',
+        type: 'multiple',
+        options: ['Verbouwing / renovatie', 'Nieuwbouw', 'Onderhoud / reparatie', 'Weet ik nog niet'],
+        branches: { 0: '2', 1: '3', 2: '4', 3: '5' },
+      },
+      {
+        id: '2',
+        question: 'Welk deel van de woning of het pand?',
+        type: 'multiple',
+        options: ['Keuken', 'Badkamer', 'Woonkamer of slaapkamer', 'Heel de woning'],
+        branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
+      },
+      {
+        id: '3',
+        question: 'Wat voor gebouw gaat het om?',
+        type: 'multiple',
+        options: ['Woning', 'Uitbouw / aanbouw', 'Garage of berging', 'Bedrijfspand'],
+        branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
+      },
+      {
+        id: '4',
+        question: 'Wat is er aan de hand?',
+        type: 'multiple',
+        options: ['Lekkage', 'Scheuren of verzakking', 'Dak of goot', 'Iets anders'],
+        branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
+      },
+      {
+        id: '5',
+        question: 'Wat is je budget globaal?',
+        type: 'multiple',
+        options: ['Minder dan €5.000', '€5.000 – €20.000', '€20.000 – €50.000', 'Meer dan €50.000'],
+      },
+      {
+        id: '6',
+        question: 'Wanneer wil je starten?',
+        type: 'multiple',
+        options: ['Zo snel mogelijk', 'Binnen 1–3 maanden', 'Later dit jaar', 'Nog niet zeker'],
+        branches: { 0: '__contact__', 1: '__contact__', 2: '__contact__', 3: '__contact__' },
+      },
+    ],
+  },
+  {
     id: 'verbouwing',
     icon: '🏠',
     name: 'Verbouwing / Aannemer',
@@ -60,10 +109,21 @@ export default function NewQuizPage() {
     setLoading(true)
 
     const template = TEMPLATES.find(t => t.id === selectedTemplate)
-    const questions = template?.questions.map(q => ({
-      ...q,
-      id: Math.random().toString(36).slice(2)
-    })) || []
+    const idMap: Record<string, string> = {}
+    const baseQuestions = (template?.questions ?? []).map(q => {
+      const newId = Math.random().toString(36).slice(2)
+      idMap[q.id] = newId
+      return { ...q, id: newId }
+    })
+    const questions = baseQuestions.map((q, i) => {
+      const orig = template!.questions[i] as { branches?: Record<number, string> }
+      if (!orig.branches) return q
+      const branches: Record<number, string> = {}
+      for (const [k, v] of Object.entries(orig.branches)) {
+        branches[Number(k)] = v === '__contact__' ? '__contact__' : (idMap[v] ?? v)
+      }
+      return { ...q, branches }
+    })
 
     const res = await fetch('/api/quiz', {
       method: 'POST',
