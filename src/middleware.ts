@@ -13,6 +13,7 @@ const isPublicRoute = createRouteMatcher([
   '/quiz(.*)',
   '/roi-calculator',
   '/probeer',
+  '/demo',
   '/api/quiz-temp',
   '/api/quiz-public(.*)',
   '/api/leads',

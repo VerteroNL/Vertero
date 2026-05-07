@@ -7,63 +7,39 @@ const TEMPLATES = [
   {
     id: 'aannemer',
     icon: '🏗️',
-    name: 'Aannemer — met logica',
-    desc: 'Vertakt per type werk, eindigt met registratie',
+    name: 'Aannemer',
+    desc: 'Vertakt per type werk, eindigt met contactformulier',
     questions: [
       {
-        id: '1',
-        question: 'Wat voor werk zoek je?',
-        type: 'multiple',
+        id: '1', question: 'Wat voor werk zoek je?', type: 'multiple',
         options: ['Verbouwing / renovatie', 'Nieuwbouw', 'Onderhoud / reparatie', 'Weet ik nog niet'],
         branches: { 0: '2', 1: '3', 2: '4', 3: '5' },
       },
       {
-        id: '2',
-        question: 'Welk deel van de woning of het pand?',
-        type: 'multiple',
+        id: '2', question: 'Welk deel van de woning of het pand?', type: 'multiple',
         options: ['Keuken', 'Badkamer', 'Woonkamer of slaapkamer', 'Heel de woning'],
         branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
       },
       {
-        id: '3',
-        question: 'Wat voor gebouw gaat het om?',
-        type: 'multiple',
+        id: '3', question: 'Wat voor gebouw gaat het om?', type: 'multiple',
         options: ['Woning', 'Uitbouw / aanbouw', 'Garage of berging', 'Bedrijfspand'],
         branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
       },
       {
-        id: '4',
-        question: 'Wat is er aan de hand?',
-        type: 'multiple',
+        id: '4', question: 'Wat is er aan de hand?', type: 'multiple',
         options: ['Lekkage', 'Scheuren of verzakking', 'Dak of goot', 'Iets anders'],
         branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
       },
       {
-        id: '5',
-        question: 'Wat is je budget globaal?',
-        type: 'multiple',
+        id: '5', question: 'Wat is je budget globaal?', type: 'multiple',
         options: ['Minder dan €5.000', '€5.000 – €20.000', '€20.000 – €50.000', 'Meer dan €50.000'],
       },
       {
-        id: '6',
-        question: 'Wanneer wil je starten?',
-        type: 'multiple',
+        id: '6', question: 'Wanneer wil je starten?', type: 'multiple',
         options: ['Zo snel mogelijk', 'Binnen 1–3 maanden', 'Later dit jaar', 'Nog niet zeker'],
         branches: { 0: '__contact__', 1: '__contact__', 2: '__contact__', 3: '__contact__' },
       },
     ],
-  },
-  {
-    id: 'verbouwing',
-    icon: '🏠',
-    name: 'Verbouwing / Aannemer',
-    desc: 'Voor aannemers en bouwbedrijven',
-    questions: [
-      { id: '1', question: 'Wat voor werk heb je nodig?', type: 'multiple', options: ['Verbouwing', 'Aanbouw', 'Nieuwbouw', 'Renovatie'] },
-      { id: '2', question: 'Hoe groot is het project?', type: 'multiple', options: ['Klein (< 1 week)', 'Middel (1–4 weken)', 'Groot (1–3 maanden)', 'Zeer groot (3+ maanden)'] },
-      { id: '3', question: 'Wat is je budget globaal?', type: 'multiple', options: ['Minder dan €5.000', '€5.000 – €20.000', '€20.000 – €50.000', 'Meer dan €50.000'] },
-      { id: '4', question: 'Wanneer wil je starten?', type: 'multiple', options: ['Zo snel mogelijk', 'Binnen 1–3 maanden', 'Later dit jaar', 'Nog niet zeker'] },
-    ]
   },
   {
     id: 'schilderwerk',
@@ -71,11 +47,32 @@ const TEMPLATES = [
     name: 'Schilderwerk',
     desc: 'Voor schildersbedrijven',
     questions: [
-      { id: '1', question: 'Wat wil je laten schilderen?', type: 'multiple', options: ['Binnenmuren', 'Buitenmuren', 'Kozijnen / deuren', 'Alles'] },
-      { id: '2', question: 'Om hoeveel kamers gaat het?', type: 'multiple', options: ['1–2 kamers', '3–5 kamers', 'Hele woning', 'Bedrijfspand'] },
-      { id: '3', question: 'Wanneer wil je starten?', type: 'multiple', options: ['Zo snel mogelijk', 'Binnen 1 maand', 'Binnen 3 maanden', 'Nog niet zeker'] },
-      { id: '4', question: 'Welke kleur of stijl heb je in gedachten?', type: 'text', options: [] },
-    ]
+      {
+        id: '1', question: 'Wat wil je laten schilderen?', type: 'multiple',
+        options: ['Binnenmuren', 'Buitenmuren', 'Kozijnen / deuren', 'Alles'],
+        branches: { 0: '2', 1: '3', 2: '4', 3: '2' },
+      },
+      {
+        id: '2', question: 'Om hoeveel kamers gaat het?', type: 'multiple',
+        options: ['1–2 kamers', '3–5 kamers', 'Hele woning', 'Bedrijfspand'],
+        branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
+      },
+      {
+        id: '3', question: 'Hoe groot is het pand?', type: 'multiple',
+        options: ['Rijtjeswoning', 'Twee-onder-een-kap', 'Vrijstaande woning', 'Bedrijfspand'],
+        branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
+      },
+      {
+        id: '4', question: 'Hoeveel kozijnen of deuren?', type: 'multiple',
+        options: ['1–5', '6–15', '16–30', 'Meer dan 30'],
+        branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
+      },
+      {
+        id: '5', question: 'Wanneer wil je starten?', type: 'multiple',
+        options: ['Zo snel mogelijk', 'Binnen 1 maand', 'Binnen 3 maanden', 'Nog niet zeker'],
+        branches: { 0: '__contact__', 1: '__contact__', 2: '__contact__', 3: '__contact__' },
+      },
+    ],
   },
   {
     id: 'airco',
@@ -83,18 +80,42 @@ const TEMPLATES = [
     name: 'Airco installatie',
     desc: 'Voor airco installateurs',
     questions: [
-      { id: '1', question: 'Voor hoeveel ruimtes wil je een airco?', type: 'multiple', options: ['1 ruimte', '2–3 ruimtes', '4+ ruimtes', 'Heel huis / pand'] },
-      { id: '2', question: 'Wat voor gebouw?', type: 'multiple', options: ['Woning', 'Appartement', 'Kantoor', 'Bedrijfspand'] },
-      { id: '3', question: 'Wat is je budget globaal?', type: 'multiple', options: ['Minder dan €1.000', '€1.000 – €3.000', '€3.000 – €6.000', 'Meer dan €6.000'] },
-      { id: '4', question: 'Wanneer wil je installatie?', type: 'multiple', options: ['Zo snel mogelijk', 'Binnen 1 maand', 'Binnen 3 maanden', 'Oriënterend'] },
-    ]
+      {
+        id: '1', question: 'Voor hoeveel ruimtes wil je een airco?', type: 'multiple',
+        options: ['1 ruimte', '2–3 ruimtes', '4+ ruimtes', 'Heel huis / pand'],
+      },
+      {
+        id: '2', question: 'Wat voor gebouw?', type: 'multiple',
+        options: ['Woning', 'Appartement', 'Kantoor', 'Bedrijfspand'],
+        branches: { 0: '3', 1: '3', 2: '4', 3: '4' },
+      },
+      {
+        id: '3', question: 'Heb je al een voorkeur voor een merk?', type: 'multiple',
+        options: ['Geen voorkeur', 'Daikin', 'Mitsubishi', 'Een ander merk'],
+        branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
+      },
+      {
+        id: '4', question: 'Hoeveel m² moet er gekoeld worden?', type: 'multiple',
+        options: ['Minder dan 100 m²', '100–300 m²', '300–1000 m²', 'Meer dan 1000 m²'],
+        branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
+      },
+      {
+        id: '5', question: 'Wat is je budget globaal?', type: 'multiple',
+        options: ['Minder dan €1.000', '€1.000 – €3.000', '€3.000 – €6.000', 'Meer dan €6.000'],
+      },
+      {
+        id: '6', question: 'Wanneer wil je installatie?', type: 'multiple',
+        options: ['Zo snel mogelijk', 'Binnen 1 maand', 'Binnen 3 maanden', 'Oriënterend'],
+        branches: { 0: '__contact__', 1: '__contact__', 2: '__contact__', 3: '__contact__' },
+      },
+    ],
   },
   {
     id: 'leeg',
     icon: '📋',
     name: 'Leeg beginnen',
     desc: 'Zelf vragen toevoegen',
-    questions: []
+    questions: [],
   },
 ]
 
