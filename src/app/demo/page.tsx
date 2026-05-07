@@ -53,30 +53,34 @@ const byId = Object.fromEntries(QUESTIONS.map(q => [q.id, q]))
 export default function DemoPage() {
   const [currentId, setCurrentId] = useState('1')
   const [history, setHistory] = useState<string[]>([])
+  const [selected, setSelected] = useState<number | null>(null)
   const [stage, setStage] = useState<'quiz' | 'done'>('quiz')
 
   const current = byId[currentId]
   const progress = (history.length / (QUESTIONS.length - 1)) * 100
 
-  function choose(optionIndex: number) {
+  function advance(optionIndex: number) {
     const next = current.branches?.[optionIndex]
 
     if (!next) {
       const idx = QUESTIONS.findIndex(q => q.id === currentId)
       const nextQ = QUESTIONS[idx + 1]
-      if (!nextQ) { setStage('done'); return }
+      if (!nextQ) { setStage('done'); setSelected(null); return }
       setHistory(h => [...h, currentId])
       setCurrentId(nextQ.id)
+      setSelected(null)
       return
     }
 
     if (next === '__contact__') {
       setStage('done')
+      setSelected(null)
       return
     }
 
     setHistory(h => [...h, currentId])
     setCurrentId(next)
+    setSelected(null)
   }
 
   function goBack() {
@@ -84,6 +88,7 @@ export default function DemoPage() {
     const prev = history[history.length - 1]
     setHistory(h => h.slice(0, -1))
     setCurrentId(prev)
+    setSelected(null)
     setStage('quiz')
   }
 
@@ -116,26 +121,36 @@ export default function DemoPage() {
                 {current.question}
               </h2>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 mb-6">
                 {current.options.map((opt, i) => (
                   <button
                     key={i}
-                    onClick={() => choose(i)}
-                    className="text-left px-5 py-4 rounded-xl border border-white/10 hover:border-[#f97316]/60 hover:bg-[#f97316]/5 transition text-sm font-medium text-white/80 hover:text-white"
+                    onClick={() => setSelected(i)}
+                    className={`text-left px-5 py-4 rounded-xl border transition text-sm font-medium ${
+                      selected === i
+                        ? 'border-[#f97316] bg-[#f97316]/10 text-white'
+                        : 'border-white/10 hover:border-white/25 text-white/70 hover:text-white'
+                    }`}
                   >
                     {opt}
                   </button>
                 ))}
               </div>
 
-              {history.length > 0 && (
+              <div className="flex items-center justify-between">
+                {history.length > 0 ? (
+                  <button onClick={goBack} className="text-white/25 hover:text-white/50 text-xs transition">
+                    ← Vorige
+                  </button>
+                ) : <div />}
                 <button
-                  onClick={goBack}
-                  className="mt-6 text-white/25 hover:text-white/50 text-xs transition"
+                  onClick={() => selected !== null && advance(selected)}
+                  disabled={selected === null}
+                  className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold px-6 py-2.5 rounded-xl transition text-sm"
                 >
-                  ← Vorige vraag
+                  Volgende →
                 </button>
-              )}
+              </div>
             </>
           ) : (
             <div className="text-center">
