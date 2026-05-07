@@ -224,26 +224,27 @@ export default function NewQuizPage() {
         <label className="block text-xs font-bold uppercase tracking-widest text-white/40 mb-3">
           Template kiezen
         </label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <select
+          value={selectedTemplate}
+          onChange={e => setSelectedTemplate(e.target.value)}
+          className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#f97316]/50 transition text-sm cursor-pointer mb-3"
+        >
           {TEMPLATES.map(t => (
-            <div
-              key={t.id}
-              onClick={() => setSelectedTemplate(t.id)}
-              className={`border rounded-xl p-4 cursor-pointer transition ${
-                selectedTemplate === t.id
-                  ? 'border-[#f97316] bg-[#f97316]/5'
-                  : 'border-white/10 hover:border-white/20 bg-[#0d0d1c]'
-              }`}
-            >
-              <div className="text-2xl mb-2">{t.icon}</div>
-              <div className="font-semibold text-sm mb-1">{t.name}</div>
-              <div className="text-white/40 text-xs">{t.desc}</div>
-              {t.questions.length > 0 && (
-                <div className="text-white/20 text-xs mt-2">{t.questions.length} vragen inbegrepen</div>
-              )}
-            </div>
+            <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
           ))}
-        </div>
+        </select>
+        {(() => {
+          const t = TEMPLATES.find(t => t.id === selectedTemplate)!
+          return (
+            <div className="bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
+              <span className="text-xl">{t.icon}</span>
+              <div>
+                <p className="text-sm font-semibold text-white">{t.name}</p>
+                <p className="text-xs text-white/40">{t.desc}{t.questions.length > 0 ? ` · ${t.questions.length} vragen` : ''}</p>
+              </div>
+            </div>
+          )
+        })()}
       </div>
 
       <button
