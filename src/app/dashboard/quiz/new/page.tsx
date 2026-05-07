@@ -156,25 +156,36 @@ const TEMPLATES = [
   },
 ]
 
+const POPULAR_ID = 'badkamer'
+
 export default function NewQuizPage() {
   const router = useRouter()
-  const [name, setName] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState('leeg')
+  const [selectedId, setSelectedId] = useState('badkamer')
+  const [name, setName] = useState('Badkamerrenovatie aanvraag')
+  const [nameCustomised, setNameCustomised] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  function pickTemplate(id: string) {
+    const t = TEMPLATES.find(t => t.id === id)!
+    setSelectedId(id)
+    if (!nameCustomised) {
+      setName(t.questions.length > 0 ? `${t.name} aanvraag` : '')
+    }
+  }
+
   async function createQuiz() {
-    if (!name) return
+    if (!name.trim()) return
     setLoading(true)
 
-    const template = TEMPLATES.find(t => t.id === selectedTemplate)
+    const template = TEMPLATES.find(t => t.id === selectedId)!
     const idMap: Record<string, string> = {}
-    const baseQuestions = (template?.questions ?? []).map(q => {
+    const baseQuestions = template.questions.map(q => {
       const newId = Math.random().toString(36).slice(2)
       idMap[q.id] = newId
       return { ...q, id: newId }
     })
     const questions = baseQuestions.map((q, i) => {
-      const orig = template!.questions[i] as { branches?: Record<number, string> }
+      const orig = template.questions[i] as { branches?: Record<number, string> }
       if (!orig.branches) return q
       const branches: Record<number, string> = {}
       for (const [k, v] of Object.entries(orig.branches)) {
@@ -186,74 +197,94 @@ export default function NewQuizPage() {
     const res = await fetch('/api/quiz', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, config: { questions } }),
+      body: JSON.stringify({ name: name.trim(), config: { questions } }),
     })
 
     if (res.ok) {
       const quiz = await res.json()
       router.push(`/dashboard/quiz/${quiz.id}`)
     }
-
     setLoading(false)
   }
 
+  const selected = TEMPLATES.find(t => t.id === selectedId)!
+
   return (
-    <div className="flex flex-col h-full overflow-y-auto">
-      <div className="px-6 pt-8 pb-6 border-b border-white/[0.07] flex-shrink-0">
-        <p className="text-[#f97316] text-[10px] font-bold uppercase tracking-widest mb-1.5">Beheer</p>
-        <h1 className="text-3xl font-extrabold tracking-tight">Nieuwe quiz</h1>
-        <p className="text-white/40 text-sm mt-1">Geef je quiz een naam en kies een template</p>
-      </div>
+    <div className="flex h-full overflow-hidden">
 
-      <div className="px-6 py-6 max-w-2xl">
+      {/* LEFT — template picker */}
+      <div className="flex-1 overflow-y-auto border-r border-white/[0.07]">
+        <div className="px-6 pt-8 pb-5 border-b border-white/[0.07]">
+          <h1 className="text-2xl font-extrabold tracking-tight mb-1">Kies wat voor aanvragen je wilt binnenhalen</h1>
+          <p className="text-white/40 text-sm">Klaar in 2 minuten. Pas daarna aan wat je wilt.</p>
+        </div>
 
-      <div className="mb-8">
-        <label className="block text-xs font-bold uppercase tracking-widest text-white/40 mb-2">
-          Quiz naam
-        </label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="bijv. Verbouwing aanvraag"
-          className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 outline-none focus:border-[#f97316]/50 transition"
-        />
-      </div>
-
-      <div className="mb-8">
-        <label className="block text-xs font-bold uppercase tracking-widest text-white/40 mb-3">
-          Template kiezen
-        </label>
-        <select
-          value={selectedTemplate}
-          onChange={e => setSelectedTemplate(e.target.value)}
-          className="w-full bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#f97316]/50 transition text-sm cursor-pointer mb-3"
-        >
+        <div className="p-5 grid grid-cols-2 gap-3">
           {TEMPLATES.map(t => (
-            <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
-          ))}
-        </select>
-        {(() => {
-          const t = TEMPLATES.find(t => t.id === selectedTemplate)!
-          return (
-            <div className="bg-[#0d0d1c] border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
-              <span className="text-xl">{t.icon}</span>
-              <div>
-                <p className="text-sm font-semibold text-white">{t.name}</p>
-                <p className="text-xs text-white/40">{t.desc}{t.questions.length > 0 ? ` · ${t.questions.length} vragen` : ''}</p>
+            <button
+              key={t.id}
+              onClick={() => pickTemplate(t.id)}
+              className={`relative text-left p-4 rounded-xl border transition ${
+                selectedId === t.id
+                  ? 'border-[#f97316] bg-[#f97316]/8'
+                  : 'border-white/10 hover:border-white/25 bg-[#0d0d1c]'
+              }`}
+            >
+              {t.id === POPULAR_ID && (
+                <span className="absolute top-3 right-3 text-[9px] font-bold uppercase tracking-widest bg-[#f97316]/20 text-[#f97316] px-1.5 py-0.5 rounded-full">
+                  Populair
+                </span>
+              )}
+              <div className="text-2xl mb-2">{t.icon}</div>
+              <div className="font-semibold text-sm text-white mb-0.5">{t.name}</div>
+              <div className="text-white/35 text-xs">
+                {t.questions.length > 0 ? `${t.questions.length} vragen` : 'Leeg'}
               </div>
-            </div>
-          )
-        })()}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <button
-        onClick={createQuiz}
-        disabled={!name || loading}
-        className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition"
-      >
-        {loading ? 'Aanmaken...' : 'Quiz aanmaken →'}
-      </button>
+      {/* RIGHT — preview + CTA */}
+      <div className="w-72 flex-shrink-0 flex flex-col overflow-y-auto">
+        <div className="p-6 flex-1">
+          <div className="text-3xl mb-3">{selected.icon}</div>
+          <h2 className="font-extrabold text-lg mb-1">{selected.name}</h2>
+          <p className="text-white/40 text-xs mb-5">{selected.desc}</p>
+
+          {selected.questions.length > 0 ? (
+            <ul className="flex flex-col gap-2 mb-6">
+              {selected.questions.map((q, i) => (
+                <li key={q.id} className="flex gap-2.5 text-xs text-white/50">
+                  <span className="text-white/20 flex-shrink-0 w-4">{i + 1}.</span>
+                  <span className="leading-relaxed">{q.question}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-white/25 text-xs mb-6">Je voegt zelf vragen toe in de editor.</p>
+          )}
+        </div>
+
+        <div className="p-6 border-t border-white/[0.07]">
+          <label className="block text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">
+            Naam
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={e => { setName(e.target.value); setNameCustomised(true) }}
+            placeholder="bijv. Badkamerrenovatie aanvraag"
+            className="w-full bg-[#07070f] border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder-white/20 outline-none focus:border-[#f97316]/50 transition text-sm mb-3"
+          />
+          <button
+            onClick={createQuiz}
+            disabled={!name.trim() || loading}
+            className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition text-sm"
+          >
+            {loading ? 'Bezig…' : 'Maak mijn quiz →'}
+          </button>
+        </div>
       </div>
     </div>
   )
