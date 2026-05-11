@@ -155,6 +155,9 @@ const CATEGORIES = [
   { label: 'Afwerking & Buiten', ids: ['schilderwerk', 'tuin'] },
 ]
 
+const LEEG_TEMPLATE = { id: 'leeg', icon: '📋', name: 'Leeg beginnen', desc: 'Zelf vragen toevoegen', questions: [] as typeof TEMPLATES[0]['questions'] }
+const ALL_TEMPLATES = [...TEMPLATES, LEEG_TEMPLATE]
+
 const POPULAR_ID = 'badkamer'
 
 export default function NewQuizPage() {
@@ -167,7 +170,7 @@ export default function NewQuizPage() {
   const [search, setSearch] = useState('')
 
   const previewId = hoveredId ?? selectedId
-  const preview = TEMPLATES.find(t => t.id === previewId)!
+  const preview = ALL_TEMPLATES.find(t => t.id === previewId) ?? ALL_TEMPLATES[0]
 
   const searchLower = search.toLowerCase().trim()
   const visibleCats = searchLower
@@ -180,7 +183,7 @@ export default function NewQuizPage() {
     : CATEGORIES
 
   function pickTemplate(id: string) {
-    const t = TEMPLATES.find(t => t.id === id)!
+    const t = ALL_TEMPLATES.find(t => t.id === id)!
     setSelectedId(id)
     if (!nameCustomised) {
       setName(t.questions.length > 0 ? `${t.name} aanvraag` : '')
@@ -191,7 +194,7 @@ export default function NewQuizPage() {
     if (!name.trim()) return
     setLoading(true)
 
-    const template = TEMPLATES.find(t => t.id === selectedId)!
+    const template = ALL_TEMPLATES.find(t => t.id === selectedId)!
     const idMap: Record<string, string> = {}
     const baseQuestions = template.questions.map(q => {
       const newId = Math.random().toString(36).slice(2)
