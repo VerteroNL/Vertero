@@ -4,8 +4,8 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Vertero',
-  description: 'Plug & play offerte quizzes',
+  title: 'Vertero — Meer gekwalificeerde offerteaanvragen voor aannemers',
+  description: 'Zet een quiz op je website en weet direct of een aanvraag de moeite waard is. Geen slechte offerteaanvragen meer. Klaar in 15 minuten, gratis.',
 }
 
 export default function RootLayout({

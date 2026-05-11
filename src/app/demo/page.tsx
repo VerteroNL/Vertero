@@ -104,7 +104,7 @@ export default function DemoPage() {
       </div>
 
       {/* Quiz */}
-      <div className="flex-1 flex items-center justify-center px-5 py-16">
+      <div className="flex-1 flex items-center justify-center px-5 py-8 md:py-14">
         <div className="w-full max-w-lg">
           {stage === 'quiz' ? (
             <>
@@ -145,8 +145,7 @@ export default function DemoPage() {
                 ) : <div />}
                 <button
                   onClick={() => selected !== null && advance(selected)}
-                  disabled={selected === null}
-                  className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold px-6 py-2.5 rounded-xl transition text-sm"
+                  className="bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-6 py-2.5 rounded-xl transition text-sm"
                 >
                   Volgende →
                 </button>
@@ -154,17 +153,45 @@ export default function DemoPage() {
             </>
           ) : (
             <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#f97316]/10 border border-[#f97316]/20 flex items-center justify-center mx-auto mb-6 text-2xl">
+              <div className="w-16 h-16 rounded-2xl bg-[#f97316]/10 border border-[#f97316]/20 flex items-center justify-center mx-auto mb-6 text-2xl text-[#f97316]">
                 ✓
               </div>
               <h2 className="text-2xl font-extrabold mb-3">Bedankt!</h2>
-              <p className="text-white/40 text-sm mb-10 max-w-sm mx-auto leading-relaxed">
-                Dit is hoe jouw klanten een aanvraag insturen. Jij ziet alle antwoorden direct in je dashboard.
+              <p className="text-white/40 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
+                Dit is hoe jouw klanten een aanvraag insturen. Jij ziet naam, telefoonnummer en alle antwoorden direct in je dashboard.
               </p>
+
+              {/* Dashboard mockup */}
+              <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden mb-8 text-left">
+                <div className="px-4 py-3 border-b border-white/7 flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">Nieuwe lead</span>
+                  <span className="w-2 h-2 rounded-full bg-[#f97316]" />
+                </div>
+                <div className="px-4 py-4 border-b border-white/7 flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-semibold text-sm">Jan de Vries</p>
+                    <p className="text-white/35 text-xs mt-0.5">jan@email.nl &nbsp;·&nbsp; 06-12 345 678</p>
+                  </div>
+                  <span className="text-white/25 text-xs tabular-nums flex-shrink-0">10:42</span>
+                </div>
+                <div className="px-4 py-4 flex flex-col gap-2">
+                  {[
+                    ['Type werk', 'Verbouwing / renovatie'],
+                    ['Onderdeel', 'Badkamer'],
+                    ['Budget', '€5.000 – €20.000'],
+                    ['Wanneer starten', 'Zo snel mogelijk'],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex items-center gap-3">
+                      <span className="text-white/25 text-xs w-24 flex-shrink-0">{label}</span>
+                      <span className="text-white/70 text-xs font-medium">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               <div className="bg-[#f97316]/[0.07] border border-[#f97316]/25 rounded-2xl p-8">
                 <p className="text-white font-bold mb-2">Wil je zo'n quiz op jouw website?</p>
-                <p className="text-white/45 text-sm mb-6">Klaar in 5 minuten. Geen creditcard nodig.</p>
+                <p className="text-white/45 text-sm mb-6">Klaar in 15 minuten. Geen creditcard nodig.</p>
                 <Link
                   href="/probeer"
                   className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-8 py-3.5 rounded-xl transition"

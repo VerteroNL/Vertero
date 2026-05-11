@@ -69,11 +69,11 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-5 md:px-10 py-14 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
         <div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight mb-5">
-            Meer aanvragen<br />via je website —<br />
-            <span className="text-[#f97316]">beter gekwalificeerd</span>
+            Stop met tijd verspillen aan aanvragen<br />
+            <span className="text-[#f97316]">die nergens op slaan</span>
           </h1>
           <p className="text-white/60 text-base md:text-lg mb-3 leading-relaxed">
-            Zet een quiz op je site. Bezoekers vullen een paar vragen in, jij ziet direct wie het waard is om terug te bellen.
+            Zet een quiz op je site. Bezoekers vullen een paar vragen in — jij weet binnen 10 seconden of het een serieuze aanvraag is. Geen bellen met mensen die toch niet kopen.
           </p>
           <p className="text-white/35 text-sm mb-8">
             Direct beginnen — geen account nodig
@@ -87,10 +87,22 @@ export default function HomePage() {
             </a>
           </div>
           <p className="text-white/25 text-xs">
-            ✓ Direct live &nbsp;·&nbsp; ✓ Geen creditcard &nbsp;·&nbsp; ✓ Klaar in 5 minuten
+            ✓ Direct live &nbsp;·&nbsp; ✓ Geen creditcard &nbsp;·&nbsp; ✓ Klaar in 15 minuten
           </p>
         </div>
         <DemoQuiz />
+      </section>
+
+      {/* SOCIAL PROOF */}
+      <section className="border-t border-white/7 bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto px-5 md:px-10 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <p className="text-white/30 text-sm font-medium">Gebouwd samen met aannemers in Nederland</p>
+          <div className="flex flex-wrap gap-x-8 gap-y-3 justify-center">
+            {['Timmerwerk', 'Dakdekkers', 'Loodgieters', 'Stukadoors', 'Schilders'].map(type => (
+              <span key={type} className="text-white/20 text-sm">{type}</span>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* FOUNDING MEMBER */}
@@ -106,7 +118,7 @@ export default function HomePage() {
               In ruil krijg je <strong className="text-white/80">3 maanden</strong> ons hoogste abonnement gratis zodra we officieel lanceren, inclusief persoonlijke hulp bij het instellen.
             </p>
             <ul className="flex flex-row gap-6 justify-center mb-8">
-              {['3 maanden gratis bij lancering', 'Persoonlijke onboarding', 'Directe invloed op het product'].map(f => (
+              {['3 maanden gratis bij lancering', 'Persoonlijke onboarding', 'Wij installeren de quiz gratis op jouw website'].map(f => (
                 <li key={f} className="flex items-center justify-center gap-2 text-sm text-white/70">
                   <span className="text-[#f97316]">✓</span> {f}
                 </li>
@@ -168,8 +180,8 @@ export default function HomePage() {
             },
             {
               n: '3',
-              title: 'Leads in je mail',
-              desc: 'Elke aanvraag komt direct in je dashboard én per mail — ook als je onderweg bent.',
+              title: 'Weet direct of het serieus is',
+              desc: 'Elke aanvraag staat in je dashboard met alle antwoorden. Binnen 10 seconden zie je budget, planning en wat ze nodig hebben — voor je ook maar de telefoon pakt.',
             },
           ].map((item) => (
             <div key={item.n} className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-8 hover:border-white/20 transition">
@@ -213,8 +225,12 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl">
           {[
             {
-              q: 'Heb ik een website nodig?',
-              a: 'Nee. Je krijgt ook een directe link die je kunt delen via WhatsApp, Instagram of mail. Handig als je nog geen site hebt.',
+              q: 'Werkt dit ook zonder website?',
+              a: 'Ja. Je krijgt een directe link die je kunt delen via WhatsApp, Instagram of mail — zonder dat je een website nodig hebt.',
+            },
+            {
+              q: 'Hoe lang duurt instellen?',
+              a: 'Maximaal 15 minuten. Je kiest een template, past de vragen aan en zet hem live. Als founding member installeren wij hem gratis voor je.',
             },
             {
               q: 'Hoe komt de quiz op mijn website?',
@@ -226,7 +242,7 @@ export default function HomePage() {
             },
             {
               q: 'Waarom niet gewoon een contactformulier?',
-              a: 'Quizzes converteren 3× beter. Bezoekers vullen ze sneller in, en jij weet al wat ze willen voor je terugbelt.',
+              a: 'Een contactformulier vertelt je niets. Met een quiz weet je al wat het project inhoudt, wat het budget is en wanneer ze willen starten — voor je terugbelt.',
             },
             {
               q: 'Hoe ontvang ik de leads?',
@@ -247,12 +263,12 @@ export default function HomePage() {
 
       {/* CTA BANNER */}
       <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-24 border-b border-white/7 text-center">
-        <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Klaar om meer aanvragen te ontvangen?</h2>
-        <p className="text-white/40 text-base mb-8">Direct beginnen — geen creditcard, geen account nodig.</p>
+        <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Jouw eerste quiz staat er binnen 15 minuten.<br className="hidden sm:block" /> Gratis.</h2>
+        <p className="text-white/40 text-base mb-8">Geen creditcard, geen developer, geen gedoe.</p>
         <Link href="/probeer" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] px-10 py-4 rounded-xl font-semibold text-base transition">
           Probeer gratis →
         </Link>
-        <p className="text-white/20 text-xs mt-4">✓ Direct live &nbsp;·&nbsp; ✓ Klaar in 5 minuten</p>
+        <p className="text-white/20 text-xs mt-4">✓ Direct live &nbsp;·&nbsp; ✓ Klaar in 15 minuten &nbsp;·&nbsp; ✓ Geen creditcard</p>
       </section>
 
       {/* FOOTER */}
