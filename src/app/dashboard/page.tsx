@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import ClaimHandler from './ClaimHandler'
+import TutorialCard from './TutorialCard'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -53,38 +54,18 @@ export default async function DashboardPage() {
 
       <div className="px-6 py-6 flex-1">
 
-        {/* ONBOARDING — geen quizzes */}
         {!hasQuizzes ? (
           <div className="max-w-lg">
-            <h2 className="text-xl font-extrabold mb-1">Welkom bij Vertero! 👋</h2>
-            <p className="text-white/40 text-sm mb-8">Je bent in 3 stappen klaar om aanvragen te ontvangen.</p>
-
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-4 bg-[#0d0d1c] border border-white/[0.08] rounded-xl px-5 py-4">
-                <span className="w-6 h-6 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center flex-shrink-0">
-                  <span className="text-green-400 text-xs font-bold">✓</span>
-                </span>
-                <span className="text-sm text-white/50 line-through">Account aangemaakt</span>
-              </div>
-
-              <div className="flex items-center justify-between gap-4 bg-[#0d0d1c] border border-[#f97316]/40 rounded-xl px-5 py-4">
-                <div className="flex items-center gap-4">
-                  <span className="w-6 h-6 rounded-full border border-white/20 flex-shrink-0" />
-                  <span className="text-sm font-semibold">Maak je eerste quiz</span>
-                </div>
-                <Link href="/dashboard/quiz/new" className="bg-[#f97316] hover:bg-[#ea6c0a] text-white text-xs font-bold px-4 py-1.5 rounded-lg transition flex-shrink-0">
-                  Start nu →
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-4 bg-[#0d0d1c] border border-white/[0.08] rounded-xl px-5 py-4 opacity-40">
-                <span className="w-6 h-6 rounded-full border border-white/20 flex-shrink-0" />
-                <span className="text-sm">Installeer op je website</span>
-              </div>
-            </div>
+            <h2 className="text-xl font-extrabold mb-1">Welkom bij Vertero!</h2>
+            <p className="text-white/40 text-sm mb-6">Je bent in 4 stappen klaar om aanvragen te ontvangen.</p>
+            <TutorialCard hasQuizzes={false} />
           </div>
         ) : (
           <>
+            <div className="max-w-2xl mb-6">
+              <TutorialCard hasQuizzes={true} firstQuiz={quizzes?.[0]} />
+            </div>
+
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 mb-6">
               {[
