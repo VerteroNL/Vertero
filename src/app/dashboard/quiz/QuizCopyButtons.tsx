@@ -17,16 +17,16 @@ export default function QuizCopyButtons({ quizSlug }: { quizSlug: string }) {
   return (
     <div className="flex items-center gap-1.5">
       <button
-        onClick={() => copyText(embedCode, 'embed')}
-        className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-white/10 hover:border-white/20 text-white/40 hover:text-white transition"
-      >
-        {copied === 'embed' ? '✓ Gekopieerd' : '🔗 Website code'}
-      </button>
-      <button
         onClick={() => copyText(directLink, 'link')}
-        className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-white/10 hover:border-white/20 text-white/40 hover:text-white transition"
+        className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-white/15 hover:border-white/30 text-white/60 hover:text-white transition"
       >
         {copied === 'link' ? '✓ Gekopieerd' : '📤 Deel link'}
+      </button>
+      <button
+        onClick={() => copyText(embedCode, 'embed')}
+        className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-white/8 hover:border-white/15 text-white/25 hover:text-white/50 transition"
+      >
+        {copied === 'embed' ? '✓ Gekopieerd' : 'Website code'}
       </button>
     </div>
   )

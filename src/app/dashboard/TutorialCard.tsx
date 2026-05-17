@@ -13,6 +13,7 @@ export default function TutorialCard({ hasQuizzes, firstQuiz }: Props) {
   const [everCopied, setEverCopied] = useState(false)
   const [everInstalled, setEverInstalled] = useState(false)
   const [copied, setCopied] = useState<'link' | 'embed' | null>(null)
+  const [showEmbed, setShowEmbed] = useState(false)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -86,35 +87,46 @@ export default function TutorialCard({ hasQuizzes, firstQuiz }: Props) {
         {/* Stap 3 — embed of link kopiëren */}
         <Step
           n={3}
-          label="Kopieer je link of embed code"
+          label="Kopieer je directe link"
           done={step3}
           active={step2 && !step3}
           locked={!step2}
         >
-          <div className="flex flex-col gap-2">
-            {/* Directe link */}
+          <div className="flex flex-col gap-3">
+            {/* Directe link — primair */}
             <div className="flex items-center gap-2">
               <div className="flex-1 min-w-0 bg-[#07070f] border border-white/8 rounded-lg px-3 py-1.5 font-mono text-xs text-white/40 truncate">
                 {quizLink}
               </div>
               <button
                 onClick={() => copy(quizLink, 'link')}
-                className="flex-shrink-0 text-xs font-semibold text-[#f97316] hover:opacity-75 transition whitespace-nowrap"
+                className="flex-shrink-0 text-xs font-bold text-[#f97316] hover:opacity-75 transition whitespace-nowrap"
               >
                 {copied === 'link' ? '✓ Gekopieerd' : 'Kopieer link'}
               </button>
             </div>
-            {/* Embed code */}
-            <div className="flex items-start gap-2">
-              <div className="flex-1 min-w-0 bg-[#07070f] border border-white/8 rounded-lg px-3 py-1.5 font-mono text-[10px] text-white/40 whitespace-pre leading-relaxed overflow-hidden">
-                {embedCode}
-              </div>
+
+            {/* Embed — secundair, ingeklapt */}
+            <div>
               <button
-                onClick={() => copy(embedCode, 'embed')}
-                className="flex-shrink-0 text-xs font-semibold text-[#f97316] hover:opacity-75 transition whitespace-nowrap pt-1"
+                onClick={() => setShowEmbed(v => !v)}
+                className="text-[10px] text-white/25 hover:text-white/50 transition"
               >
-                {copied === 'embed' ? '✓ Gekopieerd' : 'Kopieer embed'}
+                {showEmbed ? '↑ Verberg embed code' : '+ Of: embed op je website'}
               </button>
+              {showEmbed && (
+                <div className="flex items-start gap-2 mt-2">
+                  <div className="flex-1 min-w-0 bg-[#07070f] border border-white/8 rounded-lg px-3 py-1.5 font-mono text-[10px] text-white/30 whitespace-pre leading-relaxed overflow-hidden">
+                    {embedCode}
+                  </div>
+                  <button
+                    onClick={() => copy(embedCode, 'embed')}
+                    className="flex-shrink-0 text-xs text-white/30 hover:text-white/60 transition whitespace-nowrap pt-1"
+                  >
+                    {copied === 'embed' ? '✓' : 'Kopieer'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </Step>

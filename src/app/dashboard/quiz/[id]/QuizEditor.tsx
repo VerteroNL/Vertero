@@ -202,12 +202,12 @@ export default function QuizEditor({ quiz: initial, plan }: { quiz: Quiz; plan: 
             Preview
           </a>
           <button onClick={copyLink}
-            className="flex items-center gap-1.5 border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+            className="flex items-center gap-1.5 border border-white/20 hover:border-white/40 text-white/70 hover:text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             {copiedLink ? 'Gekopieerd!' : 'Deel link'}
           </button>
           <button onClick={copyEmbed}
-            className="flex items-center gap-1.5 border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+            className="flex items-center gap-1.5 border border-white/8 hover:border-white/15 text-white/30 hover:text-white/60 text-xs font-semibold px-3 py-2 rounded-lg transition">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             {copiedEmbed ? 'Gekopieerd!' : 'Embed code'}
           </button>

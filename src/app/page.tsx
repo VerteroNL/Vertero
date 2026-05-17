@@ -196,22 +196,23 @@ export default function HomePage() {
       {/* EMBED */}
       <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-b border-white/7">
         <div className="max-w-xl mb-10 md:mb-14">
-          <p className="text-[#f97316] text-sm font-semibold mb-4">Zo zet je het op je site</p>
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Twee manieren, beide gratis</h2>
-          <p className="text-white/40 text-base leading-relaxed">Werkt op elke website — ook WordPress, Squarespace en Wix.</p>
+          <p className="text-[#f97316] text-sm font-semibold mb-4">Zo deel je je quiz</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Geen website nodig om te starten</h2>
+          <p className="text-white/40 text-base leading-relaxed">Kopieer je link en deel hem direct. Wil je hem op je site? Dat kan ook — met één stukje code.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
           <EmbedCard
-            title="Widget op je site"
-            badge="Aanbevolen"
-            desc="Werkt op elke knop op je site — bestaande buttons, links of afbeeldingen. Geen pagina-overgang."
-            code={`<script src="https://vertero.nl/widget.js"></script>\n<button data-vertero="jouw-slug">\n  Vraag offerte aan\n</button>`}
-            note="Voeg data-vertero toe aan élke bestaande knop op je site."
+            title="Directe link"
+            badge="Makkelijkste"
+            desc="Kopieer en deel via WhatsApp, mail of Instagram. Werkt zonder website, zonder code."
+            code="https://vertero.nl/quiz/jouw-slug"
           />
           <EmbedCard
-            title="Directe link"
-            desc="Deel via WhatsApp, mail of social. Geen code nodig."
-            code="https://vertero.nl/quiz/jouw-slug"
+            title="Widget op je site"
+            badge="Geavanceerd"
+            desc="Plak één stukje code op je website. Werkt op WordPress, Squarespace en Wix."
+            code={`<script src="https://vertero.nl/widget.js"></script>\n<button data-vertero="jouw-slug">\n  Vraag offerte aan\n</button>`}
+            note="Voeg data-vertero toe aan élke bestaande knop op je site."
           />
         </div>
       </section>
