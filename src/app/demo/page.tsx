@@ -43,6 +43,59 @@ type ResultCard = {
   advies: string
 }
 
+function scoreAanvraag(branch: Branch, antwoorden: string[]): ResultCard {
+  let punten = 0
+  let budget = 'Onbekend'
+  let timing = 'Onbekend'
+
+  for (const a of antwoorden) {
+    const v = a.split(': ').slice(1).join(': ')
+
+    // Budget
+    if (v.includes('Boven €8.000') || v.includes('Boven €15.000')) { punten += 2; budget = v }
+    else if (v.includes('€2.000 tot €8.000') || v.includes('€5.000 tot €15.000')) { punten += 1; budget = v }
+    else if (v.includes('Onder €2.000') || v.includes('Onder €5.000')) { punten -= 1; budget = v }
+    else if (v === 'Weet ik nog niet' && antwoorden.some(x => x.toLowerCase().includes('budget'))) { budget = v }
+
+    // Timing
+    if (v === 'Binnen 1 maand') { punten += 2; timing = v }
+    else if (v === '1 tot 3 maanden') { punten += 1; timing = v }
+    else if (v === 'Nog niet zeker') { punten -= 1; timing = v }
+
+    // Woning (badkamer / keuken)
+    if (v === 'Eigen woning') punten += 1
+    else if (v === 'Huurwoning') punten -= 1
+
+    // Hoeveelheid (kozijnen)
+    if (v === '9+') punten += 2
+    else if (v === '4 tot 8') punten += 1
+  }
+
+  const score: ResultCard['score'] = punten >= 4 ? 'goed' : punten >= 2 ? 'matig' : 'slecht'
+  const advies =
+    score === 'goed' ? 'Bel deze persoon binnen 10 minuten terug.' :
+    score === 'matig' ? 'Bel vandaag nog terug om budget en planning te bespreken.' :
+    'Stuur een automatische opvolgmail en wacht af.'
+
+  // Samenvatting per branche
+  let samenvatting = ''
+  if (branch === 'kozijnen') {
+    const aantal = antwoorden.find(a => a.includes('Hoeveel'))?.split(': ')[1] ?? '?'
+    const materiaal = antwoorden.find(a => a.includes('materiaal'))?.split(': ')[1] ?? '?'
+    samenvatting = `Aanvraag voor ${aantal} kozijnen in ${materiaal.toLowerCase()}, budget ${budget}, start ${timing.toLowerCase()}.`
+  } else if (branch === 'badkamer') {
+    const type = antwoorden.find(a => a.includes('laten doen'))?.split(': ')[1] ?? '?'
+    const woning = antwoorden.find(a => a.includes('woning'))?.split(': ')[1] ?? '?'
+    samenvatting = `${type} in ${woning.toLowerCase()}, budget ${budget}, start ${timing.toLowerCase()}.`
+  } else {
+    const type = antwoorden.find(a => a.includes('laten doen'))?.split(': ')[1] ?? '?'
+    const woning = antwoorden.find(a => a.includes('Nieuwbouw'))?.split(': ')[1] ?? antwoorden.find(a => a.includes('woning'))?.split(': ')[1] ?? '?'
+    samenvatting = `${type} in ${woning.toLowerCase()}, budget ${budget}, start ${timing.toLowerCase()}.`
+  }
+
+  return { samenvatting, budget, timing, score, advies }
+}
+
 const SCORE_STYLE: Record<ResultCard['score'], string> = {
   goed: 'border-green-500/40 bg-green-500/5',
   matig: 'border-[#f97316]/40 bg-[#f97316]/5',
@@ -66,7 +119,6 @@ function QuizFlow({ branch }: { branch: Branch }) {
   const [selected, setSelected] = useState<number | null>(null)
   const [phase, setPhase] = useState<'quiz' | 'loading' | 'result'>('quiz')
   const [result, setResult] = useState<ResultCard | null>(null)
-  const [error, setError] = useState('')
 
   const current = steps[step]
   const progress = ((step) / steps.length) * 100
@@ -86,22 +138,10 @@ function QuizFlow({ branch }: { branch: Branch }) {
       return
     }
 
-    // Last step — submit
     setPhase('loading')
-    try {
-      const res = await fetch('/api/demo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ branch, answers: newAnswers }),
-      })
-      if (!res.ok) throw new Error()
-      const data = await res.json()
-      setResult(data)
-      setPhase('result')
-    } catch {
-      setError('Er ging iets mis. Probeer het opnieuw.')
-      setPhase('quiz')
-    }
+    await new Promise(r => setTimeout(r, 3000))
+    setResult(scoreAanvraag(branch, newAnswers))
+    setPhase('result')
   }
 
   function reset() {
@@ -110,7 +150,6 @@ function QuizFlow({ branch }: { branch: Branch }) {
     setSelected(null)
     setPhase('quiz')
     setResult(null)
-    setError('')
   }
 
   if (phase === 'loading') {
@@ -176,8 +215,6 @@ function QuizFlow({ branch }: { branch: Branch }) {
 
   return (
     <div className="py-4 max-w-md mx-auto">
-      {error && <p className="text-red-400 text-xs mb-4 text-center">{error}</p>}
-
       {/* Progress */}
       <div className="w-full bg-white/5 rounded-full h-0.5 mb-8">
         <div
