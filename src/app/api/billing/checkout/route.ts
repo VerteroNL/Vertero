@@ -1,20 +1,18 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { getOrCreateStripeCustomer } from '@/lib/subscription'
+import { getOwnerUserId } from '@/lib/auth'
 
 export async function POST(req: Request) {
-  const { userId } = await auth()
+  const userId = await getOwnerUserId()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { interval } = await req.json() // 'month' | 'year'
+  const { interval } = await req.json()
   const priceId = interval === 'year'
     ? process.env.STRIPE_PRICE_PRO_YEARLY!
     : process.env.STRIPE_PRICE_PRO_MONTHLY!
 
-  const user = await currentUser()
-  const email = user?.emailAddresses[0]?.emailAddress ?? ''
-
+  const email = process.env.OWNER_EMAIL ?? ''
   const customerId = await getOrCreateStripeCustomer(userId, email)
 
   const session = await stripe.checkout.sessions.create({

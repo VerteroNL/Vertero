@@ -1,6 +1,6 @@
-import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { getOwnerUserId } from '@/lib/auth'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,13 +8,12 @@ const supabase = createClient(
 )
 
 export async function POST(req: Request) {
-  const { userId } = await auth()
+  const userId = await getOwnerUserId()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { token } = await req.json()
   if (!token) return NextResponse.json({ error: 'No token' }, { status: 400 })
 
-  // Find the unclaimed temp quiz
   const { data: quiz } = await supabase
     .from('quizzes')
     .select('id')
@@ -24,14 +23,12 @@ export async function POST(req: Request) {
 
   if (!quiz) return NextResponse.json({ alreadyClaimed: true })
 
-  // Claim the quiz
   const { error: quizError } = await supabase
     .from('quizzes')
     .update({ user_id: userId, is_temp: false, temp_token: null })
     .eq('id', quiz.id)
   if (quizError) return NextResponse.json({ error: quizError.message }, { status: 500 })
 
-  // Claim any leads that came in before sign-up
   const { error: leadsError } = await supabase
     .from('leads')
     .update({ user_id: userId })

@@ -1,7 +1,7 @@
-import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { getUserPlan } from '@/lib/subscription'
+import { getOwnerUserId } from '@/lib/auth'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,7 +9,7 @@ const supabase = createClient(
 )
 
 export async function GET() {
-  const { userId } = await auth()
+  const userId = await getOwnerUserId()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { data } = await supabase
@@ -22,12 +22,11 @@ export async function GET() {
 }
 
 export async function PATCH(req: Request) {
-  const { userId } = await auth()
+  const userId = await getOwnerUserId()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
 
-  // email_on_new_lead is a pro-only feature
   if ('email_on_new_lead' in body) {
     const plan = await getUserPlan(userId)
     if (plan === 'free') {

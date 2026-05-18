@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import ClaimHandler from './ClaimHandler'
@@ -10,7 +9,7 @@ const supabase = createClient(
 )
 
 export default async function DashboardPage() {
-  const { userId } = await auth()
+  const userId = process.env.OWNER_USER_ID!
 
   const { data: quizzes } = await supabase
     .from('quizzes')

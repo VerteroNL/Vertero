@@ -1,6 +1,4 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
-import { redirect } from 'next/navigation'
 import { getUserPlan } from '@/lib/subscription'
 import SettingsForm from './SettingsForm'
 
@@ -10,19 +8,16 @@ const supabase = createClient(
 )
 
 export default async function SettingsPage() {
-  const { userId } = await auth()
-  if (!userId) redirect('/sign-in')
+  const userId = process.env.OWNER_USER_ID!
 
-  const [user, settingsResult, plan] = await Promise.all([
-    currentUser(),
+  const [settingsResult, plan] = await Promise.all([
     supabase.from('user_settings').select('*').eq('user_id', userId).maybeSingle(),
     getUserPlan(userId),
   ])
 
   const settings = settingsResult.data
-
-  const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Onbekend'
-  const email = user?.emailAddresses?.[0]?.emailAddress ?? '—'
+  const name = process.env.OWNER_NAME ?? 'Eigenaar'
+  const email = process.env.OWNER_EMAIL ?? ''
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">

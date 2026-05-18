@@ -1,7 +1,7 @@
-import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { getUserPlan } from '@/lib/subscription'
+import { getOwnerUserId } from '@/lib/auth'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,7 +10,7 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth()
+    const userId = await getOwnerUserId()
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const [plan, { count }] = await Promise.all([
@@ -25,7 +25,6 @@ export async function POST(req: Request) {
 
     let finalConfig = config || {}
 
-    // Als dupliceren, haal de originele quiz op
     if (duplicate_from) {
       const { data: original } = await supabase
         .from('quizzes')
@@ -49,7 +48,7 @@ export async function POST(req: Request) {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
   }
 }

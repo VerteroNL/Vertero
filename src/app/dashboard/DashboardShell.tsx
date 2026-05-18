@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { UserButton } from '@clerk/nextjs'
 import { BETA_HIDE_PRO } from '@/lib/flags'
 
 function FounderBanner() {
@@ -167,10 +166,11 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         <Link onClick={() => setOpen(false)} href="/dashboard/settings" className="px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
           ⚙ Instellingen
         </Link>
-        <div className="flex items-center gap-3 px-3 py-2">
-          <UserButton appearance={{ elements: { avatarBox: 'w-4 h-4' } }} />
-          <span className="text-sm font-medium text-white/30">Account</span>
-        </div>
+        <form action="/api/logout" method="POST">
+          <button type="submit" className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-white/30 hover:text-white hover:bg-white/5 transition">
+            Uitloggen
+          </button>
+        </form>
       </div>
     </>
   )

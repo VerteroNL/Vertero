@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import LeadsTable from './LeadsTable'
@@ -10,7 +9,7 @@ const supabase = createClient(
 )
 
 export default async function LeadsPage() {
-  const { userId } = await auth()
+  const userId = process.env.OWNER_USER_ID!
 
   const [{ data: leads }, { count: archivedCount }, plan] = await Promise.all([
     supabase
