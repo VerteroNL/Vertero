@@ -3,204 +3,266 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-type Question = {
-  id: string
-  question: string
-  options: string[]
-  branches?: Record<number, string>
+type Branch = 'kozijnen' | 'badkamer' | 'keuken'
+
+const QUIZZES: Record<Branch, { steps: { question: string; options: string[] }[] }> = {
+  kozijnen: {
+    steps: [
+      { question: 'Wat wil je vervangen?', options: ['Enkele kozijnen', 'Alle kozijnen in huis', 'Kozijnen + deuren'] },
+      { question: 'Hoeveel kozijnen gaat het om?', options: ['1 tot 3', '4 tot 8', '9+'] },
+      { question: 'Welk materiaal?', options: ['Kunststof', 'Aluminium', 'Hout', 'Weet ik nog niet'] },
+      { question: 'Wanneer wil je starten?', options: ['Binnen 1 maand', '1 tot 3 maanden', 'Nog niet zeker'] },
+      { question: 'Wat is je globale budget?', options: ['Onder €2.000', '€2.000 tot €8.000', 'Boven €8.000', 'Weet ik nog niet'] },
+    ],
+  },
+  badkamer: {
+    steps: [
+      { question: 'Wat wil je laten doen?', options: ['Volledige renovatie', 'Gedeeltelijke renovatie', 'Alleen sanitair vervangen'] },
+      { question: 'Huur of eigen woning?', options: ['Eigen woning', 'Huurwoning'] },
+      { question: 'Wat is je budget?', options: ['Onder €5.000', '€5.000 tot €15.000', 'Boven €15.000', 'Weet ik nog niet'] },
+      { question: 'Wanneer wil je starten?', options: ['Binnen 1 maand', '1 tot 3 maanden', 'Nog niet zeker'] },
+      { question: 'Heb je al een idee van het ontwerp?', options: ['Ja, ik weet wat ik wil', 'Nog niet, ik zoek advies'] },
+    ],
+  },
+  keuken: {
+    steps: [
+      { question: 'Wat wil je laten doen?', options: ['Complete nieuwe keuken', 'Keuken renoveren', 'Alleen apparatuur vervangen'] },
+      { question: 'Nieuwbouw of bestaande woning?', options: ['Nieuwbouw', 'Bestaande woning'] },
+      { question: 'Wat is je budget?', options: ['Onder €5.000', '€5.000 tot €15.000', 'Boven €15.000', 'Weet ik nog niet'] },
+      { question: 'Wanneer wil je starten?', options: ['Binnen 1 maand', '1 tot 3 maanden', 'Nog niet zeker'] },
+      { question: 'Heb je al een meting laten doen?', options: ['Ja', 'Nee, dat moet nog gebeuren'] },
+    ],
+  },
 }
 
-const QUESTIONS: Question[] = [
-  {
-    id: '1',
-    question: 'Wat voor werk zoek je?',
-    options: ['Verbouwing / renovatie', 'Nieuwbouw', 'Onderhoud / reparatie', 'Weet ik nog niet'],
-    branches: { 0: '2', 1: '3', 2: '4', 3: '5' },
-  },
-  {
-    id: '2',
-    question: 'Welk deel van de woning of het pand?',
-    options: ['Keuken', 'Badkamer', 'Woonkamer of slaapkamer', 'Heel de woning'],
-    branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
-  },
-  {
-    id: '3',
-    question: 'Wat voor gebouw gaat het om?',
-    options: ['Woning', 'Uitbouw / aanbouw', 'Garage of berging', 'Bedrijfspand'],
-    branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
-  },
-  {
-    id: '4',
-    question: 'Wat is er aan de hand?',
-    options: ['Lekkage', 'Scheuren of verzakking', 'Dak of goot', 'Iets anders'],
-    branches: { 0: '5', 1: '5', 2: '5', 3: '5' },
-  },
-  {
-    id: '5',
-    question: 'Wat is je budget globaal?',
-    options: ['Minder dan €5.000', '€5.000 – €20.000', '€20.000 – €50.000', 'Meer dan €50.000'],
-  },
-  {
-    id: '6',
-    question: 'Wanneer wil je starten?',
-    options: ['Zo snel mogelijk', 'Binnen 1–3 maanden', 'Later dit jaar', 'Nog niet zeker'],
-    branches: { 0: '__contact__', 1: '__contact__', 2: '__contact__', 3: '__contact__' },
-  },
-]
+type ResultCard = {
+  samenvatting: string
+  budget: string
+  timing: string
+  score: 'goed' | 'matig' | 'slecht'
+  advies: string
+}
 
-const byId = Object.fromEntries(QUESTIONS.map(q => [q.id, q]))
+const SCORE_STYLE: Record<ResultCard['score'], string> = {
+  goed: 'border-green-500/40 bg-green-500/5',
+  matig: 'border-[#f97316]/40 bg-[#f97316]/5',
+  slecht: 'border-red-500/40 bg-red-500/5',
+}
+const SCORE_DOT: Record<ResultCard['score'], string> = {
+  goed: 'bg-green-500',
+  matig: 'bg-[#f97316]',
+  slecht: 'bg-red-500',
+}
+const SCORE_LABEL: Record<ResultCard['score'], string> = {
+  goed: 'Serieuze aanvraag',
+  matig: 'Matige aanvraag',
+  slecht: 'Niet gekwalificeerd',
+}
 
-export default function DemoPage() {
-  const [currentId, setCurrentId] = useState('1')
-  const [history, setHistory] = useState<string[]>([])
+function QuizFlow({ branch }: { branch: Branch }) {
+  const { steps } = QUIZZES[branch]
+  const [step, setStep] = useState(0)
+  const [answers, setAnswers] = useState<string[]>([])
   const [selected, setSelected] = useState<number | null>(null)
-  const [stage, setStage] = useState<'quiz' | 'done'>('quiz')
+  const [phase, setPhase] = useState<'quiz' | 'loading' | 'result'>('quiz')
+  const [result, setResult] = useState<ResultCard | null>(null)
+  const [error, setError] = useState('')
 
-  const current = byId[currentId]
-  const progress = (history.length / (QUESTIONS.length - 1)) * 100
+  const current = steps[step]
+  const progress = ((step) / steps.length) * 100
 
-  function advance(optionIndex: number) {
-    const next = current.branches?.[optionIndex]
-
-    if (!next) {
-      const idx = QUESTIONS.findIndex(q => q.id === currentId)
-      const nextQ = QUESTIONS[idx + 1]
-      if (!nextQ) { setStage('done'); setSelected(null); return }
-      setHistory(h => [...h, currentId])
-      setCurrentId(nextQ.id)
-      setSelected(null)
-      return
-    }
-
-    if (next === '__contact__') {
-      setStage('done')
-      setSelected(null)
-      return
-    }
-
-    setHistory(h => [...h, currentId])
-    setCurrentId(next)
-    setSelected(null)
+  function choose(i: number) {
+    setSelected(i)
   }
 
-  function goBack() {
-    if (history.length === 0) return
-    const prev = history[history.length - 1]
-    setHistory(h => h.slice(0, -1))
-    setCurrentId(prev)
+  async function next() {
+    if (selected === null) return
+    const newAnswers = [...answers, `${current.question}: ${current.options[selected]}`]
+    setAnswers(newAnswers)
     setSelected(null)
-    setStage('quiz')
+
+    if (step < steps.length - 1) {
+      setStep(s => s + 1)
+      return
+    }
+
+    // Last step — submit
+    setPhase('loading')
+    try {
+      const res = await fetch('/api/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ branch, answers: newAnswers }),
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setResult(data)
+      setPhase('result')
+    } catch {
+      setError('Er ging iets mis. Probeer het opnieuw.')
+      setPhase('quiz')
+    }
+  }
+
+  function reset() {
+    setStep(0)
+    setAnswers([])
+    setSelected(null)
+    setPhase('quiz')
+    setResult(null)
+    setError('')
+  }
+
+  if (phase === 'loading') {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-[#f97316] animate-spin" />
+        <p className="text-white/40 text-sm">Aanvraag wordt beoordeeld…</p>
+      </div>
+    )
+  }
+
+  if (phase === 'result' && result) {
+    return (
+      <div className="py-6 max-w-md mx-auto">
+        <div className={`border rounded-2xl p-6 mb-6 ${SCORE_STYLE[result.score]}`}>
+          <div className="flex items-center gap-2 mb-4">
+            <span className={`w-2 h-2 rounded-full ${SCORE_DOT[result.score]}`} />
+            <span className="text-xs font-bold uppercase tracking-widest text-white/50">{SCORE_LABEL[result.score]}</span>
+          </div>
+          <p className="text-white font-medium text-sm mb-5 leading-relaxed">{result.samenvatting}</p>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: 'Budget', value: result.budget },
+              { label: 'Timing', value: result.timing },
+            ].map(f => (
+              <div key={f.label} className="bg-black/20 rounded-xl px-4 py-3">
+                <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest mb-1">{f.label}</p>
+                <p className="text-white/80 text-sm font-medium">{f.value}</p>
+              </div>
+            ))}
+          </div>
+          {result.advies && (
+            <div className="mt-4 pt-4 border-t border-white/[0.08]">
+              <p className="text-white/35 text-[10px] font-bold uppercase tracking-widest mb-1">Advies</p>
+              <p className="text-white/60 text-sm leading-relaxed">{result.advies}</p>
+            </div>
+          )}
+        </div>
+
+        <p className="text-white/40 text-sm text-center mb-6 leading-relaxed">
+          Dit krijg jij voortaan op je telefoon. Alleen van mensen die het menen.
+        </p>
+
+        <div className="bg-[#0d0d1c] border border-white/[0.08] rounded-2xl p-6 mb-4">
+          <p className="font-bold text-base mb-2">Overtuigd?</p>
+          <p className="text-white/45 text-sm leading-relaxed mb-4">Wij zetten dit binnen 48 uur live op jouw website. Geen gedoe, geen technische kennis nodig.</p>
+          <Link href="/contact" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-7 py-3 rounded-xl transition text-sm">
+            Ja, ik wil dit →
+          </Link>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={reset}
+            className="text-white/25 hover:text-white/50 text-sm transition"
+          >
+            Opnieuw proberen
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-[#07070f] text-white flex flex-col">
+    <div className="py-4 max-w-md mx-auto">
+      {error && <p className="text-red-400 text-xs mb-4 text-center">{error}</p>}
+
+      {/* Progress */}
+      <div className="w-full bg-white/5 rounded-full h-0.5 mb-8">
+        <div
+          className="bg-[#f97316] h-0.5 rounded-full transition-all duration-300"
+          style={{ width: `${Math.max(4, progress)}%` }}
+        />
+      </div>
+
+      <p className="text-white/30 text-xs mb-3">Vraag {step + 1} van {steps.length}</p>
+      <h3 className="text-xl font-bold mb-6 leading-snug">{current.question}</h3>
+
+      <div className="flex flex-col gap-2 mb-6">
+        {current.options.map((opt, i) => (
+          <button
+            key={i}
+            onClick={() => choose(i)}
+            className={`text-left px-5 py-3.5 rounded-xl border transition text-sm font-medium ${
+              selected === i
+                ? 'border-[#f97316] bg-[#f97316]/10 text-white'
+                : 'border-white/10 hover:border-white/25 text-white/60 hover:text-white'
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={next}
+        disabled={selected === null}
+        className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition text-sm"
+      >
+        {step === steps.length - 1 ? 'Verstuur aanvraag →' : 'Volgende →'}
+      </button>
+    </div>
+  )
+}
+
+const TABS: { id: Branch; label: string }[] = [
+  { id: 'kozijnen', label: 'Kozijnen' },
+  { id: 'badkamer', label: 'Badkamer' },
+  { id: 'keuken', label: 'Keuken' },
+]
+
+export default function DemoPage() {
+  const [branch, setBranch] = useState<Branch>('kozijnen')
+
+  return (
+    <div className="bg-[#07070f] text-white min-h-screen flex flex-col">
+
       {/* Header */}
-      <div className="border-b border-white/7 px-5 py-4 flex items-center justify-between">
+      <div className="border-b border-white/[0.06] px-5 py-4 flex items-center justify-between">
         <Link href="/" className="hover:opacity-70 transition">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Vertero" className="h-7" />
         </Link>
-        <span className="text-white/30 text-xs">Demo quiz · Aannemer</span>
+        <span className="text-white/25 text-xs">Interactieve demo</span>
       </div>
 
-      {/* Quiz */}
-      <div className="flex-1 flex items-center justify-center px-5 py-8 md:py-14">
+      <div className="flex-1 flex flex-col items-center px-5 py-10">
         <div className="w-full max-w-lg">
-          {stage === 'quiz' ? (
-            <>
-              {/* Progress */}
-              <div className="w-full bg-white/5 rounded-full h-1 mb-10">
-                <div
-                  className="bg-[#f97316] h-1 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.max(8, progress)}%` }}
-                />
-              </div>
 
-              <p className="text-white/40 text-xs mb-3">Vraag {history.length + 1}</p>
-              <h2 className="text-2xl md:text-3xl font-extrabold mb-8 leading-snug">
-                {current.question}
-              </h2>
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-extrabold mb-2">Probeer het zelf, vul in als klant</h1>
+            <p className="text-white/40 text-sm">Kies je branche en doorloop de quiz. Dan zie je wat jij als ondernemer ontvangt.</p>
+          </div>
 
-              <div className="flex flex-col gap-3 mb-6">
-                {current.options.map((opt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelected(i)}
-                    className={`text-left px-5 py-4 rounded-xl border transition text-sm font-medium ${
-                      selected === i
-                        ? 'border-[#f97316] bg-[#f97316]/10 text-white'
-                        : 'border-white/10 hover:border-white/25 text-white/70 hover:text-white'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
+          {/* Branch tabs */}
+          <div className="flex gap-1 bg-[#0d0d1c] border border-white/[0.08] rounded-xl p-1 mb-8">
+            {TABS.map(t => (
+              <button
+                key={t.id}
+                onClick={() => setBranch(t.id)}
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+                  branch === t.id
+                    ? 'bg-[#f97316] text-white'
+                    : 'text-white/35 hover:text-white/70'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
 
-              <div className="flex items-center justify-between">
-                {history.length > 0 ? (
-                  <button onClick={goBack} className="text-white/25 hover:text-white/50 text-xs transition">
-                    ← Vorige
-                  </button>
-                ) : <div />}
-                <button
-                  onClick={() => selected !== null && advance(selected)}
-                  className="bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-6 py-2.5 rounded-xl transition text-sm"
-                >
-                  Volgende →
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#f97316]/10 border border-[#f97316]/20 flex items-center justify-center mx-auto mb-6 text-2xl text-[#f97316]">
-                ✓
-              </div>
-              <h2 className="text-2xl font-extrabold mb-3">Bedankt!</h2>
-              <p className="text-white/40 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
-                Dit is hoe jouw klanten een aanvraag insturen. Jij ziet naam, telefoonnummer en alle antwoorden direct in je dashboard.
-              </p>
-
-              {/* Dashboard mockup */}
-              <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl overflow-hidden mb-8 text-left">
-                <div className="px-4 py-3 border-b border-white/7 flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">Nieuwe lead</span>
-                  <span className="w-2 h-2 rounded-full bg-[#f97316]" />
-                </div>
-                <div className="px-4 py-4 border-b border-white/7 flex items-start justify-between gap-4">
-                  <div>
-                    <p className="font-semibold text-sm">Jan de Vries</p>
-                    <p className="text-white/35 text-xs mt-0.5">jan@email.nl &nbsp;·&nbsp; 06-12 345 678</p>
-                  </div>
-                  <span className="text-white/25 text-xs tabular-nums flex-shrink-0">10:42</span>
-                </div>
-                <div className="px-4 py-4 flex flex-col gap-2">
-                  {[
-                    ['Type werk', 'Verbouwing / renovatie'],
-                    ['Onderdeel', 'Badkamer'],
-                    ['Budget', '€5.000 – €20.000'],
-                    ['Wanneer starten', 'Zo snel mogelijk'],
-                  ].map(([label, value]) => (
-                    <div key={label} className="flex items-center gap-3">
-                      <span className="text-white/25 text-xs w-24 flex-shrink-0">{label}</span>
-                      <span className="text-white/70 text-xs font-medium">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-[#f97316]/[0.07] border border-[#f97316]/25 rounded-2xl p-8">
-                <p className="text-white font-bold mb-2">Wil je zo'n quiz op jouw website?</p>
-                <p className="text-white/45 text-sm mb-6">Klaar in 15 minuten. Geen creditcard nodig.</p>
-                <Link
-                  href="/dashboard"
-                  className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-8 py-3.5 rounded-xl transition"
-                >
-                  Maak je eigen quiz gratis →
-                </Link>
-              </div>
-            </div>
-          )}
+          <QuizFlow key={branch} branch={branch} />
         </div>
       </div>
     </div>
