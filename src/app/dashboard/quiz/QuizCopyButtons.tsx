@@ -5,8 +5,9 @@ import { useState } from 'react'
 export default function QuizCopyButtons({ quizSlug }: { quizSlug: string }) {
   const [copied, setCopied] = useState<string | null>(null)
 
-  const embedCode = `<script src="${window.location.origin}/widget.js" data-id="${quizSlug}"></script>`
-  const directLink = `${window.location.origin}/quiz/${quizSlug}`
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://vertero.nl'
+  const embedCode = `<script src="${origin}/widget.js" data-id="${quizSlug}"></script>`
+  const directLink = `${origin}/quiz/${quizSlug}`
 
   function copyText(text: string, label: string) {
     navigator.clipboard.writeText(text)
