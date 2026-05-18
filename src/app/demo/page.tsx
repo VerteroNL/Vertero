@@ -193,7 +193,7 @@ export default function DemoPage() {
                 <p className="text-white font-bold mb-2">Wil je zo'n quiz op jouw website?</p>
                 <p className="text-white/45 text-sm mb-6">Klaar in 15 minuten. Geen creditcard nodig.</p>
                 <Link
-                  href="/probeer"
+                  href="/dashboard"
                   className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-8 py-3.5 rounded-xl transition"
                 >
                   Maak je eigen quiz gratis →

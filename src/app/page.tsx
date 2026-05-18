@@ -1,51 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import DemoQuiz from './_components/DemoQuiz'
 
 export default function HomePage() {
-  const router = useRouter()
-  const [remaining, setRemaining] = useState(50)
-  const [email, setEmail] = useState('')
-  const [signupState, setSignupState] = useState<'idle' | 'loading' | 'done' | 'full' | 'duplicate' | 'error'>('idle')
-
-  useEffect(() => {
-    fetch('/api/founding')
-      .then(r => r.json())
-      .then(d => setRemaining(d.remaining))
-      .catch(() => {})
-  }, [])
-
-  async function submitFounding(e: React.FormEvent) {
-    e.preventDefault()
-    setSignupState('loading')
-    try {
-      const res = await fetch('/api/founding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-      const data = await res.json()
-      if (data.full) { setSignupState('full'); return }
-      if (res.status === 409) { setSignupState('duplicate'); return }
-      if (!res.ok) { setSignupState('error'); return }
-      setRemaining(data.remaining)
-      router.push('/sign-up')
-    } catch {
-      setSignupState('error')
-    }
-  }
-
   return (
     <div className="bg-[#07070f] text-white min-h-screen">
-
-      {/* LAUNCH BANNER */}
-      <div className="bg-[#f97316] text-white text-center text-xs sm:text-sm font-semibold py-2.5 px-4">
-        🚀 Net gelanceerd — word een van de eerste 50 founding members en krijg 3 maanden gratis het hoogste abonnement zodra we live gaan.{' '}
-        <a href="#founding" className="underline underline-offset-2 hover:opacity-80 transition">Meer info →</a>
-      </div>
 
       {/* NAV */}
       <nav className="sticky top-0 z-50 bg-[#07070f]/90 backdrop-blur-md">
@@ -57,8 +18,8 @@ export default function HomePage() {
 
           <div className="flex items-center gap-4 md:gap-8">
             <a href="#hoe-het-werkt" className="hidden md:block text-white/60 text-sm hover:text-white transition">Hoe het werkt</a>
-            <Link href="/sign-in" className="hidden md:block text-white/60 text-sm hover:text-white transition">Inloggen</Link>
-            <Link href="/probeer" className="bg-[#f97316] hover:bg-[#ea6c0a] px-4 md:px-5 py-2 rounded-lg font-semibold text-sm transition">
+            <Link href="/dashboard" className="hidden md:block text-white/60 text-sm hover:text-white transition">Inloggen</Link>
+            <Link href="/dashboard" className="bg-[#f97316] hover:bg-[#ea6c0a] px-4 md:px-5 py-2 rounded-lg font-semibold text-sm transition">
               Gratis starten
             </Link>
           </div>
@@ -76,11 +37,11 @@ export default function HomePage() {
             Zet een quiz op je site. Bezoekers vullen een paar vragen in — jij weet binnen 10 seconden of het een serieuze aanvraag is. Geen bellen met mensen die toch niet kopen.
           </p>
           <p className="text-white/35 text-sm mb-8">
-            Direct beginnen — geen account nodig
+            Direct beginnen — geen creditcard nodig
           </p>
           <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center mb-5">
-            <Link href="/probeer" className="w-full sm:w-auto text-center bg-[#f97316] hover:bg-[#ea6c0a] px-8 py-3.5 rounded-xl font-semibold text-base transition">
-              Probeer gratis →
+            <Link href="/dashboard" className="w-full sm:w-auto text-center bg-[#f97316] hover:bg-[#ea6c0a] px-8 py-3.5 rounded-xl font-semibold text-base transition">
+              Start gratis →
             </Link>
             <a href="#hoe-het-werkt" className="text-white/40 hover:text-white text-sm transition text-center">
               Hoe werkt het? ↓
@@ -105,62 +66,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FOUNDING MEMBER */}
-      <section id="founding" className="border-t border-b border-white/7 bg-white/[0.015]">
-        <div className="max-w-7xl mx-auto px-5 md:px-10 py-14 md:py-20">
-          <div className="max-w-2xl mx-auto bg-[#f97316]/[0.07] border border-[#f97316]/25 rounded-2xl p-8 md:p-12 text-center">
-            <span className="inline-flex items-center gap-2 bg-[#f97316]/15 border border-[#f97316]/30 text-[#f97316] text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
-              🚀 Net gelanceerd · Nog {remaining} plekken beschikbaar
-            </span>
-            <h2 className="text-2xl md:text-3xl font-extrabold mb-4">Word een founding member</h2>
-            <p className="text-white/55 text-base leading-relaxed mb-8 max-w-lg mx-auto">
-              Vertero is nieuw. We zoeken aannemers die als eerste meebouwen — en die ons vertellen wat écht werkt.
-              In ruil krijg je <strong className="text-white/80">3 maanden</strong> ons hoogste abonnement gratis zodra we officieel lanceren, inclusief persoonlijke hulp bij het instellen.
-            </p>
-            <ul className="flex flex-row gap-6 justify-center mb-8">
-              {['3 maanden gratis bij lancering', 'Persoonlijke onboarding', 'Wij installeren de quiz gratis op jouw website'].map(f => (
-                <li key={f} className="flex items-center justify-center gap-2 text-sm text-white/70">
-                  <span className="text-[#f97316]">✓</span> {f}
-                </li>
-              ))}
-            </ul>
-
-            {signupState === 'done' ? null : signupState === 'full' || remaining === 0 ? (
-              <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-4">
-                <p className="text-white/50 text-sm">Alle plekken zijn vergeven. Stuur ons een mail als je toch wil meedoen.</p>
-              </div>
-            ) : (
-              <form onSubmit={submitFounding} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="jouw@email.nl"
-                  required
-                  className="flex-1 bg-[#07070f] border border-white/15 rounded-xl px-4 py-3 text-white placeholder-white/25 outline-none focus:border-[#f97316]/50 transition text-sm"
-                />
-                <button
-                  type="submit"
-                  disabled={signupState === 'loading'}
-                  className="bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-50 text-white font-bold px-6 py-3 rounded-xl transition text-sm whitespace-nowrap"
-                >
-                  {signupState === 'loading' ? 'Bezig…' : 'Aanmelden →'}
-                </button>
-              </form>
-            )}
-            {signupState === 'duplicate' && (
-              <p className="text-white/40 text-xs mt-3">Dit e-mailadres is al aangemeld — <Link href="/sign-up" className="underline">maak een account aan →</Link></p>
-            )}
-            {signupState === 'error' && (
-              <p className="text-red-400 text-xs mt-3">Er ging iets mis. Probeer het opnieuw.</p>
-            )}
-            <p className="text-white/25 text-xs mt-4">Je e-mailadres reserveert je plek · Daarna maak je een account aan</p>
-          </div>
-        </div>
-      </section>
-
       {/* HOW IT WORKS */}
-      <section id="hoe-het-werkt" className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-b border-white/7">
+      <section id="hoe-het-werkt" className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-28 border-t border-b border-white/7">
         <div className="max-w-xl mb-12 md:mb-16">
           <p className="text-[#f97316] text-sm font-semibold mb-3">Hoe het werkt</p>
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Binnen een kwartier live</h2>
@@ -231,7 +138,7 @@ export default function HomePage() {
             },
             {
               q: 'Hoe lang duurt instellen?',
-              a: 'Maximaal 15 minuten. Je kiest een template, past de vragen aan en zet hem live. Als founding member installeren wij hem gratis voor je.',
+              a: 'Maximaal 15 minuten. Je kiest een template, past de vragen aan en zet hem live.',
             },
             {
               q: 'Hoe komt de quiz op mijn website?',
@@ -266,8 +173,8 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-5 md:px-10 py-16 md:py-24 border-b border-white/7 text-center">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Jouw eerste quiz staat er binnen 15 minuten.<br className="hidden sm:block" /> Gratis.</h2>
         <p className="text-white/40 text-base mb-8">Geen creditcard, geen developer, geen gedoe.</p>
-        <Link href="/probeer" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] px-10 py-4 rounded-xl font-semibold text-base transition">
-          Probeer gratis →
+        <Link href="/dashboard" className="inline-block bg-[#f97316] hover:bg-[#ea6c0a] px-10 py-4 rounded-xl font-semibold text-base transition">
+          Start gratis →
         </Link>
         <p className="text-white/20 text-xs mt-4">✓ Direct live &nbsp;·&nbsp; ✓ Klaar in 15 minuten &nbsp;·&nbsp; ✓ Geen creditcard</p>
       </section>
@@ -281,9 +188,8 @@ export default function HomePage() {
           </Link>
           <div className="flex gap-6 md:gap-8 flex-wrap justify-center">
             <a href="#hoe-het-werkt" className="text-white/35 text-sm hover:text-white transition">Hoe het werkt</a>
-            <Link href="/faq" className="text-white/35 text-sm hover:text-white transition">FAQ</Link>
             <Link href="/contact" className="text-white/35 text-sm hover:text-white transition">Contact</Link>
-            <Link href="/sign-in" className="text-white/35 text-sm hover:text-white transition">Inloggen</Link>
+            <Link href="/dashboard" className="text-white/35 text-sm hover:text-white transition">Inloggen</Link>
           </div>
           <p className="text-white/20 text-sm">© 2025 Vertero</p>
         </div>
@@ -317,4 +223,3 @@ function EmbedCard({ title, badge, desc, code, note }: { title: string; badge?: 
     </div>
   )
 }
-

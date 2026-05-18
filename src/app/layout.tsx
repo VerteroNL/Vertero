@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider signInFallbackRedirectUrl="/dashboard" signUpFallbackRedirectUrl="/dashboard">
+    <ClerkProvider afterSignInUrl="/dashboard" afterSignUpUrl="/dashboard">
       <html lang="nl">
         <head>
           <script async src="https://www.googletagmanager.com/gtag/js?id=G-8STB5EY6KF"></script>
