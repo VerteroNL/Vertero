@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { getUserPlan } from '@/lib/subscription'
 import { getOwnerUserId } from '@/lib/auth'
 
 const supabase = createClient(
@@ -18,7 +17,7 @@ export async function GET() {
     .eq('user_id', userId)
     .maybeSingle()
 
-  return NextResponse.json(data ?? { email_on_new_lead: true })
+  return NextResponse.json(data ?? {})
 }
 
 export async function PATCH(req: Request) {
@@ -27,22 +26,9 @@ export async function PATCH(req: Request) {
 
   const body = await req.json()
 
-  if ('email_on_new_lead' in body) {
-    const plan = await getUserPlan(userId)
-    if (plan === 'free') {
-      return NextResponse.json({ error: 'UPGRADE_REQUIRED' }, { status: 403 })
-    }
-  }
-
-  const allowed = ['email_on_new_lead']
-  const updates: Record<string, unknown> = {}
-  for (const key of allowed) {
-    if (key in body) updates[key] = body[key]
-  }
-
   const { error } = await supabase
     .from('user_settings')
-    .upsert({ user_id: userId, ...updates }, { onConflict: 'user_id' })
+    .upsert({ user_id: userId, ...body }, { onConflict: 'user_id' })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

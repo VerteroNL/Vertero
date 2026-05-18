@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { getUserPlan } from '@/lib/subscription'
 import { getOwnerUserId } from '@/lib/auth'
 
 const supabase = createClient(
@@ -12,14 +11,6 @@ export async function POST(req: Request) {
   try {
     const userId = await getOwnerUserId()
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    const [plan, { count }] = await Promise.all([
-      getUserPlan(userId),
-      supabase.from('quizzes').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-    ])
-    if (plan === 'free' && (count ?? 0) >= 1) {
-      return NextResponse.json({ error: 'UPGRADE_REQUIRED', message: 'Free plan is beperkt tot 1 quiz.' }, { status: 403 })
-    }
 
     const { name, config, duplicate_from } = await req.json()
 

@@ -1,21 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-import { getUserPlan } from '@/lib/subscription'
-import SettingsForm from './SettingsForm'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SECRET_KEY!
-)
-
-export default async function SettingsPage() {
-  const userId = process.env.OWNER_USER_ID!
-
-  const [settingsResult, plan] = await Promise.all([
-    supabase.from('user_settings').select('*').eq('user_id', userId).maybeSingle(),
-    getUserPlan(userId),
-  ])
-
-  const settings = settingsResult.data
+export default function SettingsPage() {
   const name = process.env.OWNER_NAME ?? 'Eigenaar'
   const email = process.env.OWNER_EMAIL ?? ''
 
@@ -28,24 +11,20 @@ export default async function SettingsPage() {
       </div>
 
       <div className="px-6 py-6 max-w-2xl">
-
-      {/* Profiel */}
-      <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6 mb-6">
-        <h2 className="text-sm font-bold mb-4">Profiel</h2>
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-white/40 text-sm">Naam</span>
-            <span className="text-sm font-medium">{name}</span>
-          </div>
-          <div className="border-t border-white/5" />
-          <div className="flex items-center justify-between">
-            <span className="text-white/40 text-sm">E-mailadres</span>
-            <span className="text-sm font-medium">{email}</span>
+        <div className="bg-[#0d0d1c] border border-white/10 rounded-2xl p-6">
+          <h2 className="text-sm font-bold mb-4">Profiel</h2>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-white/40 text-sm">Naam</span>
+              <span className="text-sm font-medium">{name}</span>
+            </div>
+            <div className="border-t border-white/5" />
+            <div className="flex items-center justify-between">
+              <span className="text-white/40 text-sm">E-mailadres</span>
+              <span className="text-sm font-medium">{email}</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <SettingsForm initialEmailOnNewLead={settings?.email_on_new_lead ?? true} plan={plan} />
       </div>
     </div>
   )

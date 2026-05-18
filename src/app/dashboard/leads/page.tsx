@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import LeadsTable from './LeadsTable'
-import { getUserPlan } from '@/lib/subscription'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,20 +10,20 @@ const supabase = createClient(
 export default async function LeadsPage() {
   const userId = process.env.OWNER_USER_ID!
 
-  const [{ data: leads }, { count: archivedCount }, plan] = await Promise.all([
+  const [{ data: leads }, { count: archivedCount }] = await Promise.all([
     supabase
       .from('leads')
       .select('*, quizzes(name, config)')
-      .eq('user_id', userId!)
+      .eq('user_id', userId)
       .in('status', ['new', 'seen'])
       .order('created_at', { ascending: false }),
     supabase
       .from('leads')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId!)
+      .eq('user_id', userId)
       .eq('status', 'done'),
-    getUserPlan(userId!),
   ])
+  const plan = 'pro' as const
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">

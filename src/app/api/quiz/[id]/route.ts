@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { getUserPlan } from '@/lib/subscription'
 import { getOwnerUserId } from '@/lib/auth'
 
 const supabase = createClient(
@@ -37,11 +36,6 @@ export async function PATCH(
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-
-  const plan = await getUserPlan(userId)
-  if (plan === 'free' && body.config?.brandColor) {
-    body.config = { ...body.config, brandColor: '#f97316' }
-  }
 
   const { data, error } = await supabase
     .from('quizzes')
