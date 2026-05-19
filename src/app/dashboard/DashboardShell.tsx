@@ -3,14 +3,17 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { LayoutDashboard, Users, TrendingUp, Wrench, Users2 } from 'lucide-react'
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/dashboard/leads', label: 'Leads' },
-  { href: '/dashboard/quiz', label: 'Mijn quizzes' },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/klanten', label: 'Klanten', icon: Users },
+  { href: '/dashboard/financieel', label: 'Financieel', icon: TrendingUp },
+  { href: '/dashboard/installeren', label: 'Installeren', icon: Wrench },
+  { href: '/dashboard/team', label: 'Team', icon: Users2 },
 ]
 
-function NavLink({ href, label, onClick }: { href: string; label: string; onClick?: () => void }) {
+function NavLink({ href, label, icon: Icon, onClick }: { href: string; label: string; icon: React.ElementType; onClick?: () => void }) {
   const pathname = usePathname()
   const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
 
@@ -18,27 +21,28 @@ function NavLink({ href, label, onClick }: { href: string; label: string; onClic
     <Link
       href={href}
       onClick={onClick}
-      className="relative flex items-center px-3 py-2 rounded-sm text-sm transition-all duration-200 group"
+      className="flex items-center gap-2.5 px-3 py-2 text-sm transition-all duration-200 rounded-sm"
       style={{
-        color: active ? '#fff' : 'rgba(255,255,255,0.35)',
+        color: active ? '#fff' : 'rgba(255,255,255,0.32)',
         background: active ? 'rgba(37,99,235,0.08)' : 'transparent',
         borderLeft: active ? '2px solid #2563EB' : '2px solid transparent',
       }}
       onMouseEnter={e => {
         if (!active) {
-          e.currentTarget.style.color = 'rgba(255,255,255,0.7)'
+          e.currentTarget.style.color = 'rgba(255,255,255,0.65)'
           e.currentTarget.style.background = 'rgba(37,99,235,0.05)'
-          e.currentTarget.style.borderLeft = '2px solid rgba(37,99,235,0.4)'
+          e.currentTarget.style.borderLeft = '2px solid rgba(37,99,235,0.35)'
         }
       }}
       onMouseLeave={e => {
         if (!active) {
-          e.currentTarget.style.color = 'rgba(255,255,255,0.35)'
+          e.currentTarget.style.color = 'rgba(255,255,255,0.32)'
           e.currentTarget.style.background = 'transparent'
           e.currentTarget.style.borderLeft = '2px solid transparent'
         }
       }}
     >
+      <Icon size={14} strokeWidth={1.5} style={{ flexShrink: 0 }} />
       {label}
     </Link>
   )
@@ -51,7 +55,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     <>
       <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
         {navItems.map(item => (
-          <NavLink key={item.href} href={item.href} label={item.label} onClick={() => setOpen(false)} />
+          <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} onClick={() => setOpen(false)} />
         ))}
       </nav>
 
@@ -59,14 +63,14 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         <form action="/api/logout" method="POST">
           <button
             type="submit"
-            className="w-full text-left px-3 py-2 text-sm transition-all duration-200 rounded-sm"
-            style={{ color: 'rgba(255,255,255,0.2)', borderLeft: '2px solid transparent' }}
+            className="w-full text-left px-3 py-2 text-sm transition-all duration-200 rounded-sm flex items-center gap-2.5"
+            style={{ color: 'rgba(255,255,255,0.18)', borderLeft: '2px solid transparent' }}
             onMouseEnter={e => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.5)'
-              e.currentTarget.style.borderLeft = '2px solid rgba(255,255,255,0.1)'
+              e.currentTarget.style.color = 'rgba(255,255,255,0.45)'
+              e.currentTarget.style.borderLeft = '2px solid rgba(255,255,255,0.08)'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.2)'
+              e.currentTarget.style.color = 'rgba(255,255,255,0.18)'
               e.currentTarget.style.borderLeft = '2px solid transparent'
             }}
           >
@@ -79,7 +83,6 @@ export default function DashboardShell({ children }: { children: React.ReactNode
 
   return (
     <div className="flex h-screen text-white" style={{ background: '#080808' }}>
-      {/* Custom scrollbar */}
       <style>{`
         * { scrollbar-width: thin; scrollbar-color: #2a2a2a #080808; }
         *::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -105,12 +108,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Vertero" className="h-6" />
         </Link>
-        <button
-          onClick={() => setOpen(true)}
-          className="w-9 h-9 flex items-center justify-center transition-colors duration-200"
-          style={{ color: 'rgba(255,255,255,0.4)' }}
-          aria-label="Menu openen"
-        >
+        <button onClick={() => setOpen(true)} className="w-9 h-9 flex items-center justify-center" style={{ color: 'rgba(255,255,255,0.4)' }} aria-label="Menu openen">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
           </svg>
