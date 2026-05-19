@@ -199,7 +199,7 @@ export default function OsDashboard() {
                 <YAxis tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
                 <Tooltip
                   contentStyle={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#fff', fontSize: 12 }}
-                  formatter={(v: number) => [`€${v}`, 'MRR']}
+                  formatter={(v) => [`€${v}`, 'MRR']}
                 />
                 <Line type="monotone" dataKey="mrr" stroke="#2563EB" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#2563EB' }} />
               </LineChart>
