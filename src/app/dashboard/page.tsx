@@ -1,251 +1,258 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import { useState, useEffect } from 'react'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 const klanten = [
   { naam: 'Raamkozijnen Visser', branche: 'Kozijnen', status: 'actief', mrr: 149, sinds: 'jan 2025' },
   { naam: 'Badkamer Concepts BV', branche: 'Badkamer', status: 'actief', mrr: 149, sinds: 'feb 2025' },
   { naam: 'Keukenpaleis Tilburg', branche: 'Keuken', status: 'actief', mrr: 149, sinds: 'mrt 2025' },
-  { naam: 'De Kozijnenman', branche: 'Kozijnen', status: 'gratis', mrr: 0, sinds: 'apr 2025' },
+  { naam: 'De Kozijnenman', branche: 'Kozijnen', status: 'proef', mrr: 0, sinds: 'apr 2025' },
   { naam: 'Badkamer & Bad Groep', branche: 'Badkamer', status: 'actief', mrr: 149, sinds: 'apr 2025' },
   { naam: 'Keukenstudio Noord', branche: 'Keuken', status: 'gestopt', mrr: 0, sinds: 'feb 2025' },
   { naam: 'Reno Renovaties', branche: 'Kozijnen', status: 'actief', mrr: 149, sinds: 'mei 2025' },
 ]
 
 const mrrData = [
-  { maand: 'jan', mrr: 149 },
-  { maand: 'feb', mrr: 298 },
-  { maand: 'mrt', mrr: 447 },
-  { maand: 'apr', mrr: 596 },
-  { maand: 'mei', mrr: 745 },
-  { maand: 'jun', mrr: 745 },
-  { maand: 'jul', mrr: 894 },
-  { maand: 'aug', mrr: 894 },
-  { maand: 'sep', mrr: 894 },
-  { maand: 'okt', mrr: 1043 },
-  { maand: 'nov', mrr: 1043 },
-  { maand: 'dec', mrr: 1192 },
+  { m: 'jan', v: 149 }, { m: 'feb', v: 298 }, { m: 'mrt', v: 447 },
+  { m: 'apr', v: 596 }, { m: 'mei', v: 745 }, { m: 'jun', v: 745 },
+  { m: 'jul', v: 894 }, { m: 'aug', v: 894 }, { m: 'sep', v: 894 },
+  { m: 'okt', v: 1043 }, { m: 'nov', v: 1043 }, { m: 'dec', v: 1192 },
 ]
 
-const activiteitBronnen = [
-  'Raamkozijnen Visser heeft een nieuwe lead ontvangen',
-  'Badkamer Concepts BV: lead gescoord als ★★★',
-  'Keukenpaleis Tilburg heeft quiz geüpdate',
-  'De Kozijnenman heeft zich aangemeld',
-  'Badkamer & Bad Groep: 3 leads deze week',
-  'Reno Renovaties heeft widget geïnstalleerd',
-  'Keukenpaleis Tilburg: lead gescoord als ★★',
-  'Raamkozijnen Visser: lead via directe link',
-  'Badkamer Concepts BV heeft quiz geüpdate',
-  'Keukenstudio Noord: abonnement stopgezet',
+const eventPool = [
+  ['Raamkozijnen Visser', 'nieuwe lead ontvangen'],
+  ['Badkamer Concepts BV', 'lead gescoord — hoge prioriteit'],
+  ['Keukenpaleis Tilburg', 'quiz gewijzigd'],
+  ['De Kozijnenman', 'aangemeld voor proefperiode'],
+  ['Badkamer & Bad Groep', '3 leads binnengekomen'],
+  ['Reno Renovaties', 'widget geïnstalleerd'],
+  ['Keukenpaleis Tilburg', 'lead gescoord — gemiddeld'],
+  ['Raamkozijnen Visser', 'lead via directe link'],
+  ['Badkamer Concepts BV', 'quiz geüpdate'],
+  ['Keukenstudio Noord', 'abonnement beëindigd'],
 ]
+
+function pad(n: number) { return String(n).padStart(2, '0') }
 
 function LiveClock() {
-  const [time, setTime] = useState('')
+  const [t, setT] = useState('')
   useEffect(() => {
-    const update = () => setTime(new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
-    update()
-    const id = setInterval(update, 1000)
+    const tick = () => {
+      const d = new Date()
+      setT(`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`)
+    }
+    tick()
+    const id = setInterval(tick, 1000)
     return () => clearInterval(id)
   }, [])
-  return <span className="font-mono text-sm text-white/30 tabular-nums">{time}</span>
+  return <span className="font-mono text-white text-lg tracking-widest">{t}</span>
 }
 
-function StatusBadge({ status }: { status: string }) {
-  if (status === 'actief') return (
-    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">
-      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-      Actief
-    </span>
-  )
-  if (status === 'gratis') return (
-    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400">
-      Gratis periode
-    </span>
-  )
-  return (
-    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/5 text-white/30">
-      Gestopt
-    </span>
-  )
-}
+type Event = { id: number; bedrijf: string; actie: string; ts: string }
 
-export default function OsDashboard() {
-  const [activiteit, setActiviteit] = useState(() =>
-    activiteitBronnen.slice(0, 5).map((tekst, i) => ({ id: i, tekst, tijd: `${5 - i}m geleden` }))
+function LiveFeed() {
+  const [events, setEvents] = useState<Event[]>(() =>
+    eventPool.slice(0, 6).map((e, i) => ({
+      id: i,
+      bedrijf: e[0],
+      actie: e[1],
+      ts: `${pad(new Date().getHours())}:${pad(new Date().getMinutes() - (5 - i))}`,
+    }))
   )
-  const feedRef = useRef<HTMLDivElement>(null)
-  const counterRef = useRef(activiteitBronnen.length)
+  const counter = { current: eventPool.length }
 
   useEffect(() => {
     const id = setInterval(() => {
-      const idx = counterRef.current % activiteitBronnen.length
-      counterRef.current++
-      const nieuweItem = { id: counterRef.current, tekst: activiteitBronnen[idx], tijd: 'zojuist' }
-      setActiviteit(prev => [nieuweItem, ...prev.slice(0, 9)])
+      const idx = counter.current % eventPool.length
+      counter.current++
+      const d = new Date()
+      setEvents(prev => [{
+        id: counter.current,
+        bedrijf: eventPool[idx][0],
+        actie: eventPool[idx][1],
+        ts: `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`,
+      }, ...prev.slice(0, 14)])
     }, 5000)
     return () => clearInterval(id)
   }, [])
 
-  const actieveKlanten = klanten.filter(k => k.status === 'actief').length
-  const mrr = klanten.reduce((sum, k) => sum + k.mrr, 0)
-  const leadsDezeM = 47
-  const conversie = 34
+  return (
+    <div className="flex flex-col gap-3 overflow-hidden">
+      {events.map(e => (
+        <div key={e.id} className="flex gap-3 items-start">
+          <span className="font-mono text-[11px] text-[#444] tabular-nums flex-shrink-0 pt-px">{e.ts}</span>
+          <div>
+            <span className="text-[12px] text-[#aaa]">{e.bedrijf}</span>
+            <span className="text-[12px] text-[#555]"> — {e.actie}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function StatusDot({ status }: { status: string }) {
+  const color = status === 'actief' ? '#22c55e' : status === 'proef' ? '#f59e0b' : '#3f3f3f'
+  return <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0 }} />
+}
+
+const label = 'text-[10px] tracking-[0.15em] uppercase text-[#444]'
+const val = 'font-mono text-2xl text-[#2563EB] leading-none'
+
+export default function OsDashboard() {
+  const mrr = 745
+  const actief = klanten.filter(k => k.status === 'actief').length
 
   const branche = [
-    { naam: 'Kozijnen', aantal: 3, pct: 43 },
-    { naam: 'Badkamer', aantal: 2, pct: 29 },
-    { naam: 'Keuken', aantal: 2, pct: 29 },
+    { naam: 'Kozijnen', pct: 43 },
+    { naam: 'Badkamer', pct: 29 },
+    { naam: 'Keuken', pct: 29 },
   ]
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto bg-[#07070f]">
-
+    <div
+      className="flex flex-col h-full overflow-y-auto text-white"
+      style={{
+        background: '#080808',
+        backgroundImage: 'radial-gradient(circle, #1a1a1a 1px, transparent 1px)',
+        backgroundSize: '24px 24px',
+      }}
+    >
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <span className="text-base font-extrabold tracking-tight text-white">Vertero OS</span>
-          <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Live
-          </span>
-        </div>
+      <div className="flex items-center justify-between px-6 py-3 border-b border-[#1a1a1a] flex-shrink-0">
+        <span className={label} style={{ letterSpacing: '0.2em' }}>Vertero OS</span>
         <LiveClock />
+        <div className="flex items-center gap-2">
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+          <span className={label}>Systeem actief</span>
+        </div>
       </div>
 
-      <div className="px-6 py-6 flex flex-col gap-6">
+      <div className="px-6 py-5 flex flex-col gap-5">
 
-        {/* KPI cards */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        {/* KPI rij */}
+        <div className="grid grid-cols-4 gap-px border border-[#1a1a1a]" style={{ background: '#1a1a1a' }}>
           {[
-            { label: 'MRR', value: `€${mrr.toLocaleString('nl-NL')}`, sub: '+€149 vorige maand', color: '#2563EB' },
-            { label: 'Actieve klanten', value: actieveKlanten, sub: `${klanten.length} totaal`, color: '#f97316' },
-            { label: 'Leads deze maand', value: leadsDezeM, sub: '+12% t.o.v. vorige maand', color: '#a855f7' },
-            { label: 'Conversieratio', value: `${conversie}%`, sub: 'van lead naar klant', color: '#10b981' },
-          ].map(card => (
-            <div key={card.label} className="bg-[#0d0d1c] border border-white/[0.08] rounded-2xl px-5 py-4">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-3">{card.label}</div>
-              <div className="text-3xl font-extrabold mb-1" style={{ color: card.color }}>{card.value}</div>
-              <div className="text-[11px] text-white/30">{card.sub}</div>
+            { label: 'MRR', value: `€${mrr}` },
+            { label: 'Actieve klanten', value: actief },
+            { label: 'Leads deze maand', value: 47 },
+            { label: 'Conversieratio', value: '34%' },
+          ].map(k => (
+            <div key={k.label} className="bg-[#080808] px-5 py-4">
+              <div className={label + ' mb-3'}>{k.label}</div>
+              <div className={val}>{k.value}</div>
             </div>
           ))}
         </div>
 
-        {/* Main grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        {/* Hoofd — 60/40 */}
+        <div className="grid gap-px border border-[#1a1a1a]" style={{ gridTemplateColumns: '3fr 2fr', background: '#1a1a1a' }}>
 
-          {/* Klantenlijst — 2/3 */}
-          <div className="xl:col-span-2 bg-[#0d0d1c] border border-white/[0.08] rounded-2xl overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-white/[0.07]">
-              <div className="text-xs font-bold uppercase tracking-widest text-white/40">Klantenlijst</div>
+          {/* Klantenlijst */}
+          <div className="bg-[#080808] overflow-x-auto">
+            <div className="px-5 py-3 border-b border-[#1a1a1a]">
+              <span className={label}>Klanten</span>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-white/[0.05]">
-                    <th className="text-left px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/20">Bedrijf</th>
-                    <th className="text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/20">Branche</th>
-                    <th className="text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/20">Status</th>
-                    <th className="text-right px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/20">MRR</th>
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#111]">
+                  <th className={'text-left px-5 py-2 ' + label}>Bedrijf</th>
+                  <th className={'text-left px-4 py-2 ' + label}>Branche</th>
+                  <th className={'text-left px-4 py-2 ' + label}>Status</th>
+                  <th className={'text-right px-5 py-2 ' + label}>MRR</th>
+                </tr>
+              </thead>
+              <tbody>
+                {klanten.map((k, i) => (
+                  <tr
+                    key={k.naam}
+                    className="border-b border-[#111] transition-colors"
+                    style={{ background: i % 2 === 0 ? '#080808' : '#0b0b0b' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#111')}
+                    onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? '#080808' : '#0b0b0b')}
+                  >
+                    <td className="px-5 py-3">
+                      <div className="text-[13px] text-[#ccc]">{k.naam}</div>
+                      <div className={label + ' mt-0.5'}>sinds {k.sinds}</div>
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-[#555]">{k.branche}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <StatusDot status={k.status} />
+                      </div>
+                    </td>
+                    <td className="px-5 py-3 text-right font-mono text-[13px] text-[#555]">
+                      {k.mrr > 0 ? `€${k.mrr}` : '—'}
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.04]">
-                  {klanten.map(k => (
-                    <tr key={k.naam} className="hover:bg-white/[0.02] transition">
-                      <td className="px-5 py-3">
-                        <div className="font-semibold text-white/80">{k.naam}</div>
-                        <div className="text-[11px] text-white/30">sinds {k.sinds}</div>
-                      </td>
-                      <td className="px-4 py-3 text-white/40 text-sm">{k.branche}</td>
-                      <td className="px-4 py-3"><StatusBadge status={k.status} /></td>
-                      <td className="px-5 py-3 text-right font-mono font-semibold text-white/60 tabular-nums">
-                        {k.mrr > 0 ? `€${k.mrr}` : '—'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
 
-          {/* Live activiteit — 1/3 */}
-          <div className="bg-[#0d0d1c] border border-white/[0.08] rounded-2xl overflow-hidden flex flex-col">
-            <div className="px-5 py-3.5 border-b border-white/[0.07] flex items-center justify-between">
-              <div className="text-xs font-bold uppercase tracking-widest text-white/40">Live activiteit</div>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse" />
+          {/* Live feed */}
+          <div className="bg-[#080808]">
+            <div className="px-5 py-3 border-b border-[#1a1a1a]">
+              <span className={label}>Activiteit</span>
             </div>
-            <div ref={feedRef} className="flex-1 overflow-y-auto max-h-72 divide-y divide-white/[0.04]">
-              {activiteit.map(item => (
-                <div key={item.id} className="px-5 py-3">
-                  <div className="text-[12px] text-white/70 leading-snug mb-0.5">{item.tekst}</div>
-                  <div className="text-[10px] text-white/25">{item.tijd}</div>
-                </div>
-              ))}
+            <div className="px-5 py-4 overflow-hidden">
+              <LiveFeed />
             </div>
           </div>
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        {/* Onderste rij — 60/40 */}
+        <div className="grid gap-px border border-[#1a1a1a]" style={{ gridTemplateColumns: '3fr 2fr', background: '#1a1a1a' }}>
 
-          {/* MRR grafiek — 2/3 */}
-          <div className="xl:col-span-2 bg-[#0d0d1c] border border-white/[0.08] rounded-2xl p-5">
-            <div className="text-xs font-bold uppercase tracking-widest text-white/40 mb-4">MRR groei 2025</div>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={mrrData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="maand" tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
+          {/* MRR grafiek */}
+          <div className="bg-[#080808] p-5">
+            <div className={label + ' mb-4'}>MRR groei 2025</div>
+            <ResponsiveContainer width="100%" height={160}>
+              <LineChart data={mrrData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
+                <XAxis dataKey="m" tick={{ fill: '#444', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#444', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
                 <Tooltip
-                  contentStyle={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#fff', fontSize: 12 }}
+                  contentStyle={{ background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 2, color: '#aaa', fontSize: 11 }}
                   formatter={(v) => [`€${v}`, 'MRR']}
+                  cursor={{ stroke: '#333' }}
                 />
-                <Line type="monotone" dataKey="mrr" stroke="#2563EB" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#2563EB' }} />
+                <Line type="monotone" dataKey="v" stroke="#2563EB" strokeWidth={1.5} dot={false} activeDot={{ r: 3, fill: '#2563EB' }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Branche verdeling — 1/3 */}
-          <div className="bg-[#0d0d1c] border border-white/[0.08] rounded-2xl p-5">
-            <div className="text-xs font-bold uppercase tracking-widest text-white/40 mb-4">Branche verdeling</div>
-            <div className="flex flex-col gap-4">
+          {/* Branche */}
+          <div className="bg-[#080808] p-5">
+            <div className={label + ' mb-5'}>Branche verdeling</div>
+            <div className="flex flex-col gap-5">
               {branche.map((b, i) => (
                 <div key={b.naam}>
-                  <div className="flex justify-between text-sm mb-1.5">
-                    <span className="font-semibold text-white/70">{b.naam}</span>
-                    <span className="text-white/35 text-xs tabular-nums">{b.aantal} klanten</span>
+                  <div className="flex justify-between mb-1.5">
+                    <span className="text-[12px] text-[#666]">{b.naam}</span>
+                    <span className="font-mono text-[12px] text-[#444]">{b.pct}%</span>
                   </div>
-                  <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${b.pct}%`,
-                        background: i === 0 ? '#2563EB' : i === 1 ? '#f97316' : '#a855f7'
-                      }}
-                    />
+                  <div style={{ height: 1, background: '#1a1a1a', position: 'relative' }}>
+                    <div style={{
+                      position: 'absolute', top: 0, left: 0, height: 1,
+                      width: `${b.pct}%`,
+                      background: i === 0 ? '#2563EB' : i === 1 ? '#f97316' : '#7c3aed',
+                    }} />
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Acties */}
-            <div className="mt-6 pt-5 border-t border-white/[0.06] flex flex-col gap-2">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1">Acties</div>
-              <a href="/dashboard/leads" className="text-xs font-semibold px-3 py-2 rounded-lg bg-[#2563EB]/10 hover:bg-[#2563EB]/20 text-[#2563EB] transition">
-                Alle leads bekijken →
-              </a>
-              <a href="/dashboard/quiz" className="text-xs font-semibold px-3 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.08] text-white/50 hover:text-white transition">
-                Quizzes beheren →
-              </a>
-              <a href="/dashboard/quiz/new" className="text-xs font-semibold px-3 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.08] text-white/50 hover:text-white transition">
-                Nieuwe quiz aanmaken →
-              </a>
             </div>
           </div>
         </div>
 
       </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
     </div>
   )
 }
